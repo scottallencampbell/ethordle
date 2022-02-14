@@ -164,13 +164,8 @@ export default class App extends Component {
 
   render() {
     return (
-<<<<<<< HEAD
       <div className="main">
         <div className="title">{appName}</div>   
-=======
-      <div class="main">
-        <div class="title">{appName}</div>   
->>>>>>> 9639c02d92a3e7aeeab638a15bd1c40bf142fb3c
         <Grid grid={this.state.grid}></Grid>  
         <Keyboard keyboard={this.state.keyboard} handleKeyDown={(e) => this.handleKeyDown(e)}></Keyboard>
       </div>
@@ -185,7 +180,6 @@ class Grid extends React.Component {
 
   render() {
     return (
-<<<<<<< HEAD
       <div className="board">
       { 
         this.props.grid.map((row, i) => ( 
@@ -197,19 +191,6 @@ class Grid extends React.Component {
                 <div className="inner">
                   <div className="front face">{square.value}</div>     
                   <div className="back face">{square.value}</div>                       
-=======
-      <div class="board">
-      { 
-        this.props.grid.map((row, i) => ( 
-          <div class="row"> 
-          { 
-            row.map((square, i) => ( 
-
-              <div className={`square ${square.status}`}>
-                <div class="inner">
-                  <div class="front face">{square.value}</div>     
-                  <div class="back face">{square.value}</div>                       
->>>>>>> 9639c02d92a3e7aeeab638a15bd1c40bf142fb3c
                 </div>
               </div>
             ))
@@ -245,17 +226,10 @@ class Keyboard extends React.Component {
 
   render() {
     return (
-<<<<<<< HEAD
       <div className="keyboard">
       { 
         this.props.keyboard.map((row, rowIndex) => ( 
           <div className="keyboard-row" key={rowIndex} row={rowIndex}>
-=======
-      <div class="keyboard">
-      { 
-        this.props.keyboard.map((row, rowIndex) => ( 
-          <div class="keyboard-row" key={rowIndex} row={rowIndex}>
->>>>>>> 9639c02d92a3e7aeeab638a15bd1c40bf142fb3c
           { 
             row.map((letter, letterIndex) => ( 
               <div className={`keyboard-letter no-select ${letter.status}`} key={letterIndex} onClick={() => this.handleClick(letter.value)}>{letter.value}</div>     
