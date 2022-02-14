@@ -164,8 +164,8 @@ export default class App extends Component {
 
   render() {
     return (
-      <div class="main">
-        <div class="title">{appName}</div>   
+      <div className="main">
+        <div className="title">{appName}</div>   
         <Grid grid={this.state.grid}></Grid>  
         <Keyboard keyboard={this.state.keyboard} handleKeyDown={(e) => this.handleKeyDown(e)}></Keyboard>
       </div>
@@ -180,17 +180,17 @@ class Grid extends React.Component {
 
   render() {
     return (
-      <div class="board">
+      <div className="board">
       { 
         this.props.grid.map((row, i) => ( 
-          <div class="row"> 
+          <div className="row"> 
           { 
-            row.map((square, i) => ( 
+            row.map((square, j) => ( 
 
-              <div className={`square ${square.status}`}>
-                <div class="inner">
-                  <div class="front face">{square.value}</div>     
-                  <div class="back face">{square.value}</div>                       
+              <div key={`${i * wordLength + j}`} className={`square ${square.status}`}>
+                <div className="inner">
+                  <div className="front face">{square.value}</div>     
+                  <div className="back face">{square.value}</div>                       
                 </div>
               </div>
             ))
@@ -226,10 +226,10 @@ class Keyboard extends React.Component {
 
   render() {
     return (
-      <div class="keyboard">
+      <div className="keyboard">
       { 
         this.props.keyboard.map((row, rowIndex) => ( 
-          <div class="keyboard-row" key={rowIndex} row={rowIndex}>
+          <div className="keyboard-row" key={rowIndex} row={rowIndex}>
           { 
             row.map((letter, letterIndex) => ( 
               <div className={`keyboard-letter no-select ${letter.status}`} key={letterIndex} onClick={() => this.handleClick(letter.value)}>{letter.value}</div>     
