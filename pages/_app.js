@@ -18,7 +18,7 @@ let letters = [
 
 let wordDictionary = Object.assign({}, ...words.map((x) => ({[x]: x})));
 
-// console.log(solution); // todo todo
+console.log(solution); // todo todo
 
 var startingKeyboard = letters.map(row => {
     return row.map(letter => {
