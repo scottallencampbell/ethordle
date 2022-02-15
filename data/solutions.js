@@ -1,4 +1,4 @@
-export const solutions = [
+export const solutions = [ 
     "ABACK",
     "ABASE",
     "ABATE",

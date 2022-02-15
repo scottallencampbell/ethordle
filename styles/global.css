@@ -5,14 +5,14 @@ body {
 }
 
 .main {
-    width: 800px;
+    width: 700px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .title {
    font-weight: bold;
-   font-size: 40px;
+   font-size: 43px;
    letter-spacing: 5px;
    margin-top: 30px;
    margin-bottom: 50px;  
