@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from "react";
 import '../styles/global.css'
 import {words} from '../data/words';
 import {solutions} from '../data/solutions';
@@ -8,8 +8,6 @@ let appName = 'ETHORDLE';
 let solution = solutions[Math.floor(Math.random() * solutions.length)];
 let wordLength = 5;
 let maxGuesses = 6;
-let startingRow = 0;
-let startingSquare = 0;
 let letters = [ 
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'], 
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'], 
@@ -30,77 +28,115 @@ var startingGrid = Array.apply(null, Array(maxGuesses)).map(function () {
   return Array.apply(null, Array(wordLength)).map(function () { 
     return { value: "", status: "" }; }); })
 
-export default class App extends Component {
-  constructor() {
-    super();
-    this.state = { 
-      grid: startingGrid, 
-      currentRow: startingRow, 
-      currentSquare: startingSquare, 
-      keyboard: startingKeyboard,
-      status: "started"
-    };
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.enterWord = this.enterWord.bind(this);
-  }
+const App = () => {
+  const [grid, setGrid] = useState(startingGrid);
+  const [keyboard, setKeyboard] = useState(startingKeyboard);
+  const [currentRowIndex, setCurrentRowIndex] = useState(0);
+  const [currentSquareIndex, setCurrentSquareIndex] = useState(0);
+  const [gameStatus, setGameStatus] = useState("started");
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown, false);
-  }
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+   
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  })
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown, false);
-  }
-  
-  handleKeyDown(e) {
+  var handleKeyDown = (e) => {
 
-    if (this.state.status == "finished")
+    console.log(e.keyCode);
+
+    if (gameStatus == "finished")
       return;
 
-    if (e.keyCode >= 65 && e.keyCode <= 90) {
-     
-      if (this.state.currentSquare >= wordLength)
-        return;
-
-      this.enterLetter(String.fromCharCode(e.keyCode));
+    if (e.keyCode >= 65 && e.keyCode <= 90) {     
+      if (currentSquareIndex >= wordLength) { return; }
+      enterLetter(String.fromCharCode(e.keyCode));
     }
-    else if (e.keyCode == 8) {
-      
-      if (this.state.currentSquare == 0)
-        return;
-
-      this.deleteLetter();
+    else if (e.keyCode == 8) {      
+      if (currentSquareIndex == 0) { return; }
+      deleteLetter();
     }
     else if (e.keyCode == 13) {
-
-      if (this.state.currentSquare < wordLength)
-        return;
-
-      this.enterWord();
+      if (currentSquareIndex < wordLength) { return; }
+      enterWord();
     }
   }
 
-  enterLetter(letter) {
-    var newGrid = JSON.parse(JSON.stringify(this.state.grid)); // hmmmm
-    var thisSquare = newGrid[this.state.currentRow][this.state.currentSquare++];
-
+  var enterLetter = (letter) => {
+    var newGrid = JSON.parse(JSON.stringify(grid)); // hmmmm
+    var thisSquare = newGrid[currentRowIndex][currentSquareIndex];
+    
     thisSquare.value = letter;
     thisSquare.status = "entered";    
-    
-    this.setState({ grid: newGrid });
+  
+    setGrid(newGrid);
+    setCurrentSquareIndex(currentSquareIndex + 1);
   }
 
-  deleteLetter() {
-    var newGrid = JSON.parse(JSON.stringify(this.state.grid)); // hmmmm
-    var thisSquare = newGrid[this.state.currentRow][--this.state.currentSquare];
-
+  var deleteLetter = () => {
+    var newGrid = JSON.parse(JSON.stringify(grid)); // hmmmm
+    var thisSquare = newGrid[currentRowIndex][currentSquareIndex - 1];
+    
     thisSquare.value = "";
     thisSquare.status = "";
 
-    this.setState({ grid: newGrid });
+    setGrid(newGrid);
+    setCurrentSquareIndex(currentSquareIndex - 1);
   }
-  
-  getKeyboardLetter(keyboard, letter) {
+
+  var enterWord = () => {
+    var newGrid = JSON.parse(JSON.stringify(grid)); // hmmmm
+    var newKeyboard = JSON.parse(JSON.stringify(keyboard)); // hmmmm
+    
+    var row = newGrid[currentRowIndex]
+    var guess = row.map(letter => letter.value).join('');    
+   
+    if (!wordDictionary[guess]) {
+      row.forEach(function (letter, i) { 
+        letter.status = "error";  
+      });
+    }
+    else
+    {
+      row.forEach(function (letter, i) {    
+        if (letter.value == solution.charAt(i)) {
+          letter.status = "correct";    
+          
+          var keyboardLetter = getKeyboardLetter(newKeyboard, letter.value);            
+          keyboardLetter.status = "correct";
+        }
+      });
+
+      row.forEach(function (letter, i) {
+        if (letter.status == "correct")
+          return;
+
+        var matchesSoFar = row.filter(item => item.value == letter.value && (item.status == "correct" || item.status == "incorrect-position")).length;
+        var matchesInSolution = solution.split('').filter(x => x == letter.value).length;
+
+        letter.status = matchesInSolution > matchesSoFar ? "incorrect-position" : "incorrect";
+
+        if (matchesSoFar == 0)
+        {
+          var keyboardLetter = getKeyboardLetter(newKeyboard, letter.value);     
+          keyboardLetter.status = letter.status;
+        }
+      });
+
+      if (currentRowIndex >= maxGuesses - 1 || guess == solution)
+        setGameStatus("finished");
+
+      setCurrentRowIndex(currentRowIndex + 1);
+      setCurrentSquareIndex(0);
+    }
+
+    setGrid(newGrid);
+    setKeyboard(newKeyboard);
+  }
+    
+  var getKeyboardLetter = (keyboard, letter) => {
     var keyboardLetter;
 
     for (var row = 0; row < keyboard.length; row++) {
@@ -111,134 +147,66 @@ export default class App extends Component {
     }
   }
 
-  enterWord() {
-    var newGrid = JSON.parse(JSON.stringify(this.state.grid)); // hmmmm
-    var newKeyboard = JSON.parse(JSON.stringify(this.state.keyboard)); // hmmmm
-    
-    var currentRow = newGrid[this.state.currentRow]
-    var guess = currentRow.map(letter => letter.value).join('');    
-    var that = this;
-
-    if (!wordDictionary[guess]) {
-      currentRow.forEach(function (letter, i) { 
-        letter.status = "error";  
-      });
-    }
-    else
-    {
-      currentRow.forEach(function (letter, i) {    
-        if (letter.value == solution.charAt(i)) {
-          letter.status = "correct";    
-          
-          var keyboardLetter = that.getKeyboardLetter(newKeyboard, letter.value);            
-          keyboardLetter.status = "correct";
-        }
-      });
-
-      currentRow.forEach(function (letter, i) {
-
-        if (letter.status == "correct")
-          return;
-
-        var matchesSoFar = currentRow.filter(item => item.value == letter.value && (item.status == "correct" || item.status == "incorrect-position")).length;
-        var matchesInSolution = solution.split('').filter(x => x == letter.value).length;
-
-        letter.status = matchesInSolution > matchesSoFar ? "incorrect-position" : "incorrect";
-
-        if (matchesSoFar == 0)
-        {
-          var keyboardLetter = that.getKeyboardLetter(newKeyboard, letter.value);     
-          keyboardLetter.status = letter.status;
-        }
-      });
-
-      if (this.state.currentRow >= maxGuesses - 1 || guess == solution)
-        this.state.status = "finished";
-
-      this.state.currentRow++;
-      this.state.currentSquare = 0;
-    }
-
-    this.setState({ grid: newGrid, keyboard: newKeyboard });
-  }
-
-  render() {
-    return (
-      <div className="main">
-        <div className="title">{appName}</div>   
-        <Grid grid={this.state.grid}></Grid>  
-        <Keyboard keyboard={this.state.keyboard} handleKeyDown={(e) => this.handleKeyDown(e)}></Keyboard>
-      </div>
-    )
-  }
+  return (
+    <div className="main">
+      <div className="title">{appName}</div>   
+      <Grid grid={grid}></Grid>  
+      <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
+    </div>
+  ) 
 }
 
-class Grid extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const Grid = ({ grid }) => {
+  return (
+    <div className="board">
+    { 
+      grid.map((row, i) => ( 
+        <div className="row"> { 
+          row.map((square, j) => ( 
 
-  render() {
-    return (
-      <div className="board">
-      { 
-        this.props.grid.map((row, i) => ( 
-          <div className="row"> 
-          { 
-            row.map((square, j) => ( 
-
-              <div key={`${i * wordLength + j}`} className={`square ${square.status}`}>
-                <div className="inner">
-                  <div className="front face">{square.value}</div>     
-                  <div className="back face">{square.value}</div>                       
-                </div>
+            <div key={`${i * wordLength + j}`} className={`square ${square.status}`}>
+              <div className="inner">
+                <div className="front face">{square.value}</div>     
+                <div className="back face">{square.value}</div>                       
               </div>
-            ))
-          }
-          </div>
-        ))
-      }
-      </div>
-    )
-  }
+            </div>
+          ))
+        }
+        </div>
+      ))
+    }
+    </div>
+  )
 }
 
-class Keyboard extends React.Component {
- 
-  constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);    
-  }
-
-  handleClick(letter) {
-
+const Keyboard = ({ keyboard, handleKeyDown }) => {
+  var handleClick = (letter) => {
     var keyCode = 0;
 
-    if (letter == "Del")
+    if (letter == "Del") 
       keyCode = 8;
     else if (letter == "Enter")
       keyCode = 13;
     else
       keyCode = letter.toUpperCase().charCodeAt();
   
-    this.props.handleKeyDown({ keyCode: keyCode});
+    handleKeyDown({ keyCode: keyCode});
   }
 
-  render() {
-    return (
-      <div className="keyboard">
-      { 
-        this.props.keyboard.map((row, rowIndex) => ( 
-          <div className="keyboard-row" key={rowIndex} row={rowIndex}>
-          { 
-            row.map((letter, letterIndex) => ( 
-              <div className={`keyboard-letter no-select ${letter.status}`} key={letterIndex} onClick={() => this.handleClick(letter.value)}>{letter.value}</div>     
-             ))
-          }   
-          </div>
-        ))
-      }   
+  return (
+    <div className="keyboard"> { 
+      keyboard.map((row, rowIndex) => ( 
+        <div className="keyboard-row" key={rowIndex} row={rowIndex}>
+        { 
+          row.map((letter, letterIndex) => ( 
+            <div className={`keyboard-letter no-select ${letter.status}`} key={letterIndex} onClick={() => handleClick(letter.value)}>{letter.value}</div>     
+          ))
+        }   
       </div>
-    )
-  }
-}
+      ))
+    }   
+    </div>
+  )
+ };
+
+ export default App;
