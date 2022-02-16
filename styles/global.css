@@ -16,12 +16,26 @@ body {
     outline: none;
 }
 
+@media (max-width: 700px) {
+  .main {
+    width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .title {
    font-weight: bold;
    font-size: 43px;
    letter-spacing: 5px;
    margin-top: 30px;
    margin-bottom: 50px;  
+}
+
+@media (max-width: 700px) {
+  .title {
+    margin-bottom: 30px;  
+  }
 }
 
 .board {
@@ -125,6 +139,13 @@ body {
   margin-top: 50px;
 }
 
+@media (max-width: 700px) {
+  .keyboard {
+    margin-top: 30px;  
+  }
+}
+
+
 .keyboard-row {
  
 }
@@ -140,6 +161,17 @@ body {
   font-size: 12px;
   font-weight: bold;
   padding: 0 13px 0 13px;
+}
+
+@media (max-width: 700px) {
+  .keyboard-letter {
+    line-height: 65px;
+    min-width: 35px;
+    height: 65px;
+    margin: 4px;
+    font-size: 16px;
+    padding: 0 10px 0 10px;
+  }
 }
 
 .keyboard-letter.clicked {
