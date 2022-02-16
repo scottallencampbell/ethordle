@@ -4,19 +4,17 @@ import {words} from '../data/words';
 import {solutions} from '../data/solutions';
 words.push(...solutions);
 
-let appName = 'ETHORDLE';
-let solution = solutions[Math.floor(Math.random() * solutions.length)];
-let wordLength = 5;
-let maxGuesses = 6;
-let letters = [ 
+const appName = 'ETHORDLE';
+const solution = solutions[Math.floor(Math.random() * solutions.length)];
+const wordLength = 5;
+const maxGuesses = 6;
+const letters = [ 
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'], 
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'], 
     ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Del' ]
   ];
 
-let wordDictionary = Object.assign({}, ...words.map((x) => ({[x]: x})));
-
-console.log(solution); // todo todo
+var wordDictionary = Object.assign({}, ...words.map((x) => ({[x]: x})));
 
 var startingKeyboard = letters.map(row => {
     return row.map(letter => {
@@ -44,11 +42,9 @@ const App = () => {
   })
 
   var handleKeyDown = (e) => {
-
-    console.log(e.keyCode);
-
-    if (gameStatus == "finished")
+    if (gameStatus == "finished") {
       return;
+    }
 
     if (e.keyCode >= 65 && e.keyCode <= 90) {     
       if (currentSquareIndex >= wordLength) { return; }
@@ -110,8 +106,9 @@ const App = () => {
       });
 
       row.forEach(function (letter, i) {
-        if (letter.status == "correct")
+        if (letter.status == "correct") {
           return;
+        }
 
         var matchesSoFar = row.filter(item => item.value == letter.value && (item.status == "correct" || item.status == "incorrect-position")).length;
         var matchesInSolution = solution.split('').filter(x => x == letter.value).length;
@@ -142,8 +139,9 @@ const App = () => {
     for (var row = 0; row < keyboard.length; row++) {
       keyboardLetter = keyboard[row].filter(x => x.value == letter);
     
-      if (keyboardLetter.length == 1)
+      if (keyboardLetter.length == 1) {
         return keyboardLetter[0];
+      }
     }
   }
 
@@ -161,10 +159,9 @@ const Grid = ({ grid }) => {
     <div className="board">
     { 
       grid.map((row, i) => ( 
-        <div className="row"> { 
+        <div key={i} className="row"> { 
           row.map((square, j) => ( 
-
-            <div key={`${i * wordLength + j}`} className={`square ${square.status}`}>
+            <div key={`${i}-${j}`} className={`square ${square.status}`}>
               <div className="inner">
                 <div className="front face">{square.value}</div>     
                 <div className="back face">{square.value}</div>                       
@@ -183,13 +180,16 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
   var handleClick = (letter) => {
     var keyCode = 0;
 
-    if (letter == "Del") 
+    if (letter == "Del") {
       keyCode = 8;
-    else if (letter == "Enter")
+    }
+    else if (letter == "Enter") {
       keyCode = 13;
-    else
+    }
+    else {
       keyCode = letter.toUpperCase().charCodeAt();
-  
+    }
+
     handleKeyDown({ keyCode: keyCode});
   }
 
