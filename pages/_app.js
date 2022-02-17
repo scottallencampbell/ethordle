@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Popup from 'reactjs-popup';
 import '../styles/global.css'
 import {words} from '../data/words';
 import {solutions} from '../data/solutions';
@@ -13,6 +14,12 @@ const letters = [
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'], 
     ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Del' ]
   ];
+const statusCodes = new Map([ 
+    [ 'X', "correct" ],
+    [ 'O', "incorrect-position" ],
+    [ '-', "incorrect" ],
+    [ '', "" ]
+]);
 
 var wordDictionary = Object.assign({}, ...words.map((x) => ({[x]: x})));
 
@@ -30,7 +37,7 @@ const App = () => {
   const [grid, setGrid] = useState(startingGrid);
   const [keyboard, setKeyboard] = useState(startingKeyboard);
   const [currentRowIndex, setCurrentRowIndex] = useState(0);
-  const [currentSquareIndex, setCurrentSquareIndex] = useState(0);
+  const [currentTileIndex, setCurrentTileIndex] = useState(0);
   const [gameStatus, setGameStatus] = useState("started");
 
   React.useEffect(() => {
@@ -47,39 +54,39 @@ const App = () => {
     }
 
     if (e.keyCode >= 65 && e.keyCode <= 90) {     
-      if (currentSquareIndex >= wordLength) { return; }
+      if (currentTileIndex >= wordLength) { return; }
       enterLetter(String.fromCharCode(e.keyCode));
     }
     else if (e.keyCode == 8) {      
-      if (currentSquareIndex == 0) { return; }
+      if (currentTileIndex == 0) { return; }
       deleteLetter();
     }
     else if (e.keyCode == 13) {
-      if (currentSquareIndex < wordLength) { return; }
+      if (currentTileIndex < wordLength) { return; }
       enterWord();
     }
   }
 
   var enterLetter = (letter) => {
     var newGrid = JSON.parse(JSON.stringify(grid)); // hmmmm
-    var thisSquare = newGrid[currentRowIndex][currentSquareIndex];
+    var thisTile = newGrid[currentRowIndex][currentTileIndex];
     
-    thisSquare.value = letter;
-    thisSquare.status = "entered";    
+    thisTile.value = letter;
+    thisTile.status = "entered";    
   
     setGrid(newGrid);
-    setCurrentSquareIndex(currentSquareIndex + 1);
+    setCurrentTileIndex(currentTileIndex + 1);
   }
 
   var deleteLetter = () => {
     var newGrid = JSON.parse(JSON.stringify(grid)); // hmmmm
-    var thisSquare = newGrid[currentRowIndex][currentSquareIndex - 1];
+    var thisTile = newGrid[currentRowIndex][currentTileIndex - 1];
     
-    thisSquare.value = "";
-    thisSquare.status = "";
+    thisTile.value = "";
+    thisTile.status = "";
 
     setGrid(newGrid);
-    setCurrentSquareIndex(currentSquareIndex - 1);
+    setCurrentTileIndex(currentTileIndex - 1);
   }
 
   var enterWord = () => {
@@ -126,7 +133,7 @@ const App = () => {
         setGameStatus("finished");
 
       setCurrentRowIndex(currentRowIndex + 1);
-      setCurrentSquareIndex(0);
+      setCurrentTileIndex(0);
     }
 
     setGrid(newGrid);
@@ -150,6 +157,7 @@ const App = () => {
       <div className="title">{appName}</div>   
       <Grid grid={grid}></Grid>  
       <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
+      <Introduction></Introduction>
     </div>
   ) 
 }
@@ -159,20 +167,46 @@ const Grid = ({ grid }) => {
     <div className="board">
     { 
       grid.map((row, i) => ( 
-        <div key={i} className="row"> { 
-          row.map((square, j) => ( 
-            <div key={`${i}-${j}`} className={`square ${square.status}`}>
-              <div className="inner">
-                <div className="front face">{square.value}</div>     
-                <div className="back face">{square.value}</div>                       
-              </div>
-            </div>
-          ))
-        }
-        </div>
+        <GridRow row={row} i={i}></GridRow>        
       ))
     }
     </div>
+  )
+}
+
+const GridRow = ({ row, i }) => {
+  return (
+  <div key={i} className="row"> { 
+    row.map((tile, j) => ( 
+      <GridTile tile={tile} i={i} j={j}></GridTile>
+    ))
+  }
+  </div>
+  )
+}
+
+const GridTile = ({ statusMapThing, tile, i, j }) => {
+  return (
+     <div key={`${i}-${j}`} className={`tile ${tile.status}`}>
+        <div className="inner">
+          <div className="front face">{tile.value}</div>     
+          <div className="back face">{tile.value}</div>                       
+        </div>
+      </div>
+ )
+}
+
+const GridRowExample = ({ word, statusMap, i}) => {
+  return (
+  <div key={i} className="row example">
+  { 
+    word.split('').map((letter, j) => {
+      return (
+        <GridTile statusMapThing={statusMap[j]} tile={{ value: letter, status: statusCodes.get(statusMap[j]) }}></GridTile>
+      )
+    })
+  }
+  </div>
   )
 }
 
@@ -196,8 +230,7 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
   return (
     <div className="keyboard"> { 
       keyboard.map((row, rowIndex) => ( 
-        <div className="keyboard-row" key={rowIndex} row={rowIndex}>
-        { 
+        <div className="keyboard-row" key={rowIndex} row={rowIndex}> { 
           row.map((letter, letterIndex) => ( 
             <div className={`keyboard-letter no-select ${letter.status}`} key={letterIndex} onClick={() => handleClick(letter.value)}>{letter.value}</div>     
           ))
@@ -209,4 +242,33 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
   )
  };
 
+ const Introduction = () => {
+   return (    
+    <div suppressHydrationWarning={true}>
+    {process.browser && 
+      <Popup open="true" modal contentStyle={{ maxWidth: "600px", width: "90%" }} >
+      <div className="modal">
+      <div className="content">        
+        <p>Welcome to <b>{appName}</b>, an NFT-enabled version of the popular Wordle game.</p>
+        <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>
+        <p>If you guess the correct word, you will be entered into a daily lottery.  One winner will be selected every day.  The prize is an NFT corresponding to the correct solution, as well as an ether distribution from the pot for that day.</p>
+        <p>After each guess, the color of the tiles will change to show how close your guess was to the solution.</p>
+        <hr></hr>
+        <p><b>Examples</b></p>
+        <GridRowExample word={"CHOMP"} statusMap={"X    "} i={1}></GridRowExample>
+        <p>The letter <b>C</b> is in the solution and is in the correct spot.</p>
+        <GridRowExample word={"BLURT"} statusMap={" O   "} i={2}></GridRowExample>
+        <p>The letter <b>L</b> is in the solution but is in the wrong location.</p>
+        <GridRowExample word={"SPORK"} statusMap={"  -  "} i={3}></GridRowExample>
+        <p>The letter <b>O</b> is not in the solution at any location.</p>
+        <hr></hr>
+        <p><b>The solution for a given day is unique to every ethereum account.  There's no use in sharing your answer with another user!</b></p>
+      </div>
+      </div>
+      </Popup>
+    }
+    </div>
+   )
+  }
+ 
  export default App;
