@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Popup from 'reactjs-popup';
-import '../styles/global.css'
+import Cookies from 'js-cookie';
 import {words} from '../data/words';
 import {solutions} from '../data/solutions';
+import '../styles/global.css'
+
 words.push(...solutions);
 
 const appName = 'ETHORDLE';
@@ -20,6 +22,7 @@ const statusCodes = new Map([
     [ '-', "incorrect" ],
     [ '', "" ]
 ]);
+const introShownCookieName = 'intro-shown3';
 
 var wordDictionary = Object.assign({}, ...words.map((x) => ({[x]: x})));
 
@@ -39,7 +42,7 @@ const App = () => {
   const [currentRowIndex, setCurrentRowIndex] = useState(0);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   const [gameStatus, setGameStatus] = useState("started");
-
+  
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
    
@@ -167,7 +170,7 @@ const Grid = ({ grid }) => {
     <div className="board">
     { 
       grid.map((row, i) => ( 
-        <GridRow row={row} i={i}></GridRow>        
+        <GridRow row={row} key={i}></GridRow>        
       ))
     }
     </div>
@@ -176,38 +179,38 @@ const Grid = ({ grid }) => {
 
 const GridRow = ({ row, i }) => {
   return (
-  <div key={i} className="row"> { 
-    row.map((tile, j) => ( 
-      <GridTile tile={tile} i={i} j={j}></GridTile>
-    ))
-  }
-  </div>
+    <div className="row" > { 
+      row.map((tile, j) => ( 
+        <GridTile key={`${i}-${j}`} tile={tile}></GridTile>
+      ))
+    }
+    </div>
   )
 }
 
-const GridTile = ({ statusMapThing, tile, i, j }) => {
+const GridRowExample = ({ word, statusMap, i}) => {
   return (
-     <div key={`${i}-${j}`} className={`tile ${tile.status}`}>
+    <div className="row example">
+    { 
+      word.split('').map((letter, j) => {
+        return (
+          <GridTile key={`${i}-${j}`} tile={{ value: letter, status: statusCodes.get(statusMap[j])}}></GridTile>
+        )
+      })
+    }
+    </div>
+  )
+}
+
+const GridTile = ({ tile, i, j }) => {
+  return (
+     <div className={`tile ${tile.status}`}>
         <div className="inner">
           <div className="front face">{tile.value}</div>     
           <div className="back face">{tile.value}</div>                       
         </div>
       </div>
  )
-}
-
-const GridRowExample = ({ word, statusMap, i}) => {
-  return (
-  <div key={i} className="row example">
-  { 
-    word.split('').map((letter, j) => {
-      return (
-        <GridTile statusMapThing={statusMap[j]} tile={{ value: letter, status: statusCodes.get(statusMap[j]) }}></GridTile>
-      )
-    })
-  }
-  </div>
-  )
 }
 
 const Keyboard = ({ keyboard, handleKeyDown }) => {
@@ -243,32 +246,40 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
  };
 
  const Introduction = () => {
-   return (    
-    <div suppressHydrationWarning={true}>
-    {process.browser && 
-      <Popup open="true" modal contentStyle={{ maxWidth: "600px", width: "90%" }} >
-      <div className="modal">
-      <div className="content">        
-        <p>Welcome to <b>{appName}</b>, an NFT-enabled version of the popular Wordle game.</p>
-        <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>
-        <p>If you guess the correct word, you will be entered into a daily lottery.  One winner will be selected every day.  The prize is an NFT corresponding to the correct solution, as well as an ether distribution from the pot for that day.</p>
-        <p>After each guess, the color of the tiles will change to show how close your guess was to the solution.</p>
-        <hr></hr>
-        <p><b>Examples</b></p>
-        <GridRowExample word={"CHOMP"} statusMap={"X    "} i={1}></GridRowExample>
-        <p>The letter <b>C</b> is in the solution and is in the correct spot.</p>
-        <GridRowExample word={"BLURT"} statusMap={" O   "} i={2}></GridRowExample>
-        <p>The letter <b>L</b> is in the solution but is in the wrong location.</p>
-        <GridRowExample word={"SPORK"} statusMap={"  -  "} i={3}></GridRowExample>
-        <p>The letter <b>O</b> is not in the solution at any location.</p>
-        <hr></hr>
-        <p><b>The solution for a given day is unique to every ethereum account.  There's no use in sharing your answer with another user!</b></p>
-      </div>
-      </div>
-      </Popup>
+  React.useEffect(() => {
+    if (!Cookies.get(introShownCookieName)) {
+      setTimeout(() => {
+        Cookies.set(introShownCookieName, 'true', { expires: 7 })
+        document.getElementById('show-intro').click(); 
+      }, 100);
     }
-    </div>
-   )
-  }
+  })
+
+  return (    
+  <Popup modal trigger={ <button id="show-intro" type="button" className="button">  </button> } closeOnDocumentClick contentStyle={{ maxWidth: "600px", width: "90%" }} >
+  { close => (   
+  <div className="modal">
+  <a className="close" onClick={close}>&times;</a>
+  <div className="content"> 
+    <p>Welcome to <b>{appName}</b>, an NFT-enabled version of the popular Wordle game.</p>
+    <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>
+    <p>If you guess the correct word, you will be entered into a daily lottery.  One winner will be selected every day.  The prize is an NFT corresponding to the correct solution, as well as an ether distribution from the pot for that day.</p>
+    <p>After each guess, the color of the tiles will change to show how close your guess was to the solution.</p>
+    <hr></hr>
+    <p><b>Examples</b></p>
+    <GridRowExample word={"CHOMP"} statusMap={"X    "} i={0}></GridRowExample>
+    <p>The letter <b>C</b> is in the solution and is in the correct spot.</p>
+    <GridRowExample word={"BLURT"} statusMap={" O   "} i={1}></GridRowExample>
+    <p>The letter <b>L</b> is in the solution but is in the wrong location.</p>
+    <GridRowExample word={"SPORK"} statusMap={"  -  "} i={2}></GridRowExample>
+    <p>The letter <b>O</b> is not in the solution at any location.</p>
+    <hr></hr>
+    <p><b>The solution for a given day is unique to every ethereum account.  There's no use in sharing your answer with another user!</b></p>
+  </div>
+  </div>
+  )}
+  </Popup>
+  )
+}
  
  export default App;
