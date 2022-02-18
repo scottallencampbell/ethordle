@@ -157,7 +157,7 @@ const App = () => {
       <div className="title">{appName}</div>   
       <Grid grid={grid}></Grid>  
       <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
-      <Introduction></Introduction>
+      <Introduction open={false}></Introduction>
     </div>
   ) 
 }
@@ -167,7 +167,7 @@ const Grid = ({ grid }) => {
     <div className="board">
     { 
       grid.map((row, i) => ( 
-        <GridRow row={row} i={i}></GridRow>        
+        <GridRow row={row} key={i}></GridRow>        
       ))
     }
     </div>
@@ -176,38 +176,38 @@ const Grid = ({ grid }) => {
 
 const GridRow = ({ row, i }) => {
   return (
-  <div key={i} className="row"> { 
-    row.map((tile, j) => ( 
-      <GridTile tile={tile} i={i} j={j}></GridTile>
-    ))
-  }
-  </div>
+    <div className="row" > { 
+      row.map((tile, j) => ( 
+        <GridTile key={`${i}-${j}`} tile={tile}></GridTile>
+      ))
+    }
+    </div>
   )
 }
 
-const GridTile = ({ statusMapThing, tile, i, j }) => {
+const GridRowExample = ({ word, statusMap, i}) => {
   return (
-     <div key={`${i}-${j}`} className={`tile ${tile.status}`}>
+    <div className="row example">
+    { 
+      word.split('').map((letter, j) => {
+        return (
+          <GridTile key={`${i}-${j}`} tile={{ value: letter, status: statusCodes.get(statusMap[j])}}></GridTile>
+        )
+      })
+    }
+    </div>
+  )
+}
+
+const GridTile = ({ tile, i, j }) => {
+  return (
+     <div className={`tile ${tile.status}`}>
         <div className="inner">
           <div className="front face">{tile.value}</div>     
           <div className="back face">{tile.value}</div>                       
         </div>
       </div>
  )
-}
-
-const GridRowExample = ({ word, statusMap, i}) => {
-  return (
-  <div key={i} className="row example">
-  { 
-    word.split('').map((letter, j) => {
-      return (
-        <GridTile statusMapThing={statusMap[j]} tile={{ value: letter, status: statusCodes.get(statusMap[j]) }}></GridTile>
-      )
-    })
-  }
-  </div>
-  )
 }
 
 const Keyboard = ({ keyboard, handleKeyDown }) => {
@@ -242,12 +242,14 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
   )
  };
 
- const Introduction = () => {
+ const Introduction = (open) => {
+  
    return (    
     <div suppressHydrationWarning={true}>
     {process.browser && 
-      <Popup open="true" modal contentStyle={{ maxWidth: "600px", width: "90%" }} >
+      <Popup open="{open}" closeOnDocumentClick modal contentStyle={{ maxWidth: "600px", width: "90%" }} >
       <div className="modal">
+      <a className="close">&times;</a>
       <div className="content">        
         <p>Welcome to <b>{appName}</b>, an NFT-enabled version of the popular Wordle game.</p>
         <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>
@@ -255,11 +257,11 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
         <p>After each guess, the color of the tiles will change to show how close your guess was to the solution.</p>
         <hr></hr>
         <p><b>Examples</b></p>
-        <GridRowExample word={"CHOMP"} statusMap={"X    "} i={1}></GridRowExample>
+        <GridRowExample word={"CHOMP"} statusMap={"X    "} i={0}></GridRowExample>
         <p>The letter <b>C</b> is in the solution and is in the correct spot.</p>
-        <GridRowExample word={"BLURT"} statusMap={" O   "} i={2}></GridRowExample>
+        <GridRowExample word={"BLURT"} statusMap={" O   "} i={1}></GridRowExample>
         <p>The letter <b>L</b> is in the solution but is in the wrong location.</p>
-        <GridRowExample word={"SPORK"} statusMap={"  -  "} i={3}></GridRowExample>
+        <GridRowExample word={"SPORK"} statusMap={"  -  "} i={2}></GridRowExample>
         <p>The letter <b>O</b> is not in the solution at any location.</p>
         <hr></hr>
         <p><b>The solution for a given day is unique to every ethereum account.  There's no use in sharing your answer with another user!</b></p>
