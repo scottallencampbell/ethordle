@@ -245,6 +245,10 @@ body {
   font-size: 40px;
 }
 
+#show-intro {
+  display: none;
+}
+
 * {
   box-sizing: border-box;
 }
