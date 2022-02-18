@@ -20,9 +20,9 @@ const statusCodes = new Map([
     [ 'X', "correct" ],
     [ 'O', "incorrect-position" ],
     [ '-', "incorrect" ],
-    [ '', "" ]
+    [ ' ', "entered" ]
 ]);
-const introShownCookieName = 'intro-shown3';
+const introShownCookieName = 'intro-shown';
 
 var wordDictionary = Object.assign({}, ...words.map((x) => ({[x]: x})));
 
@@ -32,9 +32,9 @@ var startingKeyboard = letters.map(row => {
     });
 });
 
-var startingGrid = Array.apply(null, Array(maxGuesses)).map(function () { 
-  return Array.apply(null, Array(wordLength)).map(function () { 
-    return { value: "", status: "" }; }); })
+var startingGrid = Array.apply(null, Array(maxGuesses)).map((row, i) => { 
+  return Array.apply(null, Array(wordLength)).map((tile, j) => { 
+    return { value: "", status: "", rowIndex: i, tileIndex: j }; }); })
 
 const App = () => {
   const [grid, setGrid] = useState(startingGrid);
@@ -156,7 +156,7 @@ const App = () => {
   }
 
   return (
-    <div className="main">
+    <div className="main flippable">
       <div className="title">{appName}</div>   
       <Grid grid={grid}></Grid>  
       <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
@@ -170,18 +170,18 @@ const Grid = ({ grid }) => {
     <div className="board">
     { 
       grid.map((row, i) => ( 
-        <GridRow row={row} key={i}></GridRow>        
+        <GridRow row={row} key={row[0].rowIndex}></GridRow>        
       ))
     }
     </div>
   )
 }
 
-const GridRow = ({ row, i }) => {
+const GridRow = ({ row }) => {
   return (
     <div className="row" > { 
-      row.map((tile, j) => ( 
-        <GridTile key={`${i}-${j}`} tile={tile}></GridTile>
+      row.map((tile) => ( 
+        <GridTile key={`${row[0].rowIndex}-${tile.tileIndex}`} tile={tile}></GridTile>
       ))
     }
     </div>
@@ -194,7 +194,7 @@ const GridRowExample = ({ word, statusMap, i}) => {
     { 
       word.split('').map((letter, j) => {
         return (
-          <GridTile key={`${i}-${j}`} tile={{ value: letter, status: statusCodes.get(statusMap[j])}}></GridTile>
+          <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, status: statusCodes.get(statusMap[j])}}></GridTile>
         )
       })
     }
@@ -202,14 +202,16 @@ const GridRowExample = ({ word, statusMap, i}) => {
   )
 }
 
-const GridTile = ({ tile, i, j }) => {
+const GridTile = ({ tile }) => {
   return (
-     <div className={`tile ${tile.status}`}>
+    <div className="tile-container">     
+     <div className={`tile tile${tile.tileIndex} ${tile.status}`}>
         <div className="inner">
           <div className="front face">{tile.value}</div>     
           <div className="back face">{tile.value}</div>                       
         </div>
       </div>
+   </div>
  )
 }
 
@@ -250,16 +252,21 @@ const Keyboard = ({ keyboard, handleKeyDown }) => {
     if (!Cookies.get(introShownCookieName)) {
       setTimeout(() => {
         Cookies.set(introShownCookieName, 'true', { expires: 7 })
-        document.getElementById('show-intro').click(); 
+        document.getElementById('show-intro').click();         
       }, 100);
-    }
+
+      setTimeout(() => {
+        document.getElementById('intro').classList.add('flippable');         
+      }, 500);
+    }    
   })
 
   return (    
   <Popup modal trigger={ <button id="show-intro" type="button" className="button">  </button> } closeOnDocumentClick contentStyle={{ maxWidth: "600px", width: "90%" }} >
   { close => (   
-  <div className="modal">
+  <div id="intro" className="modal">
   <a className="close" onClick={close}>&times;</a>
+  <div className={`content`}></div>
   <div className="content"> 
     <p>Welcome to <b>{appName}</b>, an NFT-enabled version of the popular Wordle game.</p>
     <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>
