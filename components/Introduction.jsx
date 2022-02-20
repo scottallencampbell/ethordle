@@ -1,22 +1,15 @@
 import { useEffect } from 'react';
 import Popup from 'reactjs-popup';
-import { GridTile } from './GridTile';
+import { StaticGridRow} from './GridRow';
 import Cookies from 'js-cookie';
 
 const introShownCookieName = 'intro-shown';
-const statusCodes = new Map([
-   ['X', 'correct'],
-   ['O', 'incorrect-position'],
-   ['-', 'incorrect'],
-   [' ', 'entered']
-]);
-
 
 export const Introduction = () => {
    useEffect(() => {
       if (!Cookies.get(introShownCookieName)) {
          setTimeout(() => {
-            Cookies.set(introShownCookieName, 'true', { expires: 7 })
+            Cookies.set(introShownCookieName, 'true', { expires: 1 })
             document.getElementById('show-intro').click();
          }, 100);
 
@@ -39,11 +32,11 @@ export const Introduction = () => {
                   <p>After each guess, the color of the tiles will change to show how close your guess was to the solution.</p>
                   <hr></hr>
                   <p><b>Examples</b></p>
-                  <GridRowExample word={'CHOMP'} statusMap={'X    '} i={0}></GridRowExample>
+                  <StaticGridRow word={'CHOMP'} statusMap={'X    '} i={0}></StaticGridRow>
                   <p>The letter <b>C</b> is in the solution and is in the correct spot.</p>
-                  <GridRowExample word={'BLURT'} statusMap={' O   '} i={1}></GridRowExample>
+                  <StaticGridRow word={'BLURT'} statusMap={' O   '} i={1}></StaticGridRow>
                   <p>The letter <b>L</b> is in the solution but is in the wrong location.</p>
-                  <GridRowExample word={'SPORK'} statusMap={'  -  '} i={2}></GridRowExample>
+                  <StaticGridRow word={'SPORK'} statusMap={'  -  '} i={2}></StaticGridRow>
                   <p>The letter <b>O</b> is not in the solution at any location.</p>
                   <hr></hr>
                   <p><b>The solution for a given day is unique to every ethereum account.  There's no use in sharing your answer with another user!</b></p>
@@ -51,19 +44,5 @@ export const Introduction = () => {
             </div>
          )}
       </Popup>
-   )
-}
-
-export const GridRowExample = ({ word, statusMap, i }) => {
-
-   return (
-      <div className='row example'> {
-         word.split('').map((letter, j) => {
-            return (
-               <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, status: statusCodes.get(statusMap[j]) }}></GridTile>
-            )
-         })
-      }
-      </div>
    )
 }

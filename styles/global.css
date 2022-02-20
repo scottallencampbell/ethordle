@@ -26,10 +26,17 @@ body {
 
 .title {
    font-weight: bold;
-   font-size: 45px;
-   letter-spacing: 5px;
-   margin-top: 30px;
-   margin-bottom: 50px;  
+   font-size: 45px;  
+   margin: 30px auto 20px;   
+}
+
+.title .row {
+   display: inline-block;
+}
+
+.title .face {
+   font-size: 60px !important;
+   xborder: none !important;
 }
 
 @media (max-width: 700px) {
@@ -38,7 +45,7 @@ body {
   }
 }
 
-.board {
+.grid {
   width: 392px;
   margin: 0 auto;
 }
@@ -85,7 +92,7 @@ body {
   height: 70px;
   font-weight: bold;
   font-size: 40px;
-  line-height: 70px;
+  line-height: 66px;
   position: relative;
   z-index: 1;
   perspective: 1000;
@@ -113,10 +120,26 @@ body {
 .flippable .tile.sequence2 .inner { transition-delay: .4s; }
 .flippable .tile.sequence3 .inner { transition-delay: .6s; }
 .flippable .tile.sequence4 .inner { transition-delay: .8s; }
-.keyboard .sequence1 { transition-delay: .35s; }
-.keyboard .sequence2 { transition-delay: .55s; }
-.keyboard .sequence3 { transition-delay: .75s; }
-.keyboard .sequence4 { transition-delay: .95s; }
+.flippable .tile.sequence5 .inner { transition-delay: 1s; }
+.flippable .tile.sequence6 .inner { transition-delay: 1.2s; }
+.flippable .tile.sequence7 .inner { transition-delay: 1.4s; }
+.flippable .tile.sequence8 .inner { transition-delay: 1.6s; }
+.flippable .tile.sequence9 .inner { transition-delay: 1.8s; }
+.keyboard-letter.sequence1 { transition-delay: .3s; }
+.keyboard-letter.sequence2 { transition-delay: .5s; }
+.keyboard-letter.sequence3 { transition-delay: .7s; }
+.keyboard-letter.sequence4 { transition-delay: .9s; }
+
+
+.flippable.title .tile.sequence1 .inner { transition-delay: .1s; }
+.flippable.title .tile.sequence2 .inner { transition-delay: .2s; }
+.flippable.title .tile.sequence3 .inner { transition-delay: .3s; }
+.flippable.title .tile.sequence4 .inner { transition-delay: .4s; }
+.flippable.title .tile.sequence5 .inner { transition-delay: .5s; }
+.flippable.title .tile.sequence6 .inner { transition-delay: .6s; }
+.flippable.title .tile.sequence7 .inner { transition-delay: .7s; }
+.flippable.title .tile.sequence8 .inner { transition-delay: .8s; }
+.flippable.title .tile.sequence9 .inner { transition-delay: .9s; }
 
 .tile .face {
     position: absolute;
@@ -163,6 +186,19 @@ body {
   color: #ffffff;
 }
 
+.title .tile .face {
+  background-color: #ffffff !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+
+.flippable.title .tile.correct .back {
+   color: #000000 !important;
+}
+
+.title .tile-container { width: 58px; }
+.title .tile { width: 50px; }
+
 .tile.error .front {
   background-color: #ffffff;
   border-color: #bb0000;
@@ -186,7 +222,7 @@ body {
   height: 65px;
   background-color: #cccccc;  
   margin: 5px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: bold;
   padding: 0 13px 0 13px;
   -webkit-touch-callout: none; /* iOS Safari */
@@ -196,6 +232,8 @@ body {
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
+   transition: background-color 0.2s ease,
+      color 0.2s ease;
 }
 
 @media (max-width: 700px) {
@@ -313,4 +351,3 @@ body {
 * {
   box-sizing: border-box;
 }
-

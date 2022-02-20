@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import Popup from 'reactjs-popup';
+import React, { useState } from 'react';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
-import { Grid } from '../components/grid';
-import { GridRowExample } from '../components/grid';
-import { Keyboard } from '../components/keyboard';
-import { Introduction } from '../components/introduction';
+import { Grid } from '../components/Grid';
+import { Keyboard } from '../components/Keyboard';
+import { Introduction } from '../components/Introduction';
+import { Title } from '../components/Title';
 
 words.push(...solutions);
 
@@ -98,10 +97,11 @@ const App = () => {
       if (result) {
          setCurrentRowIndex(currentRowIndex + 1);
          setCurrentTileIndex(0);
-         setGrid(newGrid);
          setKeyboard(newKeyboard);
       }
 
+      setGrid(newGrid);
+         
       if (currentRowIndex >= maxGuesses - 1 || guess == solution) {
          setGameStatus('finished');
       }
@@ -154,8 +154,8 @@ const App = () => {
    }
 
    return (
-      <div className='main flippable'>
-         <div className='title'>{appName}</div>
+      <div className='main'>
+         <Title title={appName}></Title>
          <Grid grid={grid}></Grid>
          <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
          <Introduction></Introduction>
