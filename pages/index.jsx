@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
 import { Keyboard } from '../components/Keyboard';
 import { Introduction } from '../components/Introduction';
 import { Title } from '../components/Title';
+import { Summary } from '../components/Summary';
 
 words.push(...solutions);
 
 const appName = 'ETHORDLE';
-const solution = solutions[Math.floor(Math.random() * solutions.length)];
+//const solution = solutions[Math.floor(Math.random() * solutions.length)];
+const solution = 'STARE';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -31,12 +34,15 @@ const startingGrid = Array.apply(null, Array(maxGuesses)).map((row, i) => {
    });
 })
 
+const statisticsCookieName = 'statistics';
+var gameStatus = 'started';
+
 const App = () => {
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
-   const [gameStatus, setGameStatus] = useState('started');
+   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0 });
 
    React.useEffect(() => {
       document.addEventListener('keydown', handleKeyDown)
@@ -47,7 +53,7 @@ const App = () => {
    })
 
    const handleKeyDown = (e) => {
-      if (gameStatus == 'finished') {
+      if (gameStatus == 'won' || gameStatus == 'lost') {
          return;
       }
 
@@ -102,8 +108,13 @@ const App = () => {
 
       setGrid(newGrid);
          
-      if (currentRowIndex >= maxGuesses - 1 || guess == solution) {
-         setGameStatus('finished');
+      if (guess == solution) {
+         gameStatus = 'won';
+         showSummary();
+      }
+      else if (currentRowIndex >= maxGuesses - 1) {
+         gameStatus = 'lost';
+         showSummary();
       }
    }
 
@@ -141,8 +152,35 @@ const App = () => {
       }
    }
 
+   const showSummary = () => { 
+      let newStatistics;
+
+      try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
+      catch {}
+   
+      if (!newStatistics) {
+         newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: 0 };
+      }
+      
+      newStatistics.gamesPlayed++; 
+
+      if (gameStatus == 'won') {
+         newStatistics.gamesWon++;
+         newStatistics.streak++;
+         newStatistics.guesses += currentRowIndex + 1;
+      }
+      else {
+         newStatistics.streak = 0;
+      }
+      
+      setStatistics(newStatistics);
+      
+      Cookies.set(statisticsCookieName, JSON.stringify(newStatistics));        
+   }
+
+
    const getKeyboardLetter = (keyboard, letter) => {
-      var keyboardLetter;
+      let keyboardLetter;
 
       for (const row of keyboard) {
          keyboardLetter = row.filter(x => x.value == letter);
@@ -159,6 +197,7 @@ const App = () => {
          <Grid grid={grid}></Grid>
          <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
          <Introduction></Introduction>
+         <Summary statistics={statistics}></Summary>
       </div>
    )
 }

@@ -202,6 +202,7 @@ body {
 .tile.error .front {
   background-color: #ffffff;
   border-color: #bb0000;
+  animation: shake 0.4s 1 linear;
 }
 
 .keyboard {
@@ -344,9 +345,72 @@ body {
   }
 }
 
+@keyframes shake {
+   10%, 90% {
+     transform: translate3d(-2px, 0, 0);
+   }
+   
+   20%, 80% {
+     transform: translate3d(4px, 0, 0);
+   }
+ 
+   30%, 50%, 70% {
+     transform: translate3d(-8px, 0, 0);
+   }
+ 
+   40%, 60% {
+     transform: translate3d(8px, 0, 0);
+   }
+ }
+
 .popup-content {
   -webkit-animation: anvil 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
 }
+
+.statistics {
+   margin: 0 auto;
+   text-align: center;
+   vertical-align: top;
+   clear: both;
+}
+
+.statistics > div {
+   width: 100px;
+   height: 70px;
+   xfloat: left; 
+   display: inline-flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   justify-content: center;
+   align-items: center;
+   margin-bottom: 20px;
+}
+
+.statistics p {
+   display: block;
+   font-size: 35px;
+   font-weight: bold;
+   margin: 0;
+   height: 35px;
+   width: 100%;
+}
+
+.statistics label {
+   display: block;
+   font-size: 12px;
+   width: 100%;
+}
+
+#summary .header {
+   width: 100%;
+   border-bottom: none;
+   text-transform: uppercase;
+   font-size: 18px;
+   text-align: center;
+   padding: 5px;
+   font-weight: bold;
+ }
+ 
 
 * {
   box-sizing: border-box;

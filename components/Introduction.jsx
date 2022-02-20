@@ -24,7 +24,6 @@ export const Introduction = () => {
          {close => (
             <div id='intro' className='modal'>
                <a className='close' onClick={close}>&times;</a>
-               <div className={`content`}></div>
                <div className='content'>
                   <p>Welcome to <b>ETHORDLE</b>, an NFT-enabled version of the popular Wordle game.</p>
                   <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>
