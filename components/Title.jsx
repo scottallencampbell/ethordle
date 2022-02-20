@@ -9,7 +9,7 @@ export const Title = ({ title }) => {
       }, [])
 
    return (
-   <div id='title' class='title'>
+   <div id='title' className='title'>
       <StaticGridRow word={title} statusMap={'XXXXXXXX'} i={0}></StaticGridRow>
    </div>
    )
