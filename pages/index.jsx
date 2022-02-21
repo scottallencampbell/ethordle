@@ -7,6 +7,7 @@ import { Keyboard } from '../components/Keyboard';
 import { Introduction } from '../components/Introduction';
 import { Title } from '../components/Title';
 import { Summary } from '../components/Summary';
+import Head from 'next/head';
 
 words.push(...solutions);
 
@@ -218,6 +219,11 @@ const App = () => {
    }
 
    return (
+      <>
+      <Head>
+        <title>{appName}</title>
+        <link rel='icon' href='/favicon.ico'></link> 
+      </Head>
       <div className='main'>
          <Title title={appName}></Title>
          <Grid grid={grid}></Grid>
@@ -225,6 +231,7 @@ const App = () => {
          <Introduction></Introduction>
          <Summary statistics={statistics}></Summary>
       </div>
+      </>
    )
 }
 
