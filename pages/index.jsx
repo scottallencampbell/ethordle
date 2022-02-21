@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
@@ -11,8 +11,7 @@ import { Summary } from '../components/Summary';
 words.push(...solutions);
 
 const appName = 'ETHORDLE';
-//const solution = solutions[Math.floor(Math.random() * solutions.length)];
-const solution = 'STARE';
+const solution = solutions[Math.floor(Math.random() * solutions.length)];
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -42,15 +41,15 @@ const App = () => {
    const [keyboard, setKeyboard] = useState(startingKeyboard);
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
-   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0 });
-
-   React.useEffect(() => {
+   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
+   
+   useEffect(() => {
       document.addEventListener('keydown', handleKeyDown)
 
       return () => {
          document.removeEventListener('keydown', handleKeyDown)
       }
-   })
+   });
 
    const handleKeyDown = (e) => {
       if (gameStatus == 'won' || gameStatus == 'lost') {
@@ -93,31 +92,6 @@ const App = () => {
       setCurrentTileIndex(currentTileIndex - 1);
    }
 
-   const enterWord = () => {
-      let newGrid = [...grid];
-      let newKeyboard = [...keyboard];
-      let row = newGrid[currentRowIndex];
-      let guess = row.map(letter => letter.value).join('');
-      let result = evaluateWord(guess, row, newKeyboard);
-
-      if (result) {
-         setCurrentRowIndex(currentRowIndex + 1);
-         setCurrentTileIndex(0);
-         setKeyboard(newKeyboard);
-      }
-
-      setGrid(newGrid);
-         
-      if (guess == solution) {
-         gameStatus = 'won';
-         showSummary();
-      }
-      else if (currentRowIndex >= maxGuesses - 1) {
-         gameStatus = 'lost';
-         showSummary();
-      }
-   }
-
    const evaluateWord = (guess, row, keyboard) => {
       if (!wordDictionary[guess]) {
          for (const letter of row) {
@@ -151,6 +125,31 @@ const App = () => {
          return true;
       }
    }
+   
+   const enterWord = () => {
+      let newGrid = [...grid];
+      let newKeyboard = [...keyboard];
+      let row = newGrid[currentRowIndex];
+      let guess = row.map(letter => letter.value).join('');
+      let result = evaluateWord(guess, row, newKeyboard);
+
+      if (result) {
+         setCurrentRowIndex(currentRowIndex + 1);
+         setCurrentTileIndex(0);
+         setKeyboard(newKeyboard);
+      }
+
+      setGrid(newGrid);
+         
+      if (guess == solution) {
+         gameStatus = 'won';
+         showSummary();
+      }
+      else if (currentRowIndex >= maxGuesses - 1) {
+         gameStatus = 'lost';
+         showSummary();
+      }
+   }
 
    const showSummary = () => { 
       let newStatistics;
@@ -159,25 +158,39 @@ const App = () => {
       catch {}
    
       if (!newStatistics) {
-         newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: 0 };
+         newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: new Array(maxGuesses).fill(0), averageGuesses: 0.0 };
       }
       
       newStatistics.gamesPlayed++; 
 
       if (gameStatus == 'won') {
+         newStatistics.solution = solution;
          newStatistics.gamesWon++;
          newStatistics.streak++;
-         newStatistics.guesses += currentRowIndex + 1;
+         newStatistics.guesses[currentRowIndex]++;
+         newStatistics.averageGuesses = 0;
+
+         let guesses = 0;
+
+         for (let i = 0; i < newStatistics.guesses.length; i++) {
+            guesses += (i + 1) * newStatistics.guesses[i];
+         }
+         
+         newStatistics.averageGuesses = Math.round(10.0 * guesses / newStatistics.gamesWon) / 10.0;       
       }
       else {
          newStatistics.streak = 0;
       }
       
+      Cookies.set(statisticsCookieName, JSON.stringify(newStatistics),  { expires: 365 });        
       setStatistics(newStatistics);
-      
-      Cookies.set(statisticsCookieName, JSON.stringify(newStatistics));        
-   }
 
+      /// todo 
+      setTimeout(() => { 
+         document.getElementById('show-summary').click();
+         document.getElementById('distribution').classList.remove('closed');
+      }, 1500);
+   }
 
    const getKeyboardLetter = (keyboard, letter) => {
       let keyboardLetter;

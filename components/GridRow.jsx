@@ -8,7 +8,6 @@ const statusCodes = new Map([
 ]);
 
 export const GridRow = ({ row }) => {
-
    return (
       <div className='row' > {
          row.map((tile) => (
