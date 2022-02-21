@@ -11,8 +11,7 @@ import { Summary } from '../components/Summary';
 words.push(...solutions);
 
 const appName = 'ETHORDLE';
-//const solution = solutions[Math.floor(Math.random() * solutions.length)];
-const solution = 'STARE';
+const solution = solutions[Math.floor(Math.random() * solutions.length)];
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
