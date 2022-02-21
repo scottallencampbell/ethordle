@@ -83,10 +83,12 @@ const App = () => {
 
    const deleteLetter = () => {
       let newGrid = [...grid];
-      let thisTile = newGrid[currentRowIndex][currentTileIndex - 1];
+      
+      newGrid[currentRowIndex][currentTileIndex - 1].value = '';
 
-      thisTile.value = '';
-      thisTile.status = '';
+      for (const tile of newGrid[currentRowIndex]) {
+         tile.status = 'previous-error';
+      }
 
       setGrid(newGrid);
       setCurrentTileIndex(currentTileIndex - 1);

@@ -221,6 +221,11 @@ body {
   animation: shake 0.4s 1 linear;
 }
 
+.tile.previous-error .front {
+   background-color: #ffffff;
+   border-color: #000000;
+}
+
 #summary .face {
    border: none !important; 
 }
