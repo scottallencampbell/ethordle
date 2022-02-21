@@ -83,11 +83,18 @@ const App = () => {
 
    const deleteLetter = () => {
       let newGrid = [...grid];
+      let thisTile = newGrid[currentRowIndex][currentTileIndex - 1];
       
-      newGrid[currentRowIndex][currentTileIndex - 1].value = '';
+      thisTile.value = '';
 
-      for (const tile of newGrid[currentRowIndex]) {
-         tile.status = 'previous-error';
+      for (const [i, tile] of newGrid[currentRowIndex].entries()) {
+         
+         if (i >= currentTileIndex - 1) {
+            tile.status = '';
+         }
+         else {
+            tile.status = 'entered-no-animation';
+         }
       }
 
       setGrid(newGrid);
@@ -96,31 +103,31 @@ const App = () => {
 
    const evaluateWord = (guess, row, keyboard) => {
       if (!wordDictionary[guess]) {
-         for (const letter of row) {
-            letter.status = 'error';
+         for (const tile of row) {
+            tile.status = 'error';
          }
          return false;
       }
       else {
-         for (const [i, letter] of row.entries()) {
-            if (letter.value == solution.charAt(i)) {
-               letter.status = 'correct';
+         for (const [i, tile] of row.entries()) {
+            if (tile.value == solution.charAt(i)) {
+               tile.status = 'correct';
             }
          }
 
-         for (const [i, letter] of row.entries()) {
-            if (letter.status == 'correct') { continue; }
+         for (const [i, tile] of row.entries()) {
+            if (tile.status == 'correct') { continue; }
 
-            let matchesSoFar = row.filter(item => item.value == letter.value && (item.status == 'correct' || item.status == 'incorrect-position')).length;
-            let matchesInSolution = solution.split('').filter(x => x == letter.value).length;
+            let matchesSoFar = row.filter(item => item.value == tile.value && (item.status == 'correct' || item.status == 'incorrect-position')).length;
+            let matchesInSolution = solution.split('').filter(x => x == tile.value).length;
 
-            letter.status = matchesInSolution > matchesSoFar ? 'incorrect-position' : 'incorrect';
+            tile.status = matchesInSolution > matchesSoFar ? 'incorrect-position' : 'incorrect';
          }
 
-         for (const [i, letter] of row.entries()) {
-            let keyboardLetter = getKeyboardLetter(keyboard, letter.value);
+         for (const [i, tile] of row.entries()) {
+            let keyboardLetter = getKeyboardLetter(keyboard, tile.value);
 
-            keyboardLetter.status = letter.status;
+            keyboardLetter.status = tile.status;
             keyboardLetter.sequence = `sequence${i}`;
          }
 
@@ -195,7 +202,7 @@ const App = () => {
 
       setTimeout(() => { 
          document.getElementById('summary').classList.add('flippable');
-      }, 1600);
+      }, 1800);
    }
 
    const getKeyboardLetter = (keyboard, letter) => {

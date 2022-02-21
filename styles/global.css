@@ -111,6 +111,10 @@ body {
   animation: highlight .1s;
 }
 
+.tile.entered-no-animation {
+   animation: none;
+ }
+
 .flippable .tile.correct .inner,
 .flippable .tile.incorrect .inner,
 .flippable .tile.incorrect-position .inner {
@@ -176,6 +180,7 @@ body {
 }
 
 .tile.entered .front,
+.tile.tile.entered-no-animation .front,
 .flippable .tile.correct .front,
 .flippable .tile.incorrect .front,
 .flippable .tile.incorrect-position .front {
@@ -223,7 +228,7 @@ body {
 
 .tile.previous-error .front {
    background-color: #ffffff;
-   border-color: #000000;
+   border-color: #cccccc;
 }
 
 #summary .face {
