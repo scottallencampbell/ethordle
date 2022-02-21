@@ -11,7 +11,8 @@ import { Summary } from '../components/Summary';
 words.push(...solutions);
 
 const appName = 'ETHORDLE';
-const solution = solutions[Math.floor(Math.random() * solutions.length)];
+//const solution = solutions[Math.floor(Math.random() * solutions.length)];
+const solution = 'STARE';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -162,9 +163,9 @@ const App = () => {
       }
       
       newStatistics.gamesPlayed++; 
+      newStatistics.solution = solution;
 
-      if (gameStatus == 'won') {
-         newStatistics.solution = solution;
+      if (gameStatus == 'won') {         
          newStatistics.gamesWon++;
          newStatistics.streak++;
          newStatistics.guesses[currentRowIndex]++;
@@ -190,6 +191,10 @@ const App = () => {
          document.getElementById('show-summary').click();
          document.getElementById('distribution').classList.remove('closed');
       }, 1500);
+
+      setTimeout(() => { 
+         document.getElementById('summary').classList.add('flippable');
+      }, 1600);
    }
 
    const getKeyboardLetter = (keyboard, letter) => {

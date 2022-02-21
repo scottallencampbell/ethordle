@@ -60,6 +60,10 @@ body {
   zoom: 70%;
 }
 
+.row.example .face {
+   line-height: 70px;
+ }
+
 .row.summary-row { 
    width: 278px;
    margin: 0 auto;
@@ -130,10 +134,16 @@ body {
 .flippable .tile.sequence7 .inner { transition-delay: 1.4s; }
 .flippable .tile.sequence8 .inner { transition-delay: 1.6s; }
 .flippable .tile.sequence9 .inner { transition-delay: 1.8s; }
+
 .keyboard-letter.sequence1 { transition-delay: .3s; }
 .keyboard-letter.sequence2 { transition-delay: .5s; }
 .keyboard-letter.sequence3 { transition-delay: .7s; }
 .keyboard-letter.sequence4 { transition-delay: .9s; }
+.keyboard-letter.sequence5 { transition-delay: 1.1s; }
+.keyboard-letter.sequence6 { transition-delay: 1.3s; }
+.keyboard-letter.sequence7 { transition-delay: 1.5s; }
+.keyboard-letter.sequence8 { transition-delay: 1.7s; }
+.keyboard-letter.sequence9 { transition-delay: 1.9s; }
 
 .flippable.title .tile.sequence1 .inner { transition-delay: .1s; }
 .flippable.title .tile.sequence2 .inner { transition-delay: .2s; }
@@ -144,6 +154,8 @@ body {
 .flippable.title .tile.sequence7 .inner { transition-delay: .7s; }
 .flippable.title .tile.sequence8 .inner { transition-delay: .8s; }
 .flippable.title .tile.sequence9 .inner { transition-delay: .9s; }
+
+#summary.flippable .tile .inner { transition-delay: .1s !important; }
 
 .tile .face {
     position: absolute;
@@ -208,6 +220,20 @@ body {
   border-color: #bb0000;
   animation: shake 0.4s 1 linear;
 }
+
+#summary .face {
+   border: none !important; 
+}
+
+#summary .face.front {
+   background-color: #ffffff;
+   color: #ffffff !important;
+}
+
+#summary .title .back {
+   color: #000000 !important;
+}
+
 
 .keyboard {
   margin-top: 50px;
@@ -422,6 +448,7 @@ body {
 .distribution {
    width: 70%;
    margin: 0 auto 20px;
+   padding-left: 45px;
 }
 
 .distribution.closed .chart .bar {

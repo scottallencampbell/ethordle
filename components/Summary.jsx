@@ -7,7 +7,7 @@ export const Summary = ({ solution, statistics, pop, openSummary }) => {
    return (
       <Popup modal trigger={<button id='show-summary' type='button' className='button'>Show Statistics</button>} closeOnDocumentClick contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {close => (
-            <div id='summary' className='modal flippable'>
+            <div id='summary' className='modal'>
                <a className='close' onClick={close}>&times;</a>
                <div className='content'>
                   <p className='header'>Solution</p>
