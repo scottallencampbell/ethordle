@@ -11,7 +11,7 @@ import Head from 'next/head';
 
 words.push(...solutions);
 
-const appName = 'ETHORDLE';
+const appName = 'Ethordle';
 const solution = solutions[Math.floor(Math.random() * solutions.length)];
 const wordLength = 5;
 const maxGuesses = 6;
@@ -147,18 +147,19 @@ const App = () => {
          setCurrentRowIndex(currentRowIndex + 1);
          setCurrentTileIndex(0);
          setKeyboard(newKeyboard);
+        
+         if (guess == solution) {
+            gameStatus = 'won';
+            showSummary();
+         }
+         else if (currentRowIndex >= maxGuesses - 1) {
+            gameStatus = 'lost';
+            showSummary();
+         }
       }
 
       setGrid(newGrid);
-         
-      if (guess == solution) {
-         gameStatus = 'won';
-         showSummary();
-      }
-      else if (currentRowIndex >= maxGuesses - 1) {
-         gameStatus = 'lost';
-         showSummary();
-      }
+   
    }
 
    const showSummary = () => { 

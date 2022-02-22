@@ -167,6 +167,7 @@ body {
     height: 100%;
     backface-visibility: hidden;
     text-align: center;
+    text-transform: uppercase;
   }
 
 .tile .face.back {
@@ -243,7 +244,6 @@ body {
 #summary .title .back {
    color: #000000 !important;
 }
-
 
 .keyboard {
   margin-top: 50px;
@@ -426,6 +426,13 @@ body {
    margin-bottom: 20px;
 }
 
+@media (max-width: 700px) {
+   .statistics > div {
+     width: 90px;
+   }
+ }
+
+ 
 .statistics p {
    display: block;
    font-size: 35px;
