@@ -31,7 +31,7 @@ body {
 }
 
 .title .row {
-   display: inline-block;
+
 }
 
 .title .face {
@@ -46,28 +46,37 @@ body {
 }
 
 .grid {
-  width: 392px;
   margin: 0 auto;
 }
 
 .row {
-   height: 70px;
-   margin-bottom: 6px;
-   clear: both;
+   text-align: center;
+   display: block;
+   width: 390px;
+   margin: 0 auto;
 }
 
 .row.example {
   zoom: 70%;
+  -moz-transform: scale(.7);
+  width: 100%;
 }
 
-.row.example .face {
-   line-height: 70px;
- }
+.row.example .tile-container {
+   display: inline-block;
+   min-width: 64px;
+}
 
 .row.summary-row { 
-   width: 278px;
    margin: 0 auto;
 }
+
+
+.row.example .tile.correct .face.front,
+.row.example .tile.incorrect .face.front,
+.row.example .tile.incorrect-position .face.front {
+    border: solid 1px #000000;   
+ }
 
 @keyframes highlight {
   0% {
@@ -75,8 +84,8 @@ body {
     height: 70px;
   }
   50% {
-    width: 74px;
-    height: 74px;
+    width: 73px;
+    height: 73px;
   }
   100% {
     width: 70px;
@@ -86,25 +95,26 @@ body {
 
 .tile-container {
   width: 78px;
+  min-width: 78px;
   height: 78px;
   min-height: 78px;
-  float: left; 
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
+  display: table-cell;
+  vertical-align: middle; 
 }
 
 .tile {
-  width: 70px;
-  height: 70px;
-  font-weight: bold;
-  font-size: 40px;
-  line-height: 66px;
-  position: relative;
-  z-index: 1;
-  perspective: 1000;
+   width: 70px;
+   height: 70px;
+   font-weight: bold;
+   font-size: 40px;
+   line-height: 66px; 
+   z-index: 1;
+   perspective: 1000;
+   display: inline-block;
+}
+
+.row.example .tile { 
+   line-height: 70px;
 }
 
 .tile.entered {
@@ -160,6 +170,12 @@ body {
 .flippable.title .tile.sequence9 .inner { transition-delay: .9s; }
 
 #summary.flippable .tile .inner { transition-delay: .1s !important; }
+
+.tile .inner {
+   transform-style: preserve-3d;
+   width: 100%;
+    height: 100%;
+}
 
 .tile .face {
     position: absolute;

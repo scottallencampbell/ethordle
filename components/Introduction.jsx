@@ -32,7 +32,7 @@ export const Introduction = () => {
                   <hr></hr>
                   <p><b>Examples</b></p>
                   <StaticGridRow word={'CHOMP'} statusMap={'X    '} i={0}></StaticGridRow>
-                  <p>The letter <b>C</b> is in the solution and is in the correct spot.</p>
+                  <p>The letter <b>C</b> is in the solution and is in the correct location.</p>
                   <StaticGridRow word={'BLURT'} statusMap={' O   '} i={1}></StaticGridRow>
                   <p>The letter <b>L</b> is in the solution but is in the wrong location.</p>
                   <StaticGridRow word={'SPORK'} statusMap={'  -  '} i={2}></StaticGridRow>
