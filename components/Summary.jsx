@@ -11,7 +11,7 @@ export const Summary = ({ solution, statistics, pop, openSummary }) => {
                <a className='close' onClick={close}>&times;</a>
                <div className='content'>
                   <p className='header'>Solution</p>
-                  <div class='row summary-row'>
+                  <div className='row summary-row'>
                   <StaticGridRow word={statistics.solution} statusMap={new Array(statistics.solution.length).fill('X')} i={0}></StaticGridRow>      
                   </div>            
                   <p className='header'>Statistics</p>

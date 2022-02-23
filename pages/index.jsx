@@ -198,12 +198,12 @@ const App = () => {
 
       /// todo 
       setTimeout(() => { 
-         document.getElementById('show-summary').click();
-         document.getElementById('distribution').classList.remove('closed');
+         document.getElementById('show-summary').click();         
       }, 1500);
 
       setTimeout(() => { 
          document.getElementById('summary').classList.add('flippable');
+         document.getElementById('distribution').classList.remove('closed');
       }, 1800);
    }
 

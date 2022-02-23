@@ -431,7 +431,6 @@ body {
      width: 90px;
    }
  }
-
  
 .statistics p {
    display: block;
@@ -466,6 +465,18 @@ body {
    width: 70%;
    margin: 0 auto 20px;
    padding-left: 45px;
+   opacity: 1;
+   transition: opacity .2s linear;
+}
+
+@media (max-width: 700px) {
+   .distribution {
+      width: 100%;    
+   }
+}
+
+.distribution.closed {
+   opacity: 0;
 }
 
 .distribution.closed .chart .bar {
