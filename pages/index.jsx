@@ -11,8 +11,8 @@ import Head from 'next/head';
 
 words.push(...solutions);
 
+const appName = 'Ethordle';
 const solution = solutions[Math.floor(Math.random() * solutions.length)];
-const solution = 'STARE';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
