@@ -1,4 +1,15 @@
-import { GridTile } from './GridTile';
+import { GridTile } from '../GridTile';
+import { IGridTileInfo} from '../../pages/index';
+
+interface IGridRow {
+   row: IGridTileInfo[]
+}
+
+interface IStaticGridRow {
+   word: string,
+   statusMap: string,
+   i: number
+}
 
 const statusCodes = new Map([
    ['X', 'correct'],
@@ -7,7 +18,7 @@ const statusCodes = new Map([
    [' ', 'entered']
 ]);
 
-export const GridRow = ({ row }) => {
+export const GridRow = ({ row } : IGridRow) => {
    return (
       <div className='row' > {
          row.map((tile) => (
@@ -18,12 +29,12 @@ export const GridRow = ({ row }) => {
    )
 }
 
-export const StaticGridRow = ({ word, statusMap, i }) => {
+export const StaticGridRow = ({ word, statusMap, i } : IStaticGridRow) => {
    return (
       <div className='row example'> {
          word.split('').map((letter, j) => {
             return (
-               <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, status: statusCodes.get(statusMap[j]) }}></GridTile>
+               <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, rowIndex: i, status: statusCodes.get(statusMap[j]) }}></GridTile>
             )
          })
       }

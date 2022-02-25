@@ -1,8 +1,12 @@
-import { useEffect } from 'react';
 import Popup from 'reactjs-popup';
-import { StaticGridRow } from './GridRow';
+import { StaticGridRow } from '../GridRow';
+import { IStatistics } from '../../pages/index';
 
-export const Summary = ({ solution, statistics, pop, openSummary }) => {
+interface ISummary {
+   statistics: IStatistics
+}
+
+export const Summary = ({ statistics } : ISummary) => {
  
    return (
       <Popup modal trigger={<button id='show-summary' type='button' className='button'>Show Statistics</button>} closeOnDocumentClick contentStyle={{ maxWidth: '600px', width: '90%' }} >
@@ -12,7 +16,7 @@ export const Summary = ({ solution, statistics, pop, openSummary }) => {
                <div className='content'>
                   <p className='header'>Solution</p>
                   <div className='summary-row'>
-                  <StaticGridRow word={statistics.solution} statusMap={new Array(statistics.solution.length).fill('X')} i={0}></StaticGridRow>      
+                  <StaticGridRow word={statistics.solution} statusMap={'X'.repeat(statistics.solution.length)} i={0}></StaticGridRow>      
                   </div>            
                   <p className='header'>Statistics</p>
                   <div className='statistics'>

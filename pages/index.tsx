@@ -9,6 +9,30 @@ import { Title } from '../components/Title';
 import { Summary } from '../components/Summary';
 import Head from 'next/head';
 
+export interface IGridTileInfo {
+   value: string,
+   status: string,
+   rowIndex: number,
+   tileIndex: number
+}
+
+export interface IKeyboardInfo {
+   value: string,
+   status: string,
+   rowIndex: number,
+   keyIndex: number,
+   sequence?: number
+}
+
+export interface IStatistics {
+   gamesPlayed: number,
+   gamesWon: number,
+   streak: number,
+   guesses: number[],
+   solution: string,
+   averageGuesses?: number
+};
+
 words.push(...solutions);
 
 const appName = 'Ethordle';
@@ -22,13 +46,14 @@ const letters = [
 ];
 
 const wordDictionary = Object.assign({}, ...words.map((x) => ({ [x]: x })));
-const startingKeyboard = letters.map(row => {
-   return row.map(letter => {
-      return { value: letter, status: '' };
+
+const startingKeyboard:IKeyboardInfo[][] = letters.map((row, i) => {
+   return row.map((letter, j) => {
+      return { value: letter, status: '', rowIndex: i, keyIndex: j};
    });
 });
 
-const startingGrid = Array.apply(null, Array(maxGuesses)).map((row, i) => {
+const startingGrid:IGridTileInfo[][] = Array.apply(null, Array(maxGuesses)).map((row, i) => {
    return Array.apply(null, Array(wordLength)).map((tile, j) => {
       return { value: '', status: '', rowIndex: i, tileIndex: j };
    });
@@ -72,7 +97,7 @@ const App = () => {
    }
 
    const enterLetter = (letter) => {
-      let newGrid = [...grid];
+      const newGrid = JSON.parse(JSON.stringify(grid));
       let thisTile = newGrid[currentRowIndex][currentTileIndex];
 
       thisTile.value = letter;
@@ -83,7 +108,7 @@ const App = () => {
    }
 
    const deleteLetter = () => {
-      let newGrid = [...grid];
+      const newGrid = JSON.parse(JSON.stringify(grid));
       let thisTile = newGrid[currentRowIndex][currentTileIndex - 1];
       
       thisTile.value = '';
@@ -137,7 +162,7 @@ const App = () => {
    }
    
    const enterWord = () => {
-      let newGrid = [...grid];
+      const newGrid = JSON.parse(JSON.stringify(grid));
       let newKeyboard = [...keyboard];
       let row = newGrid[currentRowIndex];
       let guess = row.map(letter => letter.value).join('');
@@ -159,17 +184,16 @@ const App = () => {
       }
 
       setGrid(newGrid);
-   
    }
 
    const showSummary = () => { 
-      let newStatistics;
+      let newStatistics:IStatistics;
 
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
       catch {}
    
       if (!newStatistics) {
-         newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: new Array(maxGuesses).fill(0), averageGuesses: 0.0 };
+         newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: new Array(maxGuesses).fill(0), averageGuesses: 0.0, solution: '' };
       }
       
       newStatistics.gamesPlayed++; 
@@ -196,7 +220,6 @@ const App = () => {
       Cookies.set(statisticsCookieName, JSON.stringify(newStatistics),  { expires: 365 });        
       setStatistics(newStatistics);
 
-      /// todo 
       setTimeout(() => { 
          document.getElementById('show-summary').click();         
       }, 1500);
