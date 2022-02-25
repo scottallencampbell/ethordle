@@ -5,7 +5,7 @@ import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
 import { Keyboard } from '../components/Keyboard';
 import { Introduction } from '../components/Introduction';
-import { Title } from '../components/Title';
+import { Title } from '../components/Title/Index';
 import { Summary } from '../components/Summary';
 import Head from 'next/head';
 
