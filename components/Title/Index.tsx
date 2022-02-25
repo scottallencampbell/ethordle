@@ -1,7 +1,11 @@
 import { useEffect } from "react";
-import { StaticGridRow } from "./GridRow";
+import { StaticGridRow } from "../GridRow";
 
-export const Title = ({ title }) => {
+interface ITitle {
+   title: string
+}
+
+export const Title = ({ title }: ITitle) => {
    useEffect(() => {
       setTimeout(() => {
             document.getElementById('title').classList.add('flippable');
