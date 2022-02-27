@@ -1,8 +1,7 @@
-import { GridTile } from '../GridTile';
-import { IGridTileInfo} from '../../pages/index';
+import { GridTile } from './GridTile';
 
 interface IGridRow {
-   row: IGridTileInfo[]
+   row: Entities.GridTile[]
 }
 
 interface IStaticGridRow {

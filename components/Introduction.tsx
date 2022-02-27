@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Popup from 'reactjs-popup';
-import { StaticGridRow } from '../GridRow'
+import { StaticGridRow } from './GridRow'
 import Cookies from 'js-cookie';
 
 const introShownCookieName = 'intro-shown';

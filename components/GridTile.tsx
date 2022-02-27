@@ -1,7 +1,5 @@
-import { IGridTileInfo} from '../../pages/index';
-
 interface IGridTile {
-   tile: IGridTileInfo
+   tile: Entities.GridTile
 }
 
 export const GridTile = ({ tile } : IGridTile) => {

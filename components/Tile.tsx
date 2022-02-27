@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { StaticGridRow } from "../GridRow";
+import { StaticGridRow } from "./GridRow";
 
 interface ITitle {
    title: string

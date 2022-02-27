@@ -17,5 +17,8 @@
     "reactjs-modal": "^4.0.0",
     "reactjs-popup": "^2.0.5",
     "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.10.0"
   }
 }

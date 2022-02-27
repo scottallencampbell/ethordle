@@ -1,9 +1,8 @@
 import Popup from 'reactjs-popup';
-import { StaticGridRow } from '../GridRow';
-import { IStatistics } from '../../pages/index';
+import { StaticGridRow } from './GridRow';
 
 interface ISummary {
-   statistics: IStatistics
+   statistics: Entities.Statistics
 }
 
 export const Summary = ({ statistics } : ISummary) => {

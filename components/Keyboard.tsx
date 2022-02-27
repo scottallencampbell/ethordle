@@ -1,7 +1,5 @@
-import { IKeyboardInfo } from "../../pages";
-
 interface IKeyboard {
-   keyboard: IKeyboardInfo[][],
+   keyboard: Entities.KeyboardLetter[][],
    handleKeyDown: Function
 }
 

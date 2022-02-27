@@ -1,8 +1,7 @@
-import { GridRow } from '../GridRow';
-import { IGridTileInfo } from '../../pages/index';
+import { GridRow } from './GridRow';
 
 interface IGrid {
-   grid: IGridTileInfo[][]
+   grid: Entities.GridTile[][]
 }
 
 export const Grid = ({ grid } : IGrid) => {

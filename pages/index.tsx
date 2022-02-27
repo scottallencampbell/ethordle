@@ -5,33 +5,9 @@ import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
 import { Keyboard } from '../components/Keyboard';
 import { Introduction } from '../components/Introduction';
-import { Title } from '../components/Title/Index';
+import { Title } from '../components/Tile';
 import { Summary } from '../components/Summary';
 import Head from 'next/head';
-
-export interface IGridTileInfo {
-   value: string,
-   status: string,
-   rowIndex: number,
-   tileIndex: number
-}
-
-export interface IKeyboardInfo {
-   value: string,
-   status: string,
-   rowIndex: number,
-   keyIndex: number,
-   sequence?: number
-}
-
-export interface IStatistics {
-   gamesPlayed: number,
-   gamesWon: number,
-   streak: number,
-   guesses: number[],
-   solution: string,
-   averageGuesses?: number
-};
 
 words.push(...solutions);
 
@@ -47,13 +23,13 @@ const letters = [
 
 const wordDictionary = Object.assign({}, ...words.map((x) => ({ [x]: x })));
 
-const startingKeyboard:IKeyboardInfo[][] = letters.map((row, i) => {
+const startingKeyboard:Entities.KeyboardLetter[][] = letters.map((row, i) => {
    return row.map((letter, j) => {
       return { value: letter, status: '', rowIndex: i, keyIndex: j};
    });
 });
 
-const startingGrid:IGridTileInfo[][] = Array.apply(null, Array(maxGuesses)).map((row, i) => {
+const startingGrid:Entities.GridTile[][] = Array.apply(null, Array(maxGuesses)).map((row, i) => {
    return Array.apply(null, Array(wordLength)).map((tile, j) => {
       return { value: '', status: '', rowIndex: i, tileIndex: j };
    });
@@ -187,7 +163,7 @@ const App = () => {
    }
 
    const showSummary = () => { 
-      let newStatistics:IStatistics;
+      let newStatistics:Entities.Statistics;
 
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
       catch {}
