@@ -9,7 +9,7 @@ export const Introduction = () => {
    useEffect(() => {
       if (!Cookies.get(introShownCookieName)) {
          setTimeout(() => {
-            Cookies.set(introShownCookieName, 'true', { expires: 1 })
+            Cookies.set(introShownCookieName, 'true', { expires: 7 })
             document.getElementById('show-intro').click();
          }, 100);
 
