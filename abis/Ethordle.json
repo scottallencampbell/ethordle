@@ -1,0 +1,2744 @@
+{
+  "contractName": "Ethordle",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "playerCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "playerList",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "players",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "wordCount",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_player",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_word",
+          "type": "string"
+        }
+      ],
+      "name": "registerSolution",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_player",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWord",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "word",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_player\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"getWord\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"word\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"playerCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"playerList\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"players\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"wordCount\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_player\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"_word\",\"type\":\"string\"}],\"name\":\"registerSolution\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"project:/contracts/Ethordle.sol\":\"Ethordle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/Ethordle.sol\":{\"keccak256\":\"0x651e113f3d56b79b96bd72c0a2e8b1944b8b8749e08aa454eaa2105f9cf6f7ce\",\"urls\":[\"bzz-raw://5b0f6f73d7e8ef7b7aea13ed64f0bf7451b7985119abdf6b5ef8dd31426cdd70\",\"dweb:/ipfs/Qmay8DePKUKetywD8CCHrZZasDiJAswStJ5Ls1wxgAWLpf\"]}},\"version\":1}",
+  "bytecode": "0x60806040526000805534801561001457600080fd5b506108b6806100246000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c806317491bf21461005c578063302bcc57146101375780639f20a93014610155578063ae6d90731461021c578063e2eb41ff1461028a575b600080fd5b6101356004803603604081101561007257600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001906401000000008111156100af57600080fd5b8201836020820111156100c157600080fd5b803590602001918460018302840111640100000000831117156100e357600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505091929192905050506102e9565b005b61013f6104a4565b6040518082815260200191505060405180910390f35b6101a16004803603604081101561016b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506104aa565b6040518080602001828103825283818151815260200191508051906020019080838360005b838110156101e15780820151818401526020810190506101c6565b50505050905090810190601f16801561020e5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6102486004803603602081101561023257600080fd5b8101908080359060200190929190505050610607565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6102cc600480360360208110156102a057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610643565b604051808381526020018281526020019250505060405180910390f35b6000600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000015414156103cf57600080815480929190600101919050555061034d610667565b60005481600001818152505080600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082015181600001556020820151816001015560408201518160020190805190602001906103c9929190610688565b50905050505b600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060010160008154809291906001019190505550600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060020181908060018154018082558091505090600182039060005260206000200160009091929091909150908051906020019061049e9291906106e8565b50505050565b60005481565b60606000600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000154141561050e57604051806020016040528060008152509050610601565b600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600201828154811061055b57fe5b906000526020600020018054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156105f95780601f106105ce576101008083540402835291602001916105f9565b820191906000526020600020905b8154815290600101906020018083116105dc57829003601f168201915b505050505090505b92915050565b6002818154811061061457fe5b906000526020600020016000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60016020528060005260406000206000915090508060000154908060010154905082565b60405180606001604052806000815260200160008152602001606081525090565b8280548282559060005260206000209081019282156106d7579160200282015b828111156106d65782518290805190602001906106c6929190610768565b50916020019190600101906106a8565b5b5090506106e491906107e8565b5090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061072957805160ff1916838001178555610757565b82800160010185558215610757579182015b8281111561075657825182559160200191906001019061073b565b5b5090506107649190610814565b5090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106107a957805160ff19168380011785556107d7565b828001600101855582156107d7579182015b828111156107d65782518255916020019190600101906107bb565b5b5090506107e49190610814565b5090565b61081191905b8082111561080d57600081816108049190610839565b506001016107ee565b5090565b90565b61083691905b8082111561083257600081600090555060010161081a565b5090565b90565b50805460018160011615610100020316600290046000825580601f1061085f575061087e565b601f01602090049060005260206000209081019061087d9190610814565b5b5056fea265627a7a723158205eeb3e2df905ce99d52460b9f7ea98a58fafc05c5322d70e4e5785db2c93083764736f6c63430005100032",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c806317491bf21461005c578063302bcc57146101375780639f20a93014610155578063ae6d90731461021c578063e2eb41ff1461028a575b600080fd5b6101356004803603604081101561007257600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001906401000000008111156100af57600080fd5b8201836020820111156100c157600080fd5b803590602001918460018302840111640100000000831117156100e357600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505091929192905050506102e9565b005b61013f6104a4565b6040518082815260200191505060405180910390f35b6101a16004803603604081101561016b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506104aa565b6040518080602001828103825283818151815260200191508051906020019080838360005b838110156101e15780820151818401526020810190506101c6565b50505050905090810190601f16801561020e5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6102486004803603602081101561023257600080fd5b8101908080359060200190929190505050610607565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6102cc600480360360208110156102a057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610643565b604051808381526020018281526020019250505060405180910390f35b6000600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000015414156103cf57600080815480929190600101919050555061034d610667565b60005481600001818152505080600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082015181600001556020820151816001015560408201518160020190805190602001906103c9929190610688565b50905050505b600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060010160008154809291906001019190505550600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060020181908060018154018082558091505090600182039060005260206000200160009091929091909150908051906020019061049e9291906106e8565b50505050565b60005481565b60606000600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000154141561050e57604051806020016040528060008152509050610601565b600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600201828154811061055b57fe5b906000526020600020018054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156105f95780601f106105ce576101008083540402835291602001916105f9565b820191906000526020600020905b8154815290600101906020018083116105dc57829003601f168201915b505050505090505b92915050565b6002818154811061061457fe5b906000526020600020016000915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60016020528060005260406000206000915090508060000154908060010154905082565b60405180606001604052806000815260200160008152602001606081525090565b8280548282559060005260206000209081019282156106d7579160200282015b828111156106d65782518290805190602001906106c6929190610768565b50916020019190600101906106a8565b5b5090506106e491906107e8565b5090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061072957805160ff1916838001178555610757565b82800160010185558215610757579182015b8281111561075657825182559160200191906001019061073b565b5b5090506107649190610814565b5090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106107a957805160ff19168380011785556107d7565b828001600101855582156107d7579182015b828111156107d65782518255916020019190600101906107bb565b5b5090506107e49190610814565b5090565b61081191905b8082111561080d57600081816108049190610839565b506001016107ee565b5090565b90565b61083691905b8082111561083257600081600090555060010161081a565b5090565b90565b50805460018160011615610100020316600290046000825580601f1061085f575061087e565b601f01602090049060005260206000209081019061087d9190610814565b5b5056fea265627a7a723158205eeb3e2df905ce99d52460b9f7ea98a58fafc05c5322d70e4e5785db2c93083764736f6c63430005100032",
+  "sourceMap": "69:872:0:-;;;123:1;94:30;;69:872;8:9:-1;5:2;;;30:1;27;20:12;5:2;69:872:0;;;;;;;",
+  "deployedSourceMap": "69:872:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;69:872:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;321:366;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;321:366:0;;;;;;;;;;;;;;;;;;;;;21:11:-1;8;5:28;2:2;;;46:1;43;36:12;2:2;321:366:0;;35:9:-1;28:4;12:14;8:25;5:40;2:2;;;58:1;55;48:12;2:2;321:366:0;;;;;;100:9:-1;95:1;81:12;77:20;67:8;63:35;60:50;39:11;25:12;22:29;11:107;8:2;;;131:1;128;121:12;8:2;321:366:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;30:3:-1;22:6;14;1:33;99:1;93:3;85:6;81:16;74:27;137:4;133:9;126:4;121:3;117:14;113:30;106:37;;169:3;161:6;157:16;147:26;;321:366:0;;;;;;;;;;;;;;;:::i;:::-;;94:30;;;:::i;:::-;;;;;;;;;;;;;;;;;;;695:243;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;695:243:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;695:243:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;285:27;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;285:27:0;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;237:41;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;237:41:0;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;321:366;430:1;407:7;:16;415:7;407:16;;;;;;;;;;;;;;;:19;;;:24;403:183;;;448:11;;:13;;;;;;;;;;;;;476:20;;:::i;:::-;523:11;;511:6;:9;;:23;;;;;568:6;549:7;:16;557:7;549:16;;;;;;;;;;;;;;;:25;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;403:183;;598:7;:16;606:7;598:16;;;;;;;;;;;;;;;:26;;;:28;;;;;;;;;;;;;637:7;:16;645:7;637:16;;;;;;;;;;;;;;;:22;;665:5;637:34;;39:1:-1;33:3;27:10;23:18;57:10;52:3;45:23;79:10;72:17;;0:93;637:34:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;321:366;;:::o;94:30::-;;;;:::o;695:243::-;765:18;823:1;800:7;:16;808:7;800:16;;;;;;;;;;;;;;;:19;;;:24;796:135;;;841:9;;;;;;;;;;;;;;796:135;;;890:7;:16;898:7;890:16;;;;;;;;;;;;;;;:22;;913:5;890:29;;;;;;;;;;;;;;;883:36;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;796:135;695:243;;;;:::o;285:27::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;237:41::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;69:872::-;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o",
+  "source": "// SPDX-License-Identifier: MIT\r\npragma solidity >=0.4.22 <0.9.0;\r\n\r\ncontract Ethordle {\r\n    uint256 public playerCount = 0;\r\n\r\n    struct Player {\r\n        uint256 id;\r\n        uint256 wordCount;\r\n        string[] words;\r\n    }\r\n\r\n    mapping(address => Player) public players;\r\n    address[] public playerList;\r\n\r\n    function registerSolution(address _player, string memory _word) public {\r\n        if (players[_player].id == 0) {\r\n            playerCount++;\r\n            Player memory player;\r\n            player.id = playerCount;\r\n            players[_player] = player;\r\n        }\r\n\r\n        players[_player].wordCount++;\r\n        players[_player].words.push(_word);        \r\n    }\r\n\r\n    function getWord(address _player, uint256 index) public view returns (string memory word) {\r\n        if (players[_player].id == 0) {\r\n            word = \"\";\r\n        } else {\r\n            word = players[_player].words[index];\r\n        }\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Dev\\Github\\ethordle\\contracts\\Ethordle.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/Ethordle.sol",
+    "exportedSymbols": {
+      "Ethordle": [
+        100
+      ]
+    },
+    "id": 101,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.4",
+          ".22",
+          "<",
+          "0.9",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "33:32:0"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 100,
+        "linearizedBaseContracts": [
+          100
+        ],
+        "name": "Ethordle",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 4,
+            "name": "playerCount",
+            "nodeType": "VariableDeclaration",
+            "scope": 100,
+            "src": "94:30:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 2,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "94:7:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": {
+              "argumentTypes": null,
+              "hexValue": "30",
+              "id": 3,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "123:1:0",
+              "subdenomination": null,
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_0_by_1",
+                "typeString": "int_const 0"
+              },
+              "value": "0"
+            },
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "Ethordle.Player",
+            "id": 12,
+            "members": [
+              {
+                "constant": false,
+                "id": 6,
+                "name": "id",
+                "nodeType": "VariableDeclaration",
+                "scope": 12,
+                "src": "158:10:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "158:7:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8,
+                "name": "wordCount",
+                "nodeType": "VariableDeclaration",
+                "scope": 12,
+                "src": "179:17:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 7,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "179:7:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 11,
+                "name": "words",
+                "nodeType": "VariableDeclaration",
+                "scope": 12,
+                "src": "207:14:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_string_storage_$dyn_storage_ptr",
+                  "typeString": "string[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 9,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "207:6:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "id": 10,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "207:8:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_string_storage_$dyn_storage_ptr",
+                    "typeString": "string[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "Player",
+            "nodeType": "StructDefinition",
+            "scope": 100,
+            "src": "133:96:0",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 16,
+            "name": "players",
+            "nodeType": "VariableDeclaration",
+            "scope": 100,
+            "src": "237:41:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+              "typeString": "mapping(address => struct Ethordle.Player)"
+            },
+            "typeName": {
+              "id": 15,
+              "keyType": {
+                "id": 13,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "245:7:0",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "237:26:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                "typeString": "mapping(address => struct Ethordle.Player)"
+              },
+              "valueType": {
+                "contractScope": null,
+                "id": 14,
+                "name": "Player",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 12,
+                "src": "256:6:0",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_Player_$12_storage_ptr",
+                  "typeString": "struct Ethordle.Player"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 19,
+            "name": "playerList",
+            "nodeType": "VariableDeclaration",
+            "scope": 100,
+            "src": "285:27:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_address_$dyn_storage",
+              "typeString": "address[]"
+            },
+            "typeName": {
+              "baseType": {
+                "id": 17,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "285:7:0",
+                "stateMutability": "nonpayable",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "id": 18,
+              "length": null,
+              "nodeType": "ArrayTypeName",
+              "src": "285:9:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                "typeString": "address[]"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 66,
+              "nodeType": "Block",
+              "src": "392:295:0",
+              "statements": [
+                {
+                  "condition": {
+                    "argumentTypes": null,
+                    "commonType": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    },
+                    "id": 31,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "baseExpression": {
+                          "argumentTypes": null,
+                          "id": 26,
+                          "name": "players",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 16,
+                          "src": "407:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                            "typeString": "mapping(address => struct Ethordle.Player storage ref)"
+                          }
+                        },
+                        "id": 28,
+                        "indexExpression": {
+                          "argumentTypes": null,
+                          "id": 27,
+                          "name": "_player",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 21,
+                          "src": "415:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "IndexAccess",
+                        "src": "407:16:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Player_$12_storage",
+                          "typeString": "struct Ethordle.Player storage ref"
+                        }
+                      },
+                      "id": 29,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "id",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 6,
+                      "src": "407:19:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "argumentTypes": null,
+                      "hexValue": "30",
+                      "id": 30,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "430:1:0",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_0_by_1",
+                        "typeString": "int_const 0"
+                      },
+                      "value": "0"
+                    },
+                    "src": "407:24:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": null,
+                  "id": 51,
+                  "nodeType": "IfStatement",
+                  "src": "403:183:0",
+                  "trueBody": {
+                    "id": 50,
+                    "nodeType": "Block",
+                    "src": "433:153:0",
+                    "statements": [
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 33,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "nodeType": "UnaryOperation",
+                          "operator": "++",
+                          "prefix": false,
+                          "src": "448:13:0",
+                          "subExpression": {
+                            "argumentTypes": null,
+                            "id": 32,
+                            "name": "playerCount",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 4,
+                            "src": "448:11:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "id": 34,
+                        "nodeType": "ExpressionStatement",
+                        "src": "448:13:0"
+                      },
+                      {
+                        "assignments": [
+                          36
+                        ],
+                        "declarations": [
+                          {
+                            "constant": false,
+                            "id": 36,
+                            "name": "player",
+                            "nodeType": "VariableDeclaration",
+                            "scope": 50,
+                            "src": "476:20:0",
+                            "stateVariable": false,
+                            "storageLocation": "memory",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Player_$12_memory_ptr",
+                              "typeString": "struct Ethordle.Player"
+                            },
+                            "typeName": {
+                              "contractScope": null,
+                              "id": 35,
+                              "name": "Player",
+                              "nodeType": "UserDefinedTypeName",
+                              "referencedDeclaration": 12,
+                              "src": "476:6:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Player_$12_storage_ptr",
+                                "typeString": "struct Ethordle.Player"
+                              }
+                            },
+                            "value": null,
+                            "visibility": "internal"
+                          }
+                        ],
+                        "id": 37,
+                        "initialValue": null,
+                        "nodeType": "VariableDeclarationStatement",
+                        "src": "476:20:0"
+                      },
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 42,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "argumentTypes": null,
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 38,
+                              "name": "player",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 36,
+                              "src": "511:6:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Player_$12_memory_ptr",
+                                "typeString": "struct Ethordle.Player memory"
+                              }
+                            },
+                            "id": 40,
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": true,
+                            "memberName": "id",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 6,
+                            "src": "511:9:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "argumentTypes": null,
+                            "id": 41,
+                            "name": "playerCount",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 4,
+                            "src": "523:11:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "src": "511:23:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "id": 43,
+                        "nodeType": "ExpressionStatement",
+                        "src": "511:23:0"
+                      },
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 48,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "argumentTypes": null,
+                            "baseExpression": {
+                              "argumentTypes": null,
+                              "id": 44,
+                              "name": "players",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 16,
+                              "src": "549:7:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                                "typeString": "mapping(address => struct Ethordle.Player storage ref)"
+                              }
+                            },
+                            "id": 46,
+                            "indexExpression": {
+                              "argumentTypes": null,
+                              "id": 45,
+                              "name": "_player",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 21,
+                              "src": "557:7:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": true,
+                            "nodeType": "IndexAccess",
+                            "src": "549:16:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Player_$12_storage",
+                              "typeString": "struct Ethordle.Player storage ref"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "argumentTypes": null,
+                            "id": 47,
+                            "name": "player",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 36,
+                            "src": "568:6:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Player_$12_memory_ptr",
+                              "typeString": "struct Ethordle.Player memory"
+                            }
+                          },
+                          "src": "549:25:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Player_$12_storage",
+                            "typeString": "struct Ethordle.Player storage ref"
+                          }
+                        },
+                        "id": 49,
+                        "nodeType": "ExpressionStatement",
+                        "src": "549:25:0"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 56,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "++",
+                    "prefix": false,
+                    "src": "598:28:0",
+                    "subExpression": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "baseExpression": {
+                          "argumentTypes": null,
+                          "id": 52,
+                          "name": "players",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 16,
+                          "src": "598:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                            "typeString": "mapping(address => struct Ethordle.Player storage ref)"
+                          }
+                        },
+                        "id": 54,
+                        "indexExpression": {
+                          "argumentTypes": null,
+                          "id": 53,
+                          "name": "_player",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 21,
+                          "src": "606:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "IndexAccess",
+                        "src": "598:16:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Player_$12_storage",
+                          "typeString": "struct Ethordle.Player storage ref"
+                        }
+                      },
+                      "id": 55,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "wordCount",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 8,
+                      "src": "598:26:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 57,
+                  "nodeType": "ExpressionStatement",
+                  "src": "598:28:0"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 63,
+                        "name": "_word",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 23,
+                        "src": "665:5:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_string_memory_ptr",
+                          "typeString": "string memory"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_string_memory_ptr",
+                          "typeString": "string memory"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "expression": {
+                          "argumentTypes": null,
+                          "baseExpression": {
+                            "argumentTypes": null,
+                            "id": 58,
+                            "name": "players",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 16,
+                            "src": "637:7:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                              "typeString": "mapping(address => struct Ethordle.Player storage ref)"
+                            }
+                          },
+                          "id": 60,
+                          "indexExpression": {
+                            "argumentTypes": null,
+                            "id": 59,
+                            "name": "_player",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 21,
+                            "src": "645:7:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "nodeType": "IndexAccess",
+                          "src": "637:16:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Player_$12_storage",
+                            "typeString": "struct Ethordle.Player storage ref"
+                          }
+                        },
+                        "id": 61,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberName": "words",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 11,
+                        "src": "637:22:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_array$_t_string_storage_$dyn_storage",
+                          "typeString": "string storage ref[] storage ref"
+                        }
+                      },
+                      "id": 62,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "push",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": null,
+                      "src": "637:27:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_string_storage_$returns$_t_uint256_$",
+                        "typeString": "function (string storage ref) returns (uint256)"
+                      }
+                    },
+                    "id": 64,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "637:34:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 65,
+                  "nodeType": "ExpressionStatement",
+                  "src": "637:34:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 67,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "registerSolution",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 24,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21,
+                  "name": "_player",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 67,
+                  "src": "347:15:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "347:7:0",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 23,
+                  "name": "_word",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 67,
+                  "src": "364:19:0",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 22,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "364:6:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "346:38:0"
+            },
+            "returnParameters": {
+              "id": 25,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "392:0:0"
+            },
+            "scope": 100,
+            "src": "321:366:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 98,
+              "nodeType": "Block",
+              "src": "785:153:0",
+              "statements": [
+                {
+                  "condition": {
+                    "argumentTypes": null,
+                    "commonType": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    },
+                    "id": 81,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "baseExpression": {
+                          "argumentTypes": null,
+                          "id": 76,
+                          "name": "players",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 16,
+                          "src": "800:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                            "typeString": "mapping(address => struct Ethordle.Player storage ref)"
+                          }
+                        },
+                        "id": 78,
+                        "indexExpression": {
+                          "argumentTypes": null,
+                          "id": 77,
+                          "name": "_player",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 69,
+                          "src": "808:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "IndexAccess",
+                        "src": "800:16:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Player_$12_storage",
+                          "typeString": "struct Ethordle.Player storage ref"
+                        }
+                      },
+                      "id": 79,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "id",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 6,
+                      "src": "800:19:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "argumentTypes": null,
+                      "hexValue": "30",
+                      "id": 80,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "823:1:0",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_0_by_1",
+                        "typeString": "int_const 0"
+                      },
+                      "value": "0"
+                    },
+                    "src": "800:24:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "id": 96,
+                    "nodeType": "Block",
+                    "src": "868:63:0",
+                    "statements": [
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 94,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "argumentTypes": null,
+                            "id": 87,
+                            "name": "word",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 74,
+                            "src": "883:4:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_string_memory_ptr",
+                              "typeString": "string memory"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "argumentTypes": null,
+                            "baseExpression": {
+                              "argumentTypes": null,
+                              "expression": {
+                                "argumentTypes": null,
+                                "baseExpression": {
+                                  "argumentTypes": null,
+                                  "id": 88,
+                                  "name": "players",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 16,
+                                  "src": "890:7:0",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_mapping$_t_address_$_t_struct$_Player_$12_storage_$",
+                                    "typeString": "mapping(address => struct Ethordle.Player storage ref)"
+                                  }
+                                },
+                                "id": 90,
+                                "indexExpression": {
+                                  "argumentTypes": null,
+                                  "id": 89,
+                                  "name": "_player",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 69,
+                                  "src": "898:7:0",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                },
+                                "isConstant": false,
+                                "isLValue": true,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "nodeType": "IndexAccess",
+                                "src": "890:16:0",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Player_$12_storage",
+                                  "typeString": "struct Ethordle.Player storage ref"
+                                }
+                              },
+                              "id": 91,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "words",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 11,
+                              "src": "890:22:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_array$_t_string_storage_$dyn_storage",
+                                "typeString": "string storage ref[] storage ref"
+                              }
+                            },
+                            "id": 93,
+                            "indexExpression": {
+                              "argumentTypes": null,
+                              "id": 92,
+                              "name": "index",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 71,
+                              "src": "913:5:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              }
+                            },
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "nodeType": "IndexAccess",
+                            "src": "890:29:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_string_storage",
+                              "typeString": "string storage ref"
+                            }
+                          },
+                          "src": "883:36:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_string_memory_ptr",
+                            "typeString": "string memory"
+                          }
+                        },
+                        "id": 95,
+                        "nodeType": "ExpressionStatement",
+                        "src": "883:36:0"
+                      }
+                    ]
+                  },
+                  "id": 97,
+                  "nodeType": "IfStatement",
+                  "src": "796:135:0",
+                  "trueBody": {
+                    "id": 86,
+                    "nodeType": "Block",
+                    "src": "826:36:0",
+                    "statements": [
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 84,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "argumentTypes": null,
+                            "id": 82,
+                            "name": "word",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 74,
+                            "src": "841:4:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_string_memory_ptr",
+                              "typeString": "string memory"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "argumentTypes": null,
+                            "hexValue": "",
+                            "id": 83,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "string",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "848:2:0",
+                            "subdenomination": null,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                              "typeString": "literal_string \"\""
+                            },
+                            "value": ""
+                          },
+                          "src": "841:9:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_string_memory_ptr",
+                            "typeString": "string memory"
+                          }
+                        },
+                        "id": 85,
+                        "nodeType": "ExpressionStatement",
+                        "src": "841:9:0"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 99,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getWord",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 72,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 69,
+                  "name": "_player",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 99,
+                  "src": "712:15:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 68,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "712:7:0",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 71,
+                  "name": "index",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 99,
+                  "src": "729:13:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 70,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "729:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "711:32:0"
+            },
+            "returnParameters": {
+              "id": 75,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 74,
+                  "name": "word",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 99,
+                  "src": "765:18:0",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 73,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "765:6:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "764:20:0"
+            },
+            "scope": 100,
+            "src": "695:243:0",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 101,
+        "src": "69:872:0"
+      }
+    ],
+    "src": "33:910:0"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/Ethordle.sol",
+      "exportedSymbols": {
+        "Ethordle": [
+          100
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            ">=",
+            "0.4",
+            ".22",
+            "<",
+            "0.9",
+            ".0"
+          ]
+        },
+        "id": 1,
+        "name": "PragmaDirective",
+        "src": "33:32:0"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            100
+          ],
+          "name": "Ethordle",
+          "scope": 101
+        },
+        "children": [
+          {
+            "attributes": {
+              "constant": false,
+              "name": "playerCount",
+              "scope": 100,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "uint256",
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "name": "uint256",
+                  "type": "uint256"
+                },
+                "id": 2,
+                "name": "ElementaryTypeName",
+                "src": "94:7:0"
+              },
+              {
+                "attributes": {
+                  "argumentTypes": null,
+                  "hexvalue": "30",
+                  "isConstant": false,
+                  "isLValue": false,
+                  "isPure": true,
+                  "lValueRequested": false,
+                  "subdenomination": null,
+                  "token": "number",
+                  "type": "int_const 0",
+                  "value": "0"
+                },
+                "id": 3,
+                "name": "Literal",
+                "src": "123:1:0"
+              }
+            ],
+            "id": 4,
+            "name": "VariableDeclaration",
+            "src": "94:30:0"
+          },
+          {
+            "attributes": {
+              "canonicalName": "Ethordle.Player",
+              "name": "Player",
+              "scope": 100,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "id",
+                  "scope": 12,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint256",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 5,
+                    "name": "ElementaryTypeName",
+                    "src": "158:7:0"
+                  }
+                ],
+                "id": 6,
+                "name": "VariableDeclaration",
+                "src": "158:10:0"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "wordCount",
+                  "scope": 12,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint256",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 7,
+                    "name": "ElementaryTypeName",
+                    "src": "179:7:0"
+                  }
+                ],
+                "id": 8,
+                "name": "VariableDeclaration",
+                "src": "179:17:0"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "words",
+                  "scope": 12,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "string[]",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "length": null,
+                      "type": "string[]"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 9,
+                        "name": "ElementaryTypeName",
+                        "src": "207:6:0"
+                      }
+                    ],
+                    "id": 10,
+                    "name": "ArrayTypeName",
+                    "src": "207:8:0"
+                  }
+                ],
+                "id": 11,
+                "name": "VariableDeclaration",
+                "src": "207:14:0"
+              }
+            ],
+            "id": 12,
+            "name": "StructDefinition",
+            "src": "133:96:0"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "players",
+              "scope": 100,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(address => struct Ethordle.Player)",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(address => struct Ethordle.Player)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "type": "address"
+                    },
+                    "id": 13,
+                    "name": "ElementaryTypeName",
+                    "src": "245:7:0"
+                  },
+                  {
+                    "attributes": {
+                      "contractScope": null,
+                      "name": "Player",
+                      "referencedDeclaration": 12,
+                      "type": "struct Ethordle.Player"
+                    },
+                    "id": 14,
+                    "name": "UserDefinedTypeName",
+                    "src": "256:6:0"
+                  }
+                ],
+                "id": 15,
+                "name": "Mapping",
+                "src": "237:26:0"
+              }
+            ],
+            "id": 16,
+            "name": "VariableDeclaration",
+            "src": "237:41:0"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "playerList",
+              "scope": 100,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "address[]",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "length": null,
+                  "type": "address[]"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "stateMutability": "nonpayable",
+                      "type": "address"
+                    },
+                    "id": 17,
+                    "name": "ElementaryTypeName",
+                    "src": "285:7:0"
+                  }
+                ],
+                "id": 18,
+                "name": "ArrayTypeName",
+                "src": "285:9:0"
+              }
+            ],
+            "id": 19,
+            "name": "VariableDeclaration",
+            "src": "285:27:0"
+          },
+          {
+            "attributes": {
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "registerSolution",
+              "scope": 100,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_player",
+                      "scope": 67,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 20,
+                        "name": "ElementaryTypeName",
+                        "src": "347:7:0"
+                      }
+                    ],
+                    "id": 21,
+                    "name": "VariableDeclaration",
+                    "src": "347:15:0"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_word",
+                      "scope": 67,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 22,
+                        "name": "ElementaryTypeName",
+                        "src": "364:6:0"
+                      }
+                    ],
+                    "id": 23,
+                    "name": "VariableDeclaration",
+                    "src": "364:19:0"
+                  }
+                ],
+                "id": 24,
+                "name": "ParameterList",
+                "src": "346:38:0"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 25,
+                "name": "ParameterList",
+                "src": "392:0:0"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "falseBody": null
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          },
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "==",
+                          "type": "bool"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "id",
+                              "referencedDeclaration": 6,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "struct Ethordle.Player storage ref"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 16,
+                                      "type": "mapping(address => struct Ethordle.Player storage ref)",
+                                      "value": "players"
+                                    },
+                                    "id": 26,
+                                    "name": "Identifier",
+                                    "src": "407:7:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 21,
+                                      "type": "address",
+                                      "value": "_player"
+                                    },
+                                    "id": 27,
+                                    "name": "Identifier",
+                                    "src": "415:7:0"
+                                  }
+                                ],
+                                "id": 28,
+                                "name": "IndexAccess",
+                                "src": "407:16:0"
+                              }
+                            ],
+                            "id": 29,
+                            "name": "MemberAccess",
+                            "src": "407:19:0"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "30",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 0",
+                              "value": "0"
+                            },
+                            "id": 30,
+                            "name": "Literal",
+                            "src": "430:1:0"
+                          }
+                        ],
+                        "id": 31,
+                        "name": "BinaryOperation",
+                        "src": "407:24:0"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "++",
+                                  "prefix": false,
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 4,
+                                      "type": "uint256",
+                                      "value": "playerCount"
+                                    },
+                                    "id": 32,
+                                    "name": "Identifier",
+                                    "src": "448:11:0"
+                                  }
+                                ],
+                                "id": 33,
+                                "name": "UnaryOperation",
+                                "src": "448:13:0"
+                              }
+                            ],
+                            "id": 34,
+                            "name": "ExpressionStatement",
+                            "src": "448:13:0"
+                          },
+                          {
+                            "attributes": {
+                              "assignments": [
+                                36
+                              ],
+                              "initialValue": null
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "constant": false,
+                                  "name": "player",
+                                  "scope": 50,
+                                  "stateVariable": false,
+                                  "storageLocation": "memory",
+                                  "type": "struct Ethordle.Player",
+                                  "value": null,
+                                  "visibility": "internal"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "contractScope": null,
+                                      "name": "Player",
+                                      "referencedDeclaration": 12,
+                                      "type": "struct Ethordle.Player"
+                                    },
+                                    "id": 35,
+                                    "name": "UserDefinedTypeName",
+                                    "src": "476:6:0"
+                                  }
+                                ],
+                                "id": 36,
+                                "name": "VariableDeclaration",
+                                "src": "476:20:0"
+                              }
+                            ],
+                            "id": 37,
+                            "name": "VariableDeclarationStatement",
+                            "src": "476:20:0"
+                          },
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": true,
+                                      "member_name": "id",
+                                      "referencedDeclaration": 6,
+                                      "type": "uint256"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 36,
+                                          "type": "struct Ethordle.Player memory",
+                                          "value": "player"
+                                        },
+                                        "id": 38,
+                                        "name": "Identifier",
+                                        "src": "511:6:0"
+                                      }
+                                    ],
+                                    "id": 40,
+                                    "name": "MemberAccess",
+                                    "src": "511:9:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 4,
+                                      "type": "uint256",
+                                      "value": "playerCount"
+                                    },
+                                    "id": 41,
+                                    "name": "Identifier",
+                                    "src": "523:11:0"
+                                  }
+                                ],
+                                "id": 42,
+                                "name": "Assignment",
+                                "src": "511:23:0"
+                              }
+                            ],
+                            "id": 43,
+                            "name": "ExpressionStatement",
+                            "src": "511:23:0"
+                          },
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "struct Ethordle.Player storage ref"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": true,
+                                      "type": "struct Ethordle.Player storage ref"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 16,
+                                          "type": "mapping(address => struct Ethordle.Player storage ref)",
+                                          "value": "players"
+                                        },
+                                        "id": 44,
+                                        "name": "Identifier",
+                                        "src": "549:7:0"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 21,
+                                          "type": "address",
+                                          "value": "_player"
+                                        },
+                                        "id": 45,
+                                        "name": "Identifier",
+                                        "src": "557:7:0"
+                                      }
+                                    ],
+                                    "id": 46,
+                                    "name": "IndexAccess",
+                                    "src": "549:16:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 36,
+                                      "type": "struct Ethordle.Player memory",
+                                      "value": "player"
+                                    },
+                                    "id": 47,
+                                    "name": "Identifier",
+                                    "src": "568:6:0"
+                                  }
+                                ],
+                                "id": 48,
+                                "name": "Assignment",
+                                "src": "549:25:0"
+                              }
+                            ],
+                            "id": 49,
+                            "name": "ExpressionStatement",
+                            "src": "549:25:0"
+                          }
+                        ],
+                        "id": 50,
+                        "name": "Block",
+                        "src": "433:153:0"
+                      }
+                    ],
+                    "id": 51,
+                    "name": "IfStatement",
+                    "src": "403:183:0"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "++",
+                          "prefix": false,
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "wordCount",
+                              "referencedDeclaration": 8,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "struct Ethordle.Player storage ref"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 16,
+                                      "type": "mapping(address => struct Ethordle.Player storage ref)",
+                                      "value": "players"
+                                    },
+                                    "id": 52,
+                                    "name": "Identifier",
+                                    "src": "598:7:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 21,
+                                      "type": "address",
+                                      "value": "_player"
+                                    },
+                                    "id": 53,
+                                    "name": "Identifier",
+                                    "src": "606:7:0"
+                                  }
+                                ],
+                                "id": 54,
+                                "name": "IndexAccess",
+                                "src": "598:16:0"
+                              }
+                            ],
+                            "id": 55,
+                            "name": "MemberAccess",
+                            "src": "598:26:0"
+                          }
+                        ],
+                        "id": 56,
+                        "name": "UnaryOperation",
+                        "src": "598:28:0"
+                      }
+                    ],
+                    "id": 57,
+                    "name": "ExpressionStatement",
+                    "src": "598:28:0"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "uint256",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_string_memory_ptr",
+                                  "typeString": "string memory"
+                                }
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "push",
+                              "referencedDeclaration": null,
+                              "type": "function (string storage ref) returns (uint256)"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "words",
+                                  "referencedDeclaration": 11,
+                                  "type": "string storage ref[] storage ref"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": false,
+                                      "type": "struct Ethordle.Player storage ref"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 16,
+                                          "type": "mapping(address => struct Ethordle.Player storage ref)",
+                                          "value": "players"
+                                        },
+                                        "id": 58,
+                                        "name": "Identifier",
+                                        "src": "637:7:0"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 21,
+                                          "type": "address",
+                                          "value": "_player"
+                                        },
+                                        "id": 59,
+                                        "name": "Identifier",
+                                        "src": "645:7:0"
+                                      }
+                                    ],
+                                    "id": 60,
+                                    "name": "IndexAccess",
+                                    "src": "637:16:0"
+                                  }
+                                ],
+                                "id": 61,
+                                "name": "MemberAccess",
+                                "src": "637:22:0"
+                              }
+                            ],
+                            "id": 62,
+                            "name": "MemberAccess",
+                            "src": "637:27:0"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 23,
+                              "type": "string memory",
+                              "value": "_word"
+                            },
+                            "id": 63,
+                            "name": "Identifier",
+                            "src": "665:5:0"
+                          }
+                        ],
+                        "id": 64,
+                        "name": "FunctionCall",
+                        "src": "637:34:0"
+                      }
+                    ],
+                    "id": 65,
+                    "name": "ExpressionStatement",
+                    "src": "637:34:0"
+                  }
+                ],
+                "id": 66,
+                "name": "Block",
+                "src": "392:295:0"
+              }
+            ],
+            "id": 67,
+            "name": "FunctionDefinition",
+            "src": "321:366:0"
+          },
+          {
+            "attributes": {
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "getWord",
+              "scope": 100,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_player",
+                      "scope": 99,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 68,
+                        "name": "ElementaryTypeName",
+                        "src": "712:7:0"
+                      }
+                    ],
+                    "id": 69,
+                    "name": "VariableDeclaration",
+                    "src": "712:15:0"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "index",
+                      "scope": 99,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 70,
+                        "name": "ElementaryTypeName",
+                        "src": "729:7:0"
+                      }
+                    ],
+                    "id": 71,
+                    "name": "VariableDeclaration",
+                    "src": "729:13:0"
+                  }
+                ],
+                "id": 72,
+                "name": "ParameterList",
+                "src": "711:32:0"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "word",
+                      "scope": 99,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 73,
+                        "name": "ElementaryTypeName",
+                        "src": "765:6:0"
+                      }
+                    ],
+                    "id": 74,
+                    "name": "VariableDeclaration",
+                    "src": "765:18:0"
+                  }
+                ],
+                "id": 75,
+                "name": "ParameterList",
+                "src": "764:20:0"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          },
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "==",
+                          "type": "bool"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "id",
+                              "referencedDeclaration": 6,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "struct Ethordle.Player storage ref"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 16,
+                                      "type": "mapping(address => struct Ethordle.Player storage ref)",
+                                      "value": "players"
+                                    },
+                                    "id": 76,
+                                    "name": "Identifier",
+                                    "src": "800:7:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 69,
+                                      "type": "address",
+                                      "value": "_player"
+                                    },
+                                    "id": 77,
+                                    "name": "Identifier",
+                                    "src": "808:7:0"
+                                  }
+                                ],
+                                "id": 78,
+                                "name": "IndexAccess",
+                                "src": "800:16:0"
+                              }
+                            ],
+                            "id": 79,
+                            "name": "MemberAccess",
+                            "src": "800:19:0"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "30",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 0",
+                              "value": "0"
+                            },
+                            "id": 80,
+                            "name": "Literal",
+                            "src": "823:1:0"
+                          }
+                        ],
+                        "id": 81,
+                        "name": "BinaryOperation",
+                        "src": "800:24:0"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "string memory"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 74,
+                                      "type": "string memory",
+                                      "value": "word"
+                                    },
+                                    "id": 82,
+                                    "name": "Identifier",
+                                    "src": "841:4:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "hexvalue": "",
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": true,
+                                      "lValueRequested": false,
+                                      "subdenomination": null,
+                                      "token": "string",
+                                      "type": "literal_string \"\"",
+                                      "value": ""
+                                    },
+                                    "id": 83,
+                                    "name": "Literal",
+                                    "src": "848:2:0"
+                                  }
+                                ],
+                                "id": 84,
+                                "name": "Assignment",
+                                "src": "841:9:0"
+                              }
+                            ],
+                            "id": 85,
+                            "name": "ExpressionStatement",
+                            "src": "841:9:0"
+                          }
+                        ],
+                        "id": 86,
+                        "name": "Block",
+                        "src": "826:36:0"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "string memory"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 74,
+                                      "type": "string memory",
+                                      "value": "word"
+                                    },
+                                    "id": 87,
+                                    "name": "Identifier",
+                                    "src": "883:4:0"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": false,
+                                      "type": "string storage ref"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "isConstant": false,
+                                          "isLValue": true,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "member_name": "words",
+                                          "referencedDeclaration": 11,
+                                          "type": "string storage ref[] storage ref"
+                                        },
+                                        "children": [
+                                          {
+                                            "attributes": {
+                                              "argumentTypes": null,
+                                              "isConstant": false,
+                                              "isLValue": true,
+                                              "isPure": false,
+                                              "lValueRequested": false,
+                                              "type": "struct Ethordle.Player storage ref"
+                                            },
+                                            "children": [
+                                              {
+                                                "attributes": {
+                                                  "argumentTypes": null,
+                                                  "overloadedDeclarations": [
+                                                    null
+                                                  ],
+                                                  "referencedDeclaration": 16,
+                                                  "type": "mapping(address => struct Ethordle.Player storage ref)",
+                                                  "value": "players"
+                                                },
+                                                "id": 88,
+                                                "name": "Identifier",
+                                                "src": "890:7:0"
+                                              },
+                                              {
+                                                "attributes": {
+                                                  "argumentTypes": null,
+                                                  "overloadedDeclarations": [
+                                                    null
+                                                  ],
+                                                  "referencedDeclaration": 69,
+                                                  "type": "address",
+                                                  "value": "_player"
+                                                },
+                                                "id": 89,
+                                                "name": "Identifier",
+                                                "src": "898:7:0"
+                                              }
+                                            ],
+                                            "id": 90,
+                                            "name": "IndexAccess",
+                                            "src": "890:16:0"
+                                          }
+                                        ],
+                                        "id": 91,
+                                        "name": "MemberAccess",
+                                        "src": "890:22:0"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": null,
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 71,
+                                          "type": "uint256",
+                                          "value": "index"
+                                        },
+                                        "id": 92,
+                                        "name": "Identifier",
+                                        "src": "913:5:0"
+                                      }
+                                    ],
+                                    "id": 93,
+                                    "name": "IndexAccess",
+                                    "src": "890:29:0"
+                                  }
+                                ],
+                                "id": 94,
+                                "name": "Assignment",
+                                "src": "883:36:0"
+                              }
+                            ],
+                            "id": 95,
+                            "name": "ExpressionStatement",
+                            "src": "883:36:0"
+                          }
+                        ],
+                        "id": 96,
+                        "name": "Block",
+                        "src": "868:63:0"
+                      }
+                    ],
+                    "id": 97,
+                    "name": "IfStatement",
+                    "src": "796:135:0"
+                  }
+                ],
+                "id": 98,
+                "name": "Block",
+                "src": "785:153:0"
+              }
+            ],
+            "id": 99,
+            "name": "FunctionDefinition",
+            "src": "695:243:0"
+          }
+        ],
+        "id": 100,
+        "name": "ContractDefinition",
+        "src": "69:872:0"
+      }
+    ],
+    "id": 101,
+    "name": "SourceUnit",
+    "src": "33:910:0"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
+  },
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xDcB402DB16E6c662Dad8a0307197609048a46981",
+      "transactionHash": "0x2fafc7d61a95888ad45a7b34dd08913ac6b458067c7579aa18bf59433433855f"
+    }
+  },
+  "schemaVersion": "3.4.6",
+  "updatedAt": "2022-03-22T18:28:19.019Z",
+  "networkType": "ethereum",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}
