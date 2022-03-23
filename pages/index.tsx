@@ -89,6 +89,13 @@ const App = () => {
 
          setContract(ethordleContract);     
          
+         const isWordUnique = await ethordleContract.methods.isWordUnique(solution).call();           
+            
+         if (!isWordUnique) {
+            alert('Woops, word is not unique');
+            return;
+         }
+
          console.log(accounts[0]);
          const player = await ethordleContract.methods.players(accounts[0]).call();
 
@@ -207,7 +214,7 @@ const App = () => {
 
          if (guess == solution) {
             gameStatus = 'won';
-            contract.methods.registerSolution(account, solution).send({ from: account });           
+            contract.methods.registerWord(account, solution).send({ from: account });           
             showSummary();
          }
          else if (currentRowIndex >= maxGuesses - 1) {
@@ -283,11 +290,6 @@ const App = () => {
          </Head>
         
          <div>{account}</div>
-         <div>Current row: {currentRowIndex}</div>
-         <div>Current tile: {currentTileIndex}</div>
-         <h1>Players</h1>
-         
-         <button onClick={handleIncrement}>Add person</button>
          <div className='main'>
             <Title title={appName}></Title>
             <Grid grid={grid}></Grid>
