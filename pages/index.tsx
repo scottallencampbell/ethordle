@@ -7,14 +7,19 @@ import { Keyboard } from '../components/Keyboard';
 import { Introduction } from '../components/Introduction';
 import { Title } from '../components/Tile';
 import { Summary } from '../components/Summary';
+import { TokenList } from '../components/TokenList';
 import Head from 'next/head';
 import Web3 from 'web3';
-import EthordleContract from '../abis/Ethordle.json';
+import GameContract from '../abis/EthordleGame.json';
+import TokenContract from '../abis/EthordleToken.json';
+import * as Entities from '../model/entities';
+import { isConstructorDeclaration } from 'typescript';
+
+declare let window: any;
 
 words.push(...solutions);
 
 const appName = 'Ethordle';
-const solution = solutions[Math.floor(Math.random() * solutions.length)];
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -27,30 +32,31 @@ const wordDictionary = Object.assign({}, ...words.map((x) => ({ [x]: x })));
 
 const startingKeyboard: Entities.KeyboardLetter[][] = letters.map((row, i) => {
    return row.map((letter, j) => {
-      return { value: letter, status: '', rowIndex: i, keyIndex: j };
+      return { value: letter, status: Entities.TileStatus.None, rowIndex: i, keyIndex: j };
    });
 });
 
 const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses)).map((row, i) => {
    return Array.apply(null, Array(wordLength)).map((tile, j) => {
-      return { value: '', status: '', rowIndex: i, tileIndex: j };
+      return { value: '', status: Entities.TileStatus.None, rowIndex: i, tileIndex: j };
    });
 })
 
 const statisticsCookieName = 'statistics';
-var gameStatus = 'started';
 
 const App = () => {
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
+   const [solution, setSolution] = useState('');
    const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
    const [account, setAccount] = useState('');
-   const [contract, setContract] = useState(null);
-   const [players, setPlayers] = useState([]);
-   const [playerCount, setPlayerCount] = useState(0);
-   
+   const [tokens, setTokens] = useState([]);
+   const [gameContract, setGameContract] = useState(null);
+   const [tokenContract, setTokenContract] = useState(null);
+   const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
+  
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
       return () => { document.removeEventListener('keydown', handleKeyDown); }
@@ -76,48 +82,66 @@ const App = () => {
 
    const loadBlockchainData = async () => {
       const web3 = window.web3;
-      const accounts = await web3.eth.getAccounts()
+      const accounts = await web3.eth.getAccounts();
       setAccount(accounts[0]);
 
-      const networkId = await web3.eth.net.getId()
-      const networkData = EthordleContract.networks[networkId]
+      const networkId = await web3.eth.net.getId();
+      const gameNetworkData = GameContract.networks[networkId];
+      const tokenNetworkData = TokenContract.networks[networkId];
 
-      if (networkData) {
-         const abi = EthordleContract.abi;
-         const address = networkData.address;
-         const ethordleContract = new web3.eth.Contract(abi, address);
-
-         setContract(ethordleContract);     
-         
-         const isWordUnique = await ethordleContract.methods.isWordUnique(solution).call();           
-            
-         if (!isWordUnique) {
-            alert('Woops, word is not unique');
-            return;
-         }
-
-         console.log(accounts[0]);
-         const player = await ethordleContract.methods.players(accounts[0]).call();
-
-         console.log(player.wordCount);
+      if (gameNetworkData && tokenNetworkData) {
+         const gameAddress = gameNetworkData.address;         
+         const gameAbi = GameContract.abi;
+         const gameContract = new web3.eth.Contract(gameAbi, gameAddress);
+         setGameContract(gameContract);     
+   
+         const tokenAddress = tokenNetworkData.address;
+         const tokenAbi = TokenContract.abi;
+         const tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress);
+         setTokenContract(tokenContract);     
       
+         console.log("Account: " + accounts[0]);
+         console.log("GameAddress: " + gameAddress);
+         console.log("TokenAddress: " + tokenAddress);
+         
+         const player = await gameContract.methods.players(accounts[0]).call();
+
          for (let i = 0; i < player.wordCount; i++) {
-            const word = await ethordleContract.methods.getWord(accounts[0], i).call();
+            const word = await gameContract.methods.getWord(accounts[0], i).call();
             console.log(word);
          }
+        
+         const tokenCount = await tokenContract.methods.getMintedTokenCount().call();           
+         var existingTokens: string[] = [];         
 
+         for (let i = 0; i < tokenCount; i++) {
+            const tokenURI = await tokenContract.methods.tokenURI(i).call();           
+            existingTokens.push(tokenURI);            
+         }
+        
+         setTokens(existingTokens);
+
+         const maxAttempts = 100;
+
+         for (let i = 0; i < maxAttempts; i++) {
+            let solution = solutions[Math.floor(Math.random() * solutions.length)];
+   
+            const isWordUnique = await gameContract.methods.isWordUnique(solution).call();           
+               
+            if (isWordUnique) {
+               setSolution(solution);
+               return;
+            }
+         }
+   
+         window.alert(`Unable to determine a unique solution after ${maxAttempts} attempts`);         
       } else {
-         window.alert('Smart contract not deployed to detected network.')
+         window.alert('Smart contract not deployed to a detected network.')
       }
    }
 
-   const handleIncrement = async (e) => {
-      const newCount = await contract.methods.playerCount().call();
-      setPlayerCount(newCount);
-   }
-
    const handleKeyDown = (e) => {
-      if (gameStatus == 'won' || gameStatus == 'lost') {
+      if (gameStatus == Entities.GameStatus.Won || gameStatus == Entities.GameStatus.Lost) {
          return;
       }
 
@@ -140,7 +164,7 @@ const App = () => {
       let thisTile = newGrid[currentRowIndex][currentTileIndex];
 
       thisTile.value = letter;
-      thisTile.status = 'entered';
+      thisTile.status = Entities.TileStatus.Entered;
 
       setGrid(newGrid);
       setCurrentTileIndex(currentTileIndex + 1);
@@ -155,10 +179,10 @@ const App = () => {
       for (const [i, tile] of newGrid[currentRowIndex].entries()) {
 
          if (i >= currentTileIndex - 1) {
-            tile.status = '';
+            tile.status = Entities.TileStatus.None;
          }
          else {
-            tile.status = 'entered-no-animation';
+            tile.status =  Entities.TileStatus.EnteredNoAnimation;
          }
       }
 
@@ -169,24 +193,24 @@ const App = () => {
    const evaluateWord = (guess, row, keyboard) => {
       if (!wordDictionary[guess]) {
          for (const tile of row) {
-            tile.status = 'error';
+            tile.status = Entities.TileStatus.Error;
          }
          return false;
       }
       else {
          for (const [i, tile] of row.entries()) {
             if (tile.value == solution.charAt(i)) {
-               tile.status = 'correct';
+               tile.status = Entities.TileStatus.Correct;
             }
          }
 
          for (const [i, tile] of row.entries()) {
-            if (tile.status == 'correct') { continue; }
+            if (tile.status == Entities.TileStatus.Correct) { continue; }
 
-            let matchesSoFar = row.filter(item => item.value == tile.value && (item.status == 'correct' || item.status == 'incorrect-position')).length;
+            let matchesSoFar = row.filter(item => item.value == tile.value && (item.status == Entities.TileStatus.Correct || item.status == Entities.TileStatus.IncorrectPosition)).length;
             let matchesInSolution = solution.split('').filter(x => x == tile.value).length;
 
-            tile.status = matchesInSolution > matchesSoFar ? 'incorrect-position' : 'incorrect';
+            tile.status = matchesInSolution > matchesSoFar ? Entities.TileStatus.IncorrectPosition : Entities.TileStatus.Incorrect;
          }
 
          for (const [i, tile] of row.entries()) {
@@ -213,12 +237,13 @@ const App = () => {
          setKeyboard(newKeyboard);
 
          if (guess == solution) {
-            gameStatus = 'won';
-            contract.methods.registerWord(account, solution).send({ from: account });           
+            setGameStatus(Entities.GameStatus.Won);
+            console.log('minting ' + solution + ' to ' + account);
+            tokenContract.methods.mint(account, solution, `solutions/${solution}.png` ).send({ from: account });
             showSummary();
          }
          else if (currentRowIndex >= maxGuesses - 1) {
-            gameStatus = 'lost';
+            setGameStatus(Entities.GameStatus.Lost);
             showSummary();
          }
       }
@@ -239,7 +264,7 @@ const App = () => {
       newStatistics.gamesPlayed++;
       newStatistics.solution = solution;
 
-      if (gameStatus == 'won') {
+      if (gameStatus == Entities.GameStatus.Won) {
          newStatistics.gamesWon++;
          newStatistics.streak++;
          newStatistics.guesses[currentRowIndex]++;
@@ -289,13 +314,17 @@ const App = () => {
             <link rel='icon' href='/favicon.ico'></link>
          </Head>
         
-         <div>{account}</div>
+         <div className='top-bar'>
+            <div className='token-count'>NFTs earned: <a href='/tokens'>{tokens.length}</a></div>
+            <div className='account'>{account}</div>
+         </div>
          <div className='main'>
             <Title title={appName}></Title>
             <Grid grid={grid}></Grid>
             <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
             <Introduction></Introduction>
             <Summary statistics={statistics}></Summary>
+            <TokenList tokens={tokens}></TokenList>
          </div>
       </>
    )

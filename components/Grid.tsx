@@ -1,3 +1,4 @@
+import * as Entities from '../model/entities';
 import { GridRow } from './GridRow';
 
 interface IGrid {

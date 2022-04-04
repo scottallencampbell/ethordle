@@ -1,3 +1,5 @@
+import * as Entities from '../model/entities';
+
 import Popup from 'reactjs-popup';
 import { StaticGridRow } from './GridRow';
 
@@ -42,7 +44,7 @@ export const Summary = ({ statistics } : ISummary) => {
                         statistics.guesses.map((guess, i) => {
                            const percent = Math.round(100 * guess / statistics.gamesWon);
                            return (
-                              <div className='chart'>
+                              <div key={`bar-${i}`} className='chart'>
                                  <span className='number'>{i+1}</span>
                                  <ul className='horiz'>
                                     <li className='bar' style={{ width: percent + '%' }}>

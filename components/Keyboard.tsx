@@ -1,3 +1,5 @@
+import * as Entities from '../model/entities';
+
 interface IKeyboard {
    keyboard: Entities.KeyboardLetter[][],
    handleKeyDown: Function

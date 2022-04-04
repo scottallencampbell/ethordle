@@ -1,4 +1,5 @@
 import { GridTile } from './GridTile';
+import * as Entities from '../model/entities';
 
 interface IGridRow {
    row: Entities.GridTile[]
@@ -11,10 +12,10 @@ interface IStaticGridRow {
 }
 
 const statusCodes = new Map([
-   ['X', 'correct'],
-   ['O', 'incorrect-position'],
-   ['-', 'incorrect'],
-   [' ', 'entered']
+   ['X', Entities.TileStatus.Correct],
+   ['O', Entities.TileStatus.IncorrectPosition],
+   ['-', Entities.TileStatus.Incorrect],
+   [' ', Entities.TileStatus.Entered]
 ]);
 
 export const GridRow = ({ row } : IGridRow) => {

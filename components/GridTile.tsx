@@ -1,3 +1,5 @@
+import * as Entities from '../model/entities';
+
 interface IGridTile {
    tile: Entities.GridTile
 }
