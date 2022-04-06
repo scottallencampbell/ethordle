@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
@@ -13,7 +14,6 @@ import Web3 from 'web3';
 import GameContract from '../abis/EthordleGame.json';
 import TokenContract from '../abis/EthordleToken.json';
 import * as Entities from '../model/entities';
-import { isConstructorDeclaration } from 'typescript';
 
 declare let window: any;
 
@@ -106,12 +106,16 @@ const App = () => {
          
          const player = await gameContract.methods.players(accounts[0]).call();
 
-         for (let i = 0; i < player.wordCount; i++) {
-            const word = await gameContract.methods.getWord(accounts[0], i).call();
-            console.log(word);
+         if (player) {
+            for (let i = 0; i < player.wordCount; i++) {
+               const word = await gameContract.methods.getWord(accounts[0], i).call();
+               console.log(word);
+            }
          }
-        
-         const tokenCount = await tokenContract.methods.getMintedTokenCount().call();           
+
+         const tokenCount = await tokenContract.methods.getMintedTokenCount().call();         
+         console.log("Token count: " + tokenCount);
+
          var existingTokens: string[] = [];         
 
          for (let i = 0; i < tokenCount; i++) {
@@ -130,6 +134,7 @@ const App = () => {
                
             if (isWordUnique) {
                setSolution(solution);
+               console.log(solution);
                return;
             }
          }
@@ -308,25 +313,30 @@ const App = () => {
    }
 
    return (
-      <>
-         <Head>
-            <title>{appName}</title>
-            <link rel='icon' href='/favicon.ico'></link>
-         </Head>
-        
-         <div className='top-bar'>
-            <div className='token-count'>NFTs earned: <a href='/tokens'>{tokens.length}</a></div>
-            <div className='account'>{account}</div>
-         </div>
+      <BrowserRouter>
+      <Head>
+         <title>{appName}</title>
+         <link rel='icon' href='/favicon.ico'></link>
+      </Head>
+      <div className='top-bar'>
+         <div className='token-count'>NFTs earned: <a href='/tokens'>{tokens.length}</a></div>
+         <div className='account'>{account}</div>
+      </div>
+      <Routes>
+      <Route path='/' element={
          <div className='main'>
             <Title title={appName}></Title>
             <Grid grid={grid}></Grid>
             <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
             <Introduction></Introduction>
             <Summary statistics={statistics}></Summary>
-            <TokenList tokens={tokens}></TokenList>
          </div>
-      </>
+         } />
+      <Route path='/tokenlist' element={
+         <TokenList tokens={tokens}></TokenList>
+      }  />
+      </Routes>
+      </BrowserRouter>
    )
 }
 

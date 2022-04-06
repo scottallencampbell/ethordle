@@ -1,32 +1,32 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
-
-import "@openzeppelin/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract EthordleToken is ERC721PresetMinterPauserAutoId {
+contract EthordleToken is ERC721, Ownable {
     
-    using Strings for uint256;
+using Strings for uint256;
     
     // Optional mapping for token URIs
     mapping (uint256 => string) private _tokenURIs;
-   
-    uint256 private _mintedTokenCount;
+
+    // Base URI
+    uint256 private _currentTokenId;
     string private _baseURIextended;
+
+    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
+        _currentTokenId = 0;
+    }
     
-    constructor(string memory _name, string memory _symbol, string memory _baseTokenURI)
-        ERC721PresetMinterPauserAutoId(_name, _symbol, _baseTokenURI);
-    {}
-    
+    function getMintedTokenCount() public view returns (uint256) {
+        return _currentTokenId;
+    }
+     
     function setBaseURI(string memory baseURI_) external onlyOwner() {
         _baseURIextended = baseURI_;
     }
-
-    function getMintedTokenCount() public view returns (uint256) {
-        return _mintedTokenCount;
-    }
     
-    function _setTokenDetails(uint256 tokenId, string memory _tokenURI) virtual internal {
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
     }
@@ -55,10 +55,12 @@ contract EthordleToken is ERC721PresetMinterPauserAutoId {
     
     function mint(
         address _to,
-        string memory tokenURI_
-    ) external {        
-        _safeMint(_to, _mintedTokenCount);
-        _setTokenURI(_mintedTokenCount, tokenURI_);
-        _mintedTokenCount++;
+        string memory _solution,
+        string memory _tokenURI
+    ) external onlyOwner() {
+        _mint(_to, _currentTokenId);
+        _setTokenURI(_currentTokenId, _tokenURI);
+
+        _currentTokenId++;
     }
 }
