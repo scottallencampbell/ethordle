@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
 import { Keyboard } from '../components/Keyboard';
 import { Introduction } from '../components/Introduction';
-import { Title } from '../components/Tile';
+import { Title } from '../components/Title';
 import { Summary } from '../components/Summary';
+import { ModeChooser } from '../components/ModeChooser';
 import { TokenList } from '../components/TokenList';
+import { StatusBar } from '../components/StatusBar';
+
 import Head from 'next/head';
 import Web3 from 'web3';
 import GameContract from '../abis/EthordleGame.json';
 import TokenContract from '../abis/EthordleToken.json';
+import { transpileModule } from 'typescript';
 import * as Entities from '../model/entities';
 
 declare let window: any;
@@ -56,6 +59,8 @@ const App = () => {
    const [gameContract, setGameContract] = useState(null);
    const [tokenContract, setTokenContract] = useState(null);
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
+   const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
+   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
   
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
@@ -63,20 +68,36 @@ const App = () => {
    });
 
    useEffect(() => {
-      loadWeb3();
-      loadBlockchainData();
-   }, []);
+      (async () => {
+         setTimeout(() => {
+            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load')});            
+         }, 1000);
 
+         const isEthereumEnabled = await loadWeb3();
+               
+         if (isEthereumEnabled) {
+            await loadBlockchainData();
+         } else {
+            setIsGameModePopupOpen(true);
+         }
+
+         let uniqueSolution = await chooseSolution(isEthereumEnabled);
+         setSolution(uniqueSolution);
+      })();
+   }, [])
+ 
    const loadWeb3 = async () => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
          await window.ethereum.enable();
+         return true;
       }
       else if (window.web3) {
          window.web3 = new Web3(window.web3.currentProvider);
+         return transpileModule;
       }
       else {
-         window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
+         return false;
       }
    }
 
@@ -100,9 +121,11 @@ const App = () => {
          const tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress);
          setTokenContract(tokenContract);     
       
-         console.log("Account: " + accounts[0]);
-         console.log("GameAddress: " + gameAddress);
-         console.log("TokenAddress: " + tokenAddress);
+         console.log('Account: ' + accounts[0]);
+         console.log('GameAddress: ' + gameAddress);
+         console.log('GameContract: ' + gameContract);
+         console.log('TokenAddress: ' + tokenAddress);
+         console.log('TokenContract: ' + tokenContract);
          
          const player = await gameContract.methods.players(accounts[0]).call();
 
@@ -114,8 +137,6 @@ const App = () => {
          }
 
          const tokenCount = await tokenContract.methods.getMintedTokenCount().call();         
-         console.log("Token count: " + tokenCount);
-
          var existingTokens: string[] = [];         
 
          for (let i = 0; i < tokenCount; i++) {
@@ -124,22 +145,6 @@ const App = () => {
          }
         
          setTokens(existingTokens);
-
-         const maxAttempts = 100;
-
-         for (let i = 0; i < maxAttempts; i++) {
-            let solution = solutions[Math.floor(Math.random() * solutions.length)];
-   
-            const isWordUnique = await gameContract.methods.isWordUnique(solution).call();           
-               
-            if (isWordUnique) {
-               setSolution(solution);
-               console.log(solution);
-               return;
-            }
-         }
-   
-         window.alert(`Unable to determine a unique solution after ${maxAttempts} attempts`);         
       } else {
          window.alert('Smart contract not deployed to a detected network.')
       }
@@ -162,6 +167,35 @@ const App = () => {
          if (currentTileIndex < wordLength) { return; }
          enterWord();
       }
+   }
+
+   const chooseSolution = async (isEthereumEnabled) => {      
+      const maxAttempts = 100;
+
+      for (let i = 0; i < maxAttempts; i++) {
+         let solution = solutions[Math.floor(Math.random() * solutions.length)];
+         console.log(`${i}: ${solution}`);
+            
+         if (!isEthereumEnabled) {                   
+            return solution;
+         } else {
+
+            // why is gameContract null?? 
+
+            console.log('Account: ' + account);
+            console.log('GameContract: ' + gameContract);
+            console.log('TokenContract: ' + tokenContract);
+            return solution;
+          //  const isWordUnique = await gameContract.methods.isWordUnique(solution).call();           
+               
+           // if (isWordUnique) {              
+          //     return solution;
+          //  }
+         }
+      }
+
+      window.alert(`Unable to determine a unique solution after ${maxAttempts} attempts`);         
+      return '';
    }
 
    const enterLetter = (letter) => {
@@ -243,8 +277,12 @@ const App = () => {
 
          if (guess == solution) {
             setGameStatus(Entities.GameStatus.Won);
-            console.log('minting ' + solution + ' to ' + account);
-            tokenContract.methods.mint(account, solution, `solutions/${solution}.png` ).send({ from: account });
+
+            if (account !== '') {
+               console.log('minting ' + solution + ' to ' + account);
+               tokenContract.methods.mint(account, solution, `solutions/${solution}.png` ).send({ from: account });
+            }
+
             showSummary();
          }
          else if (currentRowIndex >= maxGuesses - 1) {
@@ -313,30 +351,21 @@ const App = () => {
    }
 
    return (
-      <BrowserRouter>
+      <>
       <Head>
          <title>{appName}</title>
          <link rel='icon' href='/favicon.ico'></link>
       </Head>
-      <div className='top-bar'>
-         <div className='token-count'>NFTs earned: <a href='/tokens'>{tokens.length}</a></div>
-         <div className='account'>{account}</div>
+      {account === '' ? null : <StatusBar account={account} tokenCount={tokens.length}></StatusBar>}
+      <div className='main'>
+         <Title title={appName}></Title>
+         <Grid grid={grid}></Grid>
+         <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
+         <Introduction></Introduction>
+         <Summary statistics={statistics}></Summary>
+         <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>     
       </div>
-      <Routes>
-      <Route path='/' element={
-         <div className='main'>
-            <Title title={appName}></Title>
-            <Grid grid={grid}></Grid>
-            <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
-            <Introduction></Introduction>
-            <Summary statistics={statistics}></Summary>
-         </div>
-         } />
-      <Route path='/tokenlist' element={
-         <TokenList tokens={tokens}></TokenList>
-      }  />
-      </Routes>
-      </BrowserRouter>
+      </>
    )
 }
 

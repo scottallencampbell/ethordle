@@ -9,7 +9,7 @@ export const Title = ({ title }: ITitle) => {
    useEffect(() => {
       setTimeout(() => {
             document.getElementById('title').classList.add('flippable');
-         }, 1);
+         }, 100);
       }, [])
 
    return (

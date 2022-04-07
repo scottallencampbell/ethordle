@@ -22,6 +22,12 @@ export type Statistics = {
    averageGuesses?: number
 }
 
+export enum GameMode {
+   Unknown,
+   Blockchain,
+   Disconnected
+}
+
 export enum GameStatus {
    Started,
    Won,
