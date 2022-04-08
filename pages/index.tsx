@@ -161,11 +161,15 @@ const App = () => {
    const updateTokenList = async () => {
       const tokenCount = await tokenContract.methods.getMintedTokenCount().call();      
       
-      var existingTokens: string[] = [];         
+      var existingTokens: Entities.TokenMetadata[] = [];         
 
       for (let i = 0; i < tokenCount; i++) {
-         const tokenURI = await tokenContract.methods.tokenURI(i).call();           
-         existingTokens.push(tokenURI);            
+         const tokenURI = await tokenContract.methods.tokenURI(i).call();   
+         const metadataFile = await downloadFile(tokenURI);    
+         const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
+         const metadata = JSON.parse(metadataString);
+         
+         existingTokens.push(metadata);            
       }
      
       setTokens(existingTokens);
@@ -442,10 +446,12 @@ const App = () => {
          <Title title={appName}></Title>
          <Grid grid={grid}></Grid>
          <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
-         <Introduction></Introduction>
-         <Summary statistics={statistics}></Summary>
-         <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>     
+         {account === '' || !tokens ? null : <TokenList tokens={tokens}></TokenList> }
+      
       </div>
+      <Introduction></Introduction>
+      <Summary statistics={statistics}></Summary>
+      <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
       </>
    )
 }
