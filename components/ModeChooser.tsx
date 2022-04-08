@@ -11,7 +11,6 @@ interface IModeChooser {
 export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopupOpen} : IModeChooser) => {
   
    const downloadFile = () => {
-      setGameMode(Entities.GameMode.Blockchain);
       window.location.href = 'https://metamask.io/download/';
    }
 
@@ -20,7 +19,7 @@ export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopu
    }
 
    return (
-      <Popup modal open={isGameModePopupOpen} closeOnDocumentClick={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isGameModePopupOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='mode-chooser' className='modal'>           
             <div className='content'>

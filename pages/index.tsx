@@ -15,7 +15,6 @@ import Head from 'next/head';
 import Web3 from 'web3';
 import GameContract from '../abis/EthordleGame.json';
 import TokenContract from '../abis/EthordleToken.json';
-import { transpileModule } from 'typescript';
 import * as Entities from '../model/entities';
 
 declare let window: any;
@@ -55,7 +54,7 @@ const App = () => {
    const [solution, setSolution] = useState('');
    const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
    const [account, setAccount] = useState('');
-   const [tokens, setTokens] = useState([]);
+   const [tokens, setTokens] = useState(null);
    const [gameContract, setGameContract] = useState(null);
    const [tokenContract, setTokenContract] = useState(null);
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
@@ -69,6 +68,18 @@ const App = () => {
 
    useEffect(() => {
       (async () => {
+         if (gameMode == Entities.GameMode.Unknown) { return; }
+
+         let uniqueSolution = await chooseSolution();
+         setSolution(uniqueSolution);
+
+         if (gameMode != Entities.GameMode.Blockchain) { return; }         
+         await updateTokenList();
+      })();
+   }, [gameMode]);
+
+   useEffect(() => {
+      (async () => {
          setTimeout(() => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load')});            
          }, 1000);
@@ -76,25 +87,29 @@ const App = () => {
          const isEthereumEnabled = await loadWeb3();
                
          if (isEthereumEnabled) {
-            await loadBlockchainData();
+            await loadBlockchainData();         
          } else {
             setIsGameModePopupOpen(true);
          }
-
-         let uniqueSolution = await chooseSolution(isEthereumEnabled);
-         setSolution(uniqueSolution);
       })();
    }, [])
  
    const loadWeb3 = async () => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
-         await window.ethereum.enable();
-         return true;
+
+         try {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            return true;
+         }
+         catch (error) {
+            console.log(error);
+            return false;
+         }    
       }
       else if (window.web3) {
-         window.web3 = new Web3(window.web3.currentProvider);
-         return transpileModule;
+         window.web3 = new Web3(window.ethereum);
+         return true;
       }
       else {
          return false;
@@ -126,28 +141,24 @@ const App = () => {
          console.log('GameContract: ' + gameContract);
          console.log('TokenAddress: ' + tokenAddress);
          console.log('TokenContract: ' + tokenContract);
-         
-         const player = await gameContract.methods.players(accounts[0]).call();
-
-         if (player) {
-            for (let i = 0; i < player.wordCount; i++) {
-               const word = await gameContract.methods.getWord(accounts[0], i).call();
-               console.log(word);
-            }
-         }
-
-         const tokenCount = await tokenContract.methods.getMintedTokenCount().call();         
-         var existingTokens: string[] = [];         
-
-         for (let i = 0; i < tokenCount; i++) {
-            const tokenURI = await tokenContract.methods.tokenURI(i).call();           
-            existingTokens.push(tokenURI);            
-         }
-        
-         setTokens(existingTokens);
-      } else {
+      
+         setGameMode(Entities.GameMode.Blockchain);      
+      } else {         
          window.alert('Smart contract not deployed to a detected network.')
       }
+   }
+
+   const updateTokenList = async () => {
+      const tokenCount = await tokenContract.methods.getMintedTokenCount().call();      
+      
+      var existingTokens: string[] = [];         
+
+      for (let i = 0; i < tokenCount; i++) {
+         const tokenURI = await tokenContract.methods.tokenURI(i).call();           
+         existingTokens.push(tokenURI);            
+      }
+     
+      setTokens(existingTokens);
    }
 
    const handleKeyDown = (e) => {
@@ -169,28 +180,21 @@ const App = () => {
       }
    }
 
-   const chooseSolution = async (isEthereumEnabled) => {      
+   const chooseSolution = async () : Promise<string> => {      
       const maxAttempts = 100;
 
       for (let i = 0; i < maxAttempts; i++) {
          let solution = solutions[Math.floor(Math.random() * solutions.length)];
          console.log(`${i}: ${solution}`);
             
-         if (!isEthereumEnabled) {                   
+         if (gameMode == Entities.GameMode.Disconnected ) {                   
             return solution;
          } else {
-
-            // why is gameContract null?? 
-
-            console.log('Account: ' + account);
-            console.log('GameContract: ' + gameContract);
-            console.log('TokenContract: ' + tokenContract);
-            return solution;
-          //  const isWordUnique = await gameContract.methods.isWordUnique(solution).call();           
-               
-           // if (isWordUnique) {              
-          //     return solution;
-          //  }
+            const isWordUnique = await gameContract.methods.isWordUnique(solution).call();           
+            
+            if (isWordUnique) {              
+               return solution;
+            }
          }
       }
 
@@ -229,7 +233,7 @@ const App = () => {
       setCurrentTileIndex(currentTileIndex - 1);
    }
 
-   const evaluateWord = (guess, row, keyboard) => {
+   const evaluateWord = (guess, row, keyboard) : boolean => {
       if (!wordDictionary[guess]) {
          for (const tile of row) {
             tile.status = Entities.TileStatus.Error;
@@ -263,7 +267,7 @@ const App = () => {
       }
    }
 
-   const enterWord = () => {
+   const enterWord = async () => {
       const newGrid = JSON.parse(JSON.stringify(grid));
       let newKeyboard = [...keyboard];
       let row = newGrid[currentRowIndex];
@@ -277,13 +281,13 @@ const App = () => {
 
          if (guess == solution) {
             setGameStatus(Entities.GameStatus.Won);
-
-            if (account !== '') {
-               console.log('minting ' + solution + ' to ' + account);
-               tokenContract.methods.mint(account, solution, `solutions/${solution}.png` ).send({ from: account });
-            }
-
             showSummary();
+
+            if (gameMode == Entities.GameMode.Blockchain) {
+               console.log('minting ' + solution + ' to ' + account);
+               await tokenContract.methods.mint(account, solution, `solutions/${solution}.png` ).send({ from: account });
+               await updateTokenList();
+            }
          }
          else if (currentRowIndex >= maxGuesses - 1) {
             setGameStatus(Entities.GameStatus.Lost);
@@ -294,7 +298,7 @@ const App = () => {
       setGrid(newGrid);
    }
 
-   const showSummary = () => {
+   const showSummary = async () => {
       let newStatistics: Entities.Statistics;
 
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
@@ -338,7 +342,7 @@ const App = () => {
       }, 1800);
    }
 
-   const getKeyboardLetter = (keyboard, letter) => {
+   const getKeyboardLetter = (keyboard, letter) : string => {
       let keyboardLetter;
 
       for (const row of keyboard) {
@@ -356,7 +360,7 @@ const App = () => {
          <title>{appName}</title>
          <link rel='icon' href='/favicon.ico'></link>
       </Head>
-      {account === '' ? null : <StatusBar account={account} tokenCount={tokens.length}></StatusBar>}
+      {account === '' ? null : <StatusBar account={account} tokens={tokens}></StatusBar>}
       <div className='main'>
          <Title title={appName}></Title>
          <Grid grid={grid}></Grid>

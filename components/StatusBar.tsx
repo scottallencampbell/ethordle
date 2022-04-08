@@ -2,14 +2,14 @@ import { useEffect } from "react";
 
 interface IStatusBar {
    account: string,
-   tokenCount: number
+   tokens: string[]
 }
 
-export const StatusBar = ({ account, tokenCount }: IStatusBar) => {
+export const StatusBar = ({ account, tokens }: IStatusBar) => {
 
    return (
       <div className='top-bar'>
-         <div className='token-count'>NFTs earned: <a href='/tokens'>{tokenCount}</a></div>
+         <div className='token-count'>NFTs earned: {tokens ? <a href='/tokens'>{tokens.length}</a> : null}</div>
          <div className='account'>{account}</div>
       </div>   
    )
