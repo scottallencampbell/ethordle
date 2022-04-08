@@ -17,6 +17,9 @@ import GameContract from '../abis/EthordleGame.json';
 import TokenContract from '../abis/EthordleToken.json';
 import * as Entities from '../model/entities';
 
+import { create } from "ipfs-http-client";
+const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+
 declare let window: any;
 
 words.push(...solutions);
@@ -29,6 +32,11 @@ const letters = [
    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
    ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Del']
 ];
+const statusToSymbolMap = new Map([
+   [Entities.TileStatus.Correct, 'X'],
+   [Entities.TileStatus.IncorrectPosition, 'O'],
+   [Entities.TileStatus.Incorrect, '-']
+]);
 
 const wordDictionary = Object.assign({}, ...words.map((x) => ({ [x]: x })));
 
@@ -45,6 +53,7 @@ const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses))
 })
 
 const statisticsCookieName = 'statistics';
+const startingTime = new Date().getTime();
 
 const App = () => {
    const [grid, setGrid] = useState(startingGrid);
@@ -60,7 +69,8 @@ const App = () => {
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
-  
+   const [guessResults, setGuessResults] = useState([]);
+   
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
       return () => { document.removeEventListener('keydown', handleKeyDown); }
@@ -233,12 +243,12 @@ const App = () => {
       setCurrentTileIndex(currentTileIndex - 1);
    }
 
-   const evaluateWord = (guess, row, keyboard) : boolean => {
+   const evaluateWord = (guess, row, keyboard) : [boolean, string] => {
       if (!wordDictionary[guess]) {
          for (const tile of row) {
             tile.status = Entities.TileStatus.Error;
          }
-         return false;
+         return [false, null];
       }
       else {
          for (const [i, tile] of row.entries()) {
@@ -262,8 +272,10 @@ const App = () => {
             keyboardLetter.status = tile.status;
             keyboardLetter.sequence = i;
          }
+        
+         var symbolMap = row.map((item) => { return statusToSymbolMap.get(item.status); }).join('');
 
-         return true;
+         return [true, symbolMap];
       }
    }
 
@@ -272,30 +284,95 @@ const App = () => {
       let newKeyboard = [...keyboard];
       let row = newGrid[currentRowIndex];
       let guess = row.map(letter => letter.value).join('');
-      let result = evaluateWord(guess, row, newKeyboard);
+      let [result, symbolMap] = evaluateWord(guess, row, newKeyboard);
 
       if (result) {
+         const newGuessResults = [...guessResults, symbolMap];
+         const secondsRequired = Math.round((new Date().getTime() - startingTime) / 1000);
+
          setCurrentRowIndex(currentRowIndex + 1);
          setCurrentTileIndex(0);
          setKeyboard(newKeyboard);
-
-         if (guess == solution) {
+         setGuessResults(newGuessResults);
+            
+         if (guess == solution) {            
             setGameStatus(Entities.GameStatus.Won);
             showSummary();
-
+            
             if (gameMode == Entities.GameMode.Blockchain) {
-               console.log('minting ' + solution + ' to ' + account);
-               await tokenContract.methods.mint(account, solution, `solutions/${solution}.png` ).send({ from: account });
-               await updateTokenList();
-            }
+               mintToken(solution, newGuessResults, secondsRequired);
+            }           
          }
          else if (currentRowIndex >= maxGuesses - 1) {
+
             setGameStatus(Entities.GameStatus.Lost);
             showSummary();
          }
       }
 
       setGrid(newGrid);
+   }
+   
+   const mintToken = async (tokenSolution : string, tokenGuessResults : string[], secondsRequired: number) => {
+      const imageFile = await downloadFile(`/solutions/${solution}.png`);
+      const imageUrl = await uploadFileToIpfs(imageFile);
+   
+      const metadata : Entities.TokenMetadata = { 
+         solution: tokenSolution, 
+         image: imageUrl,
+         secondsRequired: secondsRequired,
+         guesses: tokenGuessResults
+      };
+
+      const stringifiedMetadata = JSON.stringify(metadata, null, '   ');
+      const metadataUrl = await uploadMetadataToIpfs(stringifiedMetadata);
+      
+      console.log("Token metadata URL: " + metadataUrl);
+   
+      await tokenContract.methods.mint(account, tokenSolution, metadataUrl).send({ from: account });
+      await updateTokenList();      
+   }
+
+   const downloadFile = async (path : string) : Promise<ArrayBuffer> => {
+      try {
+         let buffer = new ArrayBuffer(0);
+         
+         await fetch(path)
+            .then(response => response.arrayBuffer())
+            .then(buf => { buffer = buf; });
+      
+         return buffer;
+      } 
+      catch (error) {
+         console.log(error);
+         return null;
+      }
+   }
+
+   const uploadFileToIpfs = async (buffer: ArrayBuffer) : Promise<string> => {
+      try {         
+         let ipfsPath = '';
+         const added = await ipfs.add(buffer);
+         const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+         return url;
+      } 
+      catch (error) {
+         console.log(error);     
+         return null;   
+      }
+   }
+
+   const uploadMetadataToIpfs = async (value: string) : Promise<string> => {
+      try {         
+         let ipfsPath = '';
+         const added = await ipfs.add(value);
+         const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+         return url;
+      } 
+      catch (error) {
+         console.log(error);     
+         return null;   
+      }
    }
 
    const showSummary = async () => {

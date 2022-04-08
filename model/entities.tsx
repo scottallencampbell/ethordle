@@ -22,6 +22,13 @@ export type Statistics = {
    averageGuesses?: number
 }
 
+export type TokenMetadata = {
+   solution: string,
+   image: string,
+   guesses: string[],
+   secondsRequired: number
+}
+
 export enum GameMode {
    Unknown,
    Blockchain,
