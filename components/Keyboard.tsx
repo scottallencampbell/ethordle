@@ -27,7 +27,7 @@ export const Keyboard = ({ keyboard, handleKeyDown } : IKeyboard) => {
          keyboard.map((row) => (
             <div className='keyboard-row' key={row[0].rowIndex}> {
                row.map((key) => (
-                  <div className={`keyboard-letter ${key.status} ${key.sequence ?? ''}`} key={`${row[0].rowIndex}-${key.keyIndex}`} onClick={() => handleClick(key.value)}>{key.value}</div>
+                  <div className={`keyboard-letter ${key.status} ${key.sequence == null ? '' : `sequence${key.sequence}`}`} key={`${row[0].rowIndex}-${key.keyIndex}`} onClick={() => handleClick(key.value)}>{key.value}</div>
                ))
             }
             </div>

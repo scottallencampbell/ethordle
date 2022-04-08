@@ -260,7 +260,7 @@ const App = () => {
             let keyboardLetter = getKeyboardLetter(keyboard, tile.value);
 
             keyboardLetter.status = tile.status;
-            keyboardLetter.sequence = `sequence${i}`;
+            keyboardLetter.sequence = i;
          }
 
          return true;
@@ -342,7 +342,7 @@ const App = () => {
       }, 1800);
    }
 
-   const getKeyboardLetter = (keyboard, letter) : string => {
+   const getKeyboardLetter = (keyboard, letter) : Entities.KeyboardLetter => {
       let keyboardLetter;
 
       for (const row of keyboard) {
