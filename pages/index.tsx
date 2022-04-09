@@ -19,6 +19,10 @@ import * as Entities from '../model/entities';
 
 import { create } from "ipfs-http-client";
 const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+const axios = require('axios');
+
+import configData from '../config.json';
+import { createImportSpecifier, createNoSubstitutionTemplateLiteral } from 'typescript';
 
 declare let window: any;
 
@@ -70,7 +74,7 @@ const App = () => {
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
    const [guessResults, setGuessResults] = useState([]);
-   
+
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
       return () => { document.removeEventListener('keydown', handleKeyDown); }
@@ -83,7 +87,7 @@ const App = () => {
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
 
-         if (gameMode != Entities.GameMode.Blockchain) { return; }         
+         if (gameMode != Entities.GameMode.Blockchain) { return; }
          await updateTokenList();
       })();
    }, [gameMode]);
@@ -91,19 +95,19 @@ const App = () => {
    useEffect(() => {
       (async () => {
          setTimeout(() => {
-            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load')});            
+            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
          const isEthereumEnabled = await loadWeb3();
-               
+
          if (isEthereumEnabled) {
-            await loadBlockchainData();         
+            await loadBlockchainData();
          } else {
             setIsGameModePopupOpen(true);
          }
       })();
    }, [])
- 
+
    const loadWeb3 = async () => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
@@ -115,7 +119,7 @@ const App = () => {
          catch (error) {
             console.log(error);
             return false;
-         }    
+         }
       }
       else if (window.web3) {
          window.web3 = new Web3(window.ethereum);
@@ -136,42 +140,88 @@ const App = () => {
       const tokenNetworkData = TokenContract.networks[networkId];
 
       if (gameNetworkData && tokenNetworkData) {
-         const gameAddress = gameNetworkData.address;         
+         const gameAddress = gameNetworkData.address;
          const gameAbi = GameContract.abi;
          const gameContract = new web3.eth.Contract(gameAbi, gameAddress);
-         setGameContract(gameContract);     
-   
+         setGameContract(gameContract);
+
          const tokenAddress = tokenNetworkData.address;
          const tokenAbi = TokenContract.abi;
          const tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress);
-         setTokenContract(tokenContract);     
-      
+         setTokenContract(tokenContract);
+
          console.log('Account: ' + accounts[0]);
          console.log('GameAddress: ' + gameAddress);
          console.log('GameContract: ' + gameContract);
          console.log('TokenAddress: ' + tokenAddress);
          console.log('TokenContract: ' + tokenContract);
-      
-         setGameMode(Entities.GameMode.Blockchain);      
-      } else {         
+
+         setGameMode(Entities.GameMode.Blockchain);
+      } else {
          window.alert('Smart contract not deployed to a detected network.')
       }
    }
 
-   const updateTokenList = async () => {
-      const tokenCount = await tokenContract.methods.getMintedTokenCount().call();      
+   const pinJsonToIpfs = async (json: object) : Promise<string> => {
+      var ipfsUrl = '';
+      const apiUrl = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+      await axios.post(apiUrl, json, {
+         headers: {
+            'Content-Type': 'application/json',
+            'pinata_api_key': configData.pinataApiKey,
+            'pinata_secret_api_key': configData.pinataSecretApiKey
+         }
+      }
+      ).then((response) => {
+         ipfsUrl = `https://ipfs.infura.io/ipfs/${response.data.IpfsHash}`;
+      }).catch((error) => {
+         console.log(error);
+      });
+
+      return ipfsUrl;
+   };
+
+   const pinFileToIpfs = async (fileUrl: string) : Promise<string> => {
+      var ipfsUrl = '';
+      const apiUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+
+      const data = await downloadFile(fileUrl);
       
-      var existingTokens: Entities.TokenMetadata[] = [];         
+      let formData = new FormData();
+      formData.append('file', new Blob([data]));
+
+      await axios.post(apiUrl, formData, {
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            'pinata_api_key': configData.pinataApiKey,
+            'pinata_secret_api_key': configData.pinataSecretApiKey
+         }
+      }
+      ).then(response => {
+         ipfsUrl = `https://ipfs.infura.io/ipfs/${response.data.IpfsHash}`;
+      }).catch(error => {
+         console.log(error);
+      });
+
+      return ipfsUrl;
+   };
+
+   const updateTokenList = async () => {
+      const tokenCount = await tokenContract.methods.getMintedTokenCount().call();
+      var existingTokens: Entities.TokenMetadata[] = [];
 
       for (let i = 0; i < tokenCount; i++) {
-         const tokenURI = await tokenContract.methods.tokenURI(i).call();   
-         const metadataFile = await downloadFile(tokenURI);    
-         const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
-         const metadata = JSON.parse(metadataString);
-         
-         existingTokens.push(metadata);            
+         try { 
+            const tokenURI = await tokenContract.methods.tokenURI(i).call();            
+            const metadataFile = await downloadFile(tokenURI);
+            const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
+            const metadata = JSON.parse(metadataString);
+            existingTokens.push(metadata);
+         } catch (ex) {
+            console.log(ex);
+         }
       }
-     
+
       setTokens(existingTokens);
    }
 
@@ -194,25 +244,25 @@ const App = () => {
       }
    }
 
-   const chooseSolution = async () : Promise<string> => {      
+   const chooseSolution = async (): Promise<string> => {
       const maxAttempts = 100;
 
       for (let i = 0; i < maxAttempts; i++) {
          let solution = solutions[Math.floor(Math.random() * solutions.length)];
          console.log(`${i}: ${solution}`);
-            
-         if (gameMode == Entities.GameMode.Disconnected ) {                   
+
+         if (gameMode == Entities.GameMode.Disconnected) {
             return solution;
          } else {
-            const isWordUnique = await gameContract.methods.isWordUnique(solution).call();           
-            
-            if (isWordUnique) {              
+            const isWordUnique = await gameContract.methods.isWordUnique(solution).call();
+
+            if (isWordUnique) {
                return solution;
             }
          }
       }
 
-      window.alert(`Unable to determine a unique solution after ${maxAttempts} attempts`);         
+      window.alert(`Unable to determine a unique solution after ${maxAttempts} attempts`);
       return '';
    }
 
@@ -239,7 +289,7 @@ const App = () => {
             tile.status = Entities.TileStatus.None;
          }
          else {
-            tile.status =  Entities.TileStatus.EnteredNoAnimation;
+            tile.status = Entities.TileStatus.EnteredNoAnimation;
          }
       }
 
@@ -247,7 +297,7 @@ const App = () => {
       setCurrentTileIndex(currentTileIndex - 1);
    }
 
-   const evaluateWord = (guess, row, keyboard) : [boolean, string] => {
+   const evaluateWord = (guess, row, keyboard): [boolean, string] => {
       if (!wordDictionary[guess]) {
          for (const tile of row) {
             tile.status = Entities.TileStatus.Error;
@@ -276,7 +326,7 @@ const App = () => {
             keyboardLetter.status = tile.status;
             keyboardLetter.sequence = i;
          }
-        
+
          var symbolMap = row.map((item) => { return statusToSymbolMap.get(item.status); }).join('');
 
          return [true, symbolMap];
@@ -298,14 +348,14 @@ const App = () => {
          setCurrentTileIndex(0);
          setKeyboard(newKeyboard);
          setGuessResults(newGuessResults);
-            
-         if (guess == solution) {            
+
+         if (guess == solution) {
             setGameStatus(Entities.GameStatus.Won);
             showSummary();
-            
+
             if (gameMode == Entities.GameMode.Blockchain) {
                mintToken(solution, newGuessResults, secondsRequired);
-            }           
+            }
          }
          else if (currentRowIndex >= maxGuesses - 1) {
 
@@ -316,67 +366,42 @@ const App = () => {
 
       setGrid(newGrid);
    }
-   
-   const mintToken = async (tokenSolution : string, tokenGuessResults : string[], secondsRequired: number) => {
-      const imageFile = await downloadFile(`/solutions/${solution}.png`);
-      const imageUrl = await uploadFileToIpfs(imageFile);
-   
-      const metadata : Entities.TokenMetadata = { 
-         solution: tokenSolution, 
+
+   const mintToken = async (tokenSolution: string, tokenGuessResults: string[], secondsRequired: number) => {
+      const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);
+      console.log('Token image URL: ' + imageUrl);
+
+      const metadata: Entities.TokenMetadata = {
+         solution: tokenSolution,
          image: imageUrl,
          secondsRequired: secondsRequired,
          guesses: tokenGuessResults
       };
 
       const stringifiedMetadata = JSON.stringify(metadata, null, '   ');
-      const metadataUrl = await uploadMetadataToIpfs(stringifiedMetadata);
-      
-      console.log("Token metadata URL: " + metadataUrl);
-   
+      const metadataUrl = await pinJsonToIpfs(metadata);
+      console.log('Token metadata URL: ' + metadataUrl);
+
       await tokenContract.methods.mint(account, tokenSolution, metadataUrl).send({ from: account });
-      await updateTokenList();      
+      await updateTokenList();
    }
 
-   const downloadFile = async (path : string) : Promise<ArrayBuffer> => {
+   const downloadFile = async (url: string) : Promise<ArrayBuffer> => {
       try {
-         let buffer = new ArrayBuffer(0);
-         
-         await fetch(path)
-            .then(response => response.arrayBuffer())
-            .then(buf => { buffer = buf; });
-      
-         return buffer;
-      } 
-      catch (error) {
+         var data : ArrayBuffer;
+        
+         await axios.get(url, {
+            responseType: 'arraybuffer'
+         }).then(response => {
+            data = response.data;
+         }).catch(error => {
+            console.log(error);
+         });
+      } catch (error) {
          console.log(error);
-         return null;
       }
-   }
 
-   const uploadFileToIpfs = async (buffer: ArrayBuffer) : Promise<string> => {
-      try {         
-         let ipfsPath = '';
-         const added = await ipfs.add(buffer);
-         const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-         return url;
-      } 
-      catch (error) {
-         console.log(error);     
-         return null;   
-      }
-   }
-
-   const uploadMetadataToIpfs = async (value: string) : Promise<string> => {
-      try {         
-         let ipfsPath = '';
-         const added = await ipfs.add(value);
-         const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-         return url;
-      } 
-      catch (error) {
-         console.log(error);     
-         return null;   
-      }
+      return data;
    }
 
    const showSummary = async () => {
@@ -423,7 +448,7 @@ const App = () => {
       }, 1800);
    }
 
-   const getKeyboardLetter = (keyboard, letter) : Entities.KeyboardLetter => {
+   const getKeyboardLetter = (keyboard, letter): Entities.KeyboardLetter => {
       let keyboardLetter;
 
       for (const row of keyboard) {
@@ -437,21 +462,21 @@ const App = () => {
 
    return (
       <>
-      <Head>
-         <title>{appName}</title>
-         <link rel='icon' href='/favicon.ico'></link>
-      </Head>
-      {account === '' ? null : <StatusBar account={account} tokens={tokens}></StatusBar>}
-      <div className='main'>
-         <Title title={appName}></Title>
-         <Grid grid={grid}></Grid>
-         <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
-         {account === '' || !tokens ? null : <TokenList tokens={tokens}></TokenList> }
-      
-      </div>
-      <Introduction></Introduction>
-      <Summary statistics={statistics}></Summary>
-      <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
+         <Head>
+            <title>{appName}</title>
+            <link rel='icon' href='/favicon.ico'></link>
+         </Head>
+         {account === '' ? null : <StatusBar account={account} tokens={tokens}></StatusBar>}
+         <div className='main'>
+            <Title title={appName}></Title>
+            <Grid grid={grid}></Grid>
+            <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
+            {account === '' || !tokens ? null : <TokenList tokens={tokens}></TokenList>}
+
+         </div>
+         <Introduction></Introduction>
+         <Summary statistics={statistics}></Summary>
+         <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
       </>
    )
 }
