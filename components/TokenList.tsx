@@ -9,7 +9,6 @@ export const TokenList = ({ tokens }: ITokenList) => {
 
    useEffect(() => {
       setTimeout(() => {   
-         
          document.querySelectorAll('#token-list img').forEach(e => {
             // @ts-ignore
             if (!e.complete) {

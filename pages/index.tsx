@@ -78,6 +78,8 @@ const App = () => {
    });
 
    useEffect(() => {
+      console.log(Cookies.get(statisticsCookieName));
+      
       (async () => {
          if (gameMode == Entities.GameMode.Unknown) { return; }
 
@@ -352,17 +354,14 @@ const App = () => {
          setGuessResults(newGuessResults);
 
          if (guess == solution) {
-            setGameStatus(Entities.GameStatus.Won);
-            showSummary();
-
+            await showSummary(Entities.GameStatus.Won);
+           
             if (gameMode == Entities.GameMode.Blockchain) {
-               mintToken(solution, newGuessResults, secondsRequired);
+               await mintToken(solution, newGuessResults, secondsRequired);
             }
          }
          else if (currentRowIndex >= maxGuesses - 1) {
-
-            setGameStatus(Entities.GameStatus.Lost);
-            showSummary();
+            await showSummary(Entities.GameStatus.Lost);
          }
       }
 
@@ -403,20 +402,23 @@ const App = () => {
       return data;
    }
 
-   const showSummary = async () => {
+   const showSummary = async (newGameStatus: Entities.GameStatus) => {
+      
       let newStatistics: Entities.Statistics;
-
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
       catch { }
 
       if (!newStatistics) {
+         console.log('resetting');
          newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: new Array(maxGuesses).fill(0), averageGuesses: 0.0, solution: '' };
       }
 
       newStatistics.gamesPlayed++;
       newStatistics.solution = solution;
 
-      if (gameStatus == Entities.GameStatus.Won) {
+      if (newGameStatus == Entities.GameStatus.Won) {
+         console.log('game won');
+      
          newStatistics.gamesWon++;
          newStatistics.streak++;
          newStatistics.guesses[currentRowIndex]++;
@@ -436,7 +438,8 @@ const App = () => {
 
       Cookies.set(statisticsCookieName, JSON.stringify(newStatistics), { expires: 365 });
       setStatistics(newStatistics);
-
+      setGameStatus(newGameStatus);
+      
       setTimeout(() => {
          document.getElementById('show-summary').click();
       }, 1500);
