@@ -23,8 +23,9 @@ export type Statistics = {
 }
 
 export type TokenMetadata = {
+   url?: string,
    solution: string,
-   image: string,
+   imageUrl: string,
    guesses: string[],
    secondsRequired: number
 }

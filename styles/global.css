@@ -730,6 +730,12 @@ body {
   font-size: 20px;
 }
 
+#token-list .metadata-url {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: bold;
+}
+
 #token-list .guess-result {
   font-family: 'Courier New', Courier, monospace;
 }
@@ -754,6 +760,11 @@ body {
 
 #token-list .guess-result {
   line-height: 14px;
+}
+
+#token-list img {
+  width: 398px;
+  height: 86px;
 }
 
 @keyframes anim-lightspeed-in {

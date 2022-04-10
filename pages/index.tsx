@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
+import axios from 'axios';
+import Head from 'next/head';
+import Web3 from 'web3';
+import { create } from 'ipfs-http-client';
+
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
@@ -11,18 +16,10 @@ import { ModeChooser } from '../components/ModeChooser';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
-import Head from 'next/head';
-import Web3 from 'web3';
 import GameContract from '../abis/EthordleGame.json';
 import TokenContract from '../abis/EthordleToken.json';
 import * as Entities from '../model/entities';
-
-import { create } from "ipfs-http-client";
-const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
-const axios = require('axios');
-
 import configData from '../config.json';
-import { createImportSpecifier, createNoSubstitutionTemplateLiteral } from 'typescript';
 
 declare let window: any;
 
@@ -87,7 +84,7 @@ const App = () => {
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
 
-         if (gameMode != Entities.GameMode.Blockchain) { return; }
+         if (gameMode != Entities.GameMode.Blockchain) { return; }2
          await updateTokenList();
       })();
    }, [gameMode]);
@@ -116,8 +113,8 @@ const App = () => {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             return true;
          }
-         catch (error) {
-            console.log(error);
+         catch (ex) {
+            console.log(ex);
             return false;
          }
       }
@@ -165,6 +162,7 @@ const App = () => {
    const pinJsonToIpfs = async (json: object) : Promise<string> => {
       var ipfsUrl = '';
       const apiUrl = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+
       await axios.post(apiUrl, json, {
          headers: {
             'Content-Type': 'application/json',
@@ -174,8 +172,9 @@ const App = () => {
       }
       ).then((response) => {
          ipfsUrl = `https://ipfs.infura.io/ipfs/${response.data.IpfsHash}`;
-      }).catch((error) => {
-         console.log(error);
+      }).catch((ex) => {
+         console.log(ex);
+         throw ex;
       });
 
       return ipfsUrl;
@@ -199,8 +198,9 @@ const App = () => {
       }
       ).then(response => {
          ipfsUrl = `https://ipfs.infura.io/ipfs/${response.data.IpfsHash}`;
-      }).catch(error => {
-         console.log(error);
+      }).catch(ex => {
+         console.log(ex);
+         throw ex;
       });
 
       return ipfsUrl;
@@ -209,14 +209,16 @@ const App = () => {
    const updateTokenList = async () => {
       const tokenCount = await tokenContract.methods.getMintedTokenCount().call();
       var existingTokens: Entities.TokenMetadata[] = [];
-
+      
       for (let i = 0; i < tokenCount; i++) {
          try { 
-            const tokenURI = await tokenContract.methods.tokenURI(i).call();            
-            const metadataFile = await downloadFile(tokenURI);
+            const tokenURI = await tokenContract.methods.tokenURI(i).call();        
+            const metadataFile = await downloadFile(tokenURI, 2000);
             const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
             const metadata = JSON.parse(metadataString);
-            existingTokens.push(metadata);
+      
+            metadata.url = tokenURI;
+            existingTokens.push(metadata);            
          } catch (ex) {
             console.log(ex);
          }
@@ -373,34 +375,31 @@ const App = () => {
 
       const metadata: Entities.TokenMetadata = {
          solution: tokenSolution,
-         image: imageUrl,
+         imageUrl: imageUrl,
          secondsRequired: secondsRequired,
          guesses: tokenGuessResults
       };
 
-      const stringifiedMetadata = JSON.stringify(metadata, null, '   ');
       const metadataUrl = await pinJsonToIpfs(metadata);
       console.log('Token metadata URL: ' + metadataUrl);
+      metadata.url = metadataUrl;
 
-      await tokenContract.methods.mint(account, tokenSolution, metadataUrl).send({ from: account });
-      await updateTokenList();
+      await tokenContract.methods.mint(account, tokenSolution, metadataUrl).send({ from: account });   
    }
 
-   const downloadFile = async (url: string) : Promise<ArrayBuffer> => {
-      try {
-         var data : ArrayBuffer;
-        
-         await axios.get(url, {
-            responseType: 'arraybuffer'
-         }).then(response => {
-            data = response.data;
-         }).catch(error => {
-            console.log(error);
-         });
-      } catch (error) {
-         console.log(error);
-      }
-
+   const downloadFile = async (url: string, timeout: number = null) : Promise<ArrayBuffer> => {
+      var data : ArrayBuffer;
+    
+      await axios.get(url, {
+         timeout: timeout,
+         responseType: 'arraybuffer'
+      }).then(response => {
+         data = response.data;
+      }).catch(ex => {
+         console.log(ex);
+         throw ex;
+      });
+   
       return data;
    }
 

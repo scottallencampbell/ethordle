@@ -6,12 +6,30 @@ interface ITokenList {
 }
 
 export const TokenList = ({ tokens }: ITokenList) => {
+
+   useEffect(() => {
+      setTimeout(() => {   
+         
+         document.querySelectorAll('#token-list img').forEach(e => {
+            // @ts-ignore
+            if (!e.complete) {
+               e.setAttribute('src', ''); 
+            }
+         });
+      }, 2000) ;  
+   });
+   
    return (   
    <div id='token-list'>
       <div className='title'>Token List</div> {
       tokens.map((token, i) => (
          <div key={`${i}`}>
-         <div><img src={token.image} /></div>
+         <div><img src={token.imageUrl} 
+         onError={({ currentTarget }) => {
+            currentTarget.onerror = null;
+            currentTarget.src='./blank-solution.png';
+        }}/></div>
+         <div className='metadata-url'>{token.url}</div>
          <div className='guess-result'>
          {token.guesses.map((guess, j) => (
             <div key={`${i}-${j}`}>
