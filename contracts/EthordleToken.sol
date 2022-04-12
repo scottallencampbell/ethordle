@@ -7,12 +7,12 @@ contract EthordleToken is ERC721, Ownable {
     
 using Strings for uint256;
     
-    // tokenId to URI, tokenIds are incremental
     mapping (uint256 => string) private _tokenURIs;
     mapping (uint256 => address) private _tokenAccounts;
+    mapping (string => address) private _solutionOwners;
 
-    uint256 private _price;
-    uint256 private _royalty;
+    uint256 private _initialPrice;
+    uint256 private _royaltyRate;
     uint256 private _currentTokenId;
     string private _baseURIextended;
 
@@ -23,19 +23,26 @@ using Strings for uint256;
         string metadataURI
     );
 
-    constructor(string memory _name, string memory _symbol, uint256 price, uint256 royalty) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_) ERC721(_name, _symbol) {
         _currentTokenId = 0;
-        _price = price * 1000000000;  // price in gwei
-        _price = 0;
-        _royalty = royalty;
+        _initialPrice = initialPrice_;
+        _royaltyRate = royaltyRate_;
     }
     
-    function setPrice(uint256 price) external onlyOwner() {
-        _price = price;   
+    function setInitialPrice(uint256 initialPrice_) external onlyOwner() {
+        _initialPrice = initialPrice_;
     }
 
-    function setRoyalty(uint256 royalty) external onlyOwner() {
-        _royalty = royalty;   
+    function initialPrice() external view returns (uint256) {
+        return _initialPrice;
+    }
+
+    function setRoyaltyRate(uint256 royaltyRate_) external onlyOwner() {
+        _royaltyRate = royaltyRate_;   
+    }
+
+    function royaltyRate() external view returns (uint256) {
+        return _royaltyRate;
     }
 
     function getMintedTokenCount() external view returns (uint256) {
@@ -93,16 +100,17 @@ using Strings for uint256;
         string memory solution,
         string memory tokenURI_
     ) external payable {        
-        require(msg.value >= _price, 'Insufficient ether sent with transaction'); 
-
+        require(msg.value >= _initialPrice, 'Insufficient ether sent with this transaction'); 
+        require(_solutionOwners[solution] == address(0x0), 'A token has already been minted with this solution');
         payable(owner()).transfer(msg.value);
 
         _mint(to, _currentTokenId);
 
         _tokenURIs[_currentTokenId] = tokenURI_;
         _tokenAccounts[_currentTokenId] = to;
+        _solutionOwners[solution] = to;
         _currentTokenId++;        
-
+        
         emit TokenMinted(solution, to, _currentTokenId, tokenURI_);
     }
 
@@ -127,7 +135,7 @@ using Strings for uint256;
     function payRoyalty(
         uint256 value
     ) private {
-        uint256 totalRoyalty = _royalty * value;  // todo need safe multiply
+        uint256 totalRoyalty = _royaltyRate * value;  // todo need safe multiply
         payable(owner()).transfer(totalRoyalty);
     }
 }
