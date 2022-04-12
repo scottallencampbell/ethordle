@@ -26,6 +26,8 @@ declare let window: any;
 words.push(...solutions);
 
 const appName = 'Ethordle';
+// const tokenPrice = '0.005';
+const tokenPrice = '1';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -209,12 +211,15 @@ const App = () => {
    };
 
    const updateTokenList = async () => {
-      const tokenCount = await tokenContract.methods.getMintedTokenCount().call();
+      const tokenIdsOfOwner = await tokenContract.methods.getMintedTokensOfOwner(account).call();
+      console.log('TokenCount: ' + tokenIdsOfOwner.length);
       var existingTokens: Entities.TokenMetadata[] = [];
       
-      for (let i = 0; i < tokenCount; i++) {
+      for (let i = 0; i < tokenIdsOfOwner.length; i++) {
          try { 
-            const tokenURI = await tokenContract.methods.tokenURI(i).call();        
+            console.log('Getting tokenId for ' + i);
+            const tokenURI = await tokenContract.methods.tokenURI(i).call();       
+            console.log('Got it'); 
             const metadataFile = await downloadFile(tokenURI, 2000);
             const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
             const metadata = JSON.parse(metadataString);
@@ -344,6 +349,8 @@ const App = () => {
       let guess = row.map(letter => letter.value).join('');
       let [result, symbolMap] = evaluateWord(guess, row, newKeyboard);
 
+      await setGrid(newGrid);
+
       if (result) {
          const newGuessResults = [...guessResults, symbolMap];
          const secondsRequired = Math.round((new Date().getTime() - startingTime) / 1000);
@@ -364,8 +371,6 @@ const App = () => {
             await showSummary(Entities.GameStatus.Lost);
          }
       }
-
-      setGrid(newGrid);
    }
 
    const mintToken = async (tokenSolution: string, tokenGuessResults: string[], secondsRequired: number) => {
@@ -383,7 +388,9 @@ const App = () => {
       console.log('Token metadata URL: ' + metadataUrl);
       metadata.url = metadataUrl;
 
-      await tokenContract.methods.mint(account, tokenSolution, metadataUrl).send({ from: account });   
+      await tokenContract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
+
+      //await tokenContract.methods.transfer(account, '0xAA81592A42e92fa8e9ab5863Bf948cD264Eb3B37', 0).send({ from: account, value: Web3.utils.toWei('3', 'ether')  });   
    }
 
    const downloadFile = async (url: string, timeout: number = null) : Promise<ArrayBuffer> => {
@@ -403,13 +410,11 @@ const App = () => {
    }
 
    const showSummary = async (newGameStatus: Entities.GameStatus) => {
-      
       let newStatistics: Entities.Statistics;
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
       catch { }
 
       if (!newStatistics) {
-         console.log('resetting');
          newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: new Array(maxGuesses).fill(0), averageGuesses: 0.0, solution: '' };
       }
 
@@ -417,8 +422,6 @@ const App = () => {
       newStatistics.solution = solution;
 
       if (newGameStatus == Entities.GameStatus.Won) {
-         console.log('game won');
-      
          newStatistics.gamesWon++;
          newStatistics.streak++;
          newStatistics.guesses[currentRowIndex]++;

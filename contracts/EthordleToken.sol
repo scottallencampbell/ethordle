@@ -7,28 +7,64 @@ contract EthordleToken is ERC721, Ownable {
     
 using Strings for uint256;
     
-    // Optional mapping for token URIs
+    // tokenId to URI, tokenIds are incremental
     mapping (uint256 => string) private _tokenURIs;
+    mapping (uint256 => address) private _tokenAccounts;
 
-    // Base URI
+    uint256 private _price;
+    uint256 private _royalty;
     uint256 private _currentTokenId;
     string private _baseURIextended;
 
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
+    event TokenMinted (
+        string solution,
+        address payable account,
+        uint256 tokenId,
+        string metadataURI
+    );
+
+    constructor(string memory _name, string memory _symbol, uint256 price, uint256 royalty) ERC721(_name, _symbol) {
         _currentTokenId = 0;
+        _price = price * 1000000000;  // price in gwei
+        _price = 0;
+        _royalty = royalty;
     }
     
-    function getMintedTokenCount() public view returns (uint256) {
+    function setPrice(uint256 price) external onlyOwner() {
+        _price = price;   
+    }
+
+    function setRoyalty(uint256 royalty) external onlyOwner() {
+        _royalty = royalty;   
+    }
+
+    function getMintedTokenCount() external view returns (uint256) {
         return _currentTokenId;
     }
-     
-    function setBaseURI(string memory baseURI_) external onlyOwner() {
-        _baseURIextended = baseURI_;
+
+    function getMintedTokensOfOwner(address _from) external view returns(uint256[] memory ownerTokenIds) {
+        uint256 tokenCount = balanceOf(_from);
+
+        if (tokenCount == 0) {
+            return new uint256[](0);
+        } else {
+            uint256[] memory result = new uint256[](tokenCount);
+            uint256 resultIndex = 0;
+            uint256 tokenId;
+
+            for (tokenId = 0; tokenId < _currentTokenId; tokenId++) {
+                if (_tokenAccounts[tokenId] == _from) {
+                    result[resultIndex] = tokenId;
+                    resultIndex++;
+                }
+            }
+
+            return result;
+        }
     }
     
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
-        _tokenURIs[tokenId] = _tokenURI;
+    function setBaseURI(string memory baseURI) external onlyOwner() {
+        _baseURIextended = baseURI;
     }
     
     function _baseURI() internal view virtual override returns (string memory) {
@@ -36,31 +72,62 @@ using Strings for uint256;
     }
     
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        require(_exists(tokenId), "TokenId does not exist");
 
         string memory _tokenURI = _tokenURIs[tokenId];
         string memory base = _baseURI();
         
-        // If there is no base URI, return the token URI.
         if (bytes(base).length == 0) {
             return _tokenURI;
         }
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        
         if (bytes(_tokenURI).length > 0) {
             return string(abi.encodePacked(base, _tokenURI));
         }
-        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        
         return string(abi.encodePacked(base, tokenId.toString()));
     }
     
     function mint(
-        address _to,
-        string memory _solution,
-        string memory _tokenURI
-    ) external onlyOwner() {
-        _mint(_to, _currentTokenId);
-        _setTokenURI(_currentTokenId, _tokenURI);
+        address payable to,
+        string memory solution,
+        string memory tokenURI_
+    ) external payable {        
+        require(msg.value >= _price, 'Insufficient ether sent with transaction'); 
 
-        _currentTokenId++;
+        payable(owner()).transfer(msg.value);
+
+        _mint(to, _currentTokenId);
+
+        _tokenURIs[_currentTokenId] = tokenURI_;
+        _tokenAccounts[_currentTokenId] = to;
+        _currentTokenId++;        
+
+        emit TokenMinted(solution, to, _currentTokenId, tokenURI_);
+    }
+
+    function transfer(
+        address from, 
+        address to, 
+        uint256 tokenId
+    ) external payable  {
+        /*
+        require(msg.value > 0, 'Invalid payment');
+        require(from != address(0x0), 'Invalid from address');
+        require(from == _msgSender(), 'From address is not msgSender');
+        require(to != address(0x0), 'Invalid to address');
+        require(_exists(tokenId), "TokenId does not exist");   
+        require(_isApprovedOrOwner(_msgSender(), tokenId), 'msgSender is not the owner of the token');
+        */
+        //payRoyalty(msg.value);
+        
+        _transfer(from, to, tokenId);
+    }
+    
+    function payRoyalty(
+        uint256 value
+    ) private {
+        uint256 totalRoyalty = _royalty * value;  // todo need safe multiply
+        payable(owner()).transfer(totalRoyalty);
     }
 }
