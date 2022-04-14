@@ -7,12 +7,17 @@ contract EthordleToken is ERC721, Ownable {
     
 using Strings for uint256;
     
+    mapping (uint256 => string) private _tokenSolutions;
     mapping (uint256 => string) private _tokenURIs;
     mapping (uint256 => address) private _tokenAccounts;
+    mapping (uint256 => uint256) public _tokenPrices;
     mapping (string => address) private _solutionOwners;
+    mapping (string => address) private _tokenURIOwners;
 
+    address private _owner;
     uint256 private _initialPrice;
     uint256 private _royaltyRate;
+    uint256 private _priceEscalationRate;
     uint256 private _currentTokenId;
     string private _baseURIextended;
 
@@ -23,10 +28,12 @@ using Strings for uint256;
         string metadataURI
     );
 
-    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_) ERC721(_name, _symbol) {
+        _owner = msg.sender;
         _currentTokenId = 0;
         _initialPrice = initialPrice_;
         _royaltyRate = royaltyRate_;
+        _priceEscalationRate = priceEscalationRate_;
     }
     
     function setInitialPrice(uint256 initialPrice_) external onlyOwner() {
@@ -45,17 +52,21 @@ using Strings for uint256;
         return _royaltyRate;
     }
 
-    function getMintedTokenCount() external view returns (uint256) {
+    function setPriceEscalationRate(uint256 priceEscalationRate_) external onlyOwner() {
+        _priceEscalationRate = priceEscalationRate_;
+    }
+
+    function tokenCount() external view returns (uint256) {
         return _currentTokenId;
     }
 
-    function getMintedTokensOfOwner(address _from) external view returns(uint256[] memory ownerTokenIds) {
-        uint256 tokenCount = balanceOf(_from);
+    function tokensOfOwner(address _from) external view returns(uint256[] memory ownerTokenIds) {
+        uint256 tokens = balanceOf(_from);
 
-        if (tokenCount == 0) {
+        if (tokens == 0) {
             return new uint256[](0);
         } else {
-            uint256[] memory result = new uint256[](tokenCount);
+            uint256[] memory result = new uint256[](tokens);
             uint256 resultIndex = 0;
             uint256 tokenId;
 
@@ -78,64 +89,83 @@ using Strings for uint256;
         return _baseURIextended;
     }
     
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "TokenId does not exist");
+    function solution(uint256 tokenId) public view virtual returns (string memory) {
+        require(_exists(tokenId), 'TokenId does not exist');
 
-        string memory _tokenURI = _tokenURIs[tokenId];
-        string memory base = _baseURI();
-        
-        if (bytes(base).length == 0) {
-            return _tokenURI;
-        }
-        
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
-        }
-        
-        return string(abi.encodePacked(base, tokenId.toString()));
+        return _tokenSolutions[tokenId];
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), 'TokenId does not exist');
+
+        return _tokenURIs[tokenId];
+    }
+
+    function price(uint256 tokenId) public view virtual returns (uint256) {
+        require(_exists(tokenId), 'TokenId does not exist');
+
+        return _tokenPrices[tokenId];
     }
     
     function mint(
         address payable to,
-        string memory solution,
+        string memory solution_,
         string memory tokenURI_
-    ) external payable {        
+    ) external payable {  
+        require(msg.sender == to || msg.sender == _owner, 'Invalid to address');      
         require(msg.value >= _initialPrice, 'Insufficient ether sent with this transaction'); 
-        require(_solutionOwners[solution] == address(0x0), 'A token has already been minted with this solution');
+        require(_solutionOwners[solution_] == address(0x0), 'A token has already been minted with this solution');
+        require(_tokenURIOwners[tokenURI_] == address(0x0), 'A token has already been minted with this URI');
+        
         payable(owner()).transfer(msg.value);
 
         _mint(to, _currentTokenId);
 
+        _tokenSolutions[_currentTokenId] = solution_;
         _tokenURIs[_currentTokenId] = tokenURI_;
+        _tokenPrices[_currentTokenId] = _getEscalatedPrice(msg.value);
         _tokenAccounts[_currentTokenId] = to;
-        _solutionOwners[solution] = to;
+        _solutionOwners[solution_] = to;
+        _tokenURIOwners[tokenURI_] = to;
         _currentTokenId++;        
         
-        emit TokenMinted(solution, to, _currentTokenId, tokenURI_);
+        emit TokenMinted(solution_, to, _currentTokenId, tokenURI_);
     }
 
-    function transfer(
-        address from, 
-        address to, 
+    function buy(
+        address to,
         uint256 tokenId
-    ) external payable  {
-        /*
-        require(msg.value > 0, 'Invalid payment');
-        require(from != address(0x0), 'Invalid from address');
-        require(from == _msgSender(), 'From address is not msgSender');
-        require(to != address(0x0), 'Invalid to address');
-        require(_exists(tokenId), "TokenId does not exist");   
-        require(_isApprovedOrOwner(_msgSender(), tokenId), 'msgSender is not the owner of the token');
-        */
-        //payRoyalty(msg.value);
-        
+    ) external payable {        
+        require(msg.sender == to, 'Invalid to address');
+        require(_exists(tokenId), 'TokenId does not exist');   
+        require(!_isApprovedOrOwner(_msgSender(), tokenId), "Buyer already owns token");   
+        require(msg.value >= _tokenPrices[tokenId], 'Insufficient ether sent with this transaction');
+       
+        string memory solution_ = _tokenSolutions[tokenId];
+        string memory tokenURI_ = _tokenURIs[tokenId];
+
+        address from = _tokenAccounts[tokenId];
+        uint256 totalRoyalty = _getRoyalty(msg.value); 
+        uint256 remainder = msg.value - totalRoyalty;
+
+        payable(owner()).transfer(totalRoyalty);
+        payable(address(from)).transfer(remainder);
+
         _transfer(from, to, tokenId);
+
+        _solutionOwners[solution_] = to;
+        _tokenURIOwners[tokenURI_] = to;
+        _tokenAccounts[tokenId] = to;
+        _tokenPrices[tokenId] = _getEscalatedPrice(msg.value);        
     }
     
-    function payRoyalty(
-        uint256 value
-    ) private {
-        uint256 totalRoyalty = _royaltyRate * value;  // todo need safe multiply
-        payable(owner()).transfer(totalRoyalty);
+    // todo how to prevent base _transfer from being called directly
+
+    function _getRoyalty(uint256 value) private view returns (uint256) {
+        return value * _royaltyRate / 10000 ;  // todo need safe multiply    
+    }
+
+    function _getEscalatedPrice(uint256 value) private view returns (uint256) {
+        return value * _priceEscalationRate / 10000 ;  // todo need safe multiply    
     }
 }

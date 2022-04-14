@@ -13,6 +13,7 @@
     "@types/react": "^17.0.39",
     "axios": "^0.26.1",
     "bn": "^1.0.5",
+    "bn-chai": "^1.0.1",
     "gray-matter": "^4.0.3",
     "ipfs-http-client": "^56.0.2",
     "js-cookie": "^3.0.1",

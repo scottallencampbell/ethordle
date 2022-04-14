@@ -80,8 +80,6 @@ const App = () => {
    });
 
    useEffect(() => {
-      console.log(Cookies.get(statisticsCookieName));
-      
       (async () => {
          if (gameMode == Entities.GameMode.Unknown) { return; }
 
@@ -217,13 +215,12 @@ const App = () => {
       
       for (let i = 0; i < tokenIdsOfOwner.length; i++) {
          try { 
-            console.log('Getting tokenId for ' + i);
             const tokenURI = await tokenContract.methods.tokenURI(i).call();       
-            console.log('Got it'); 
+            console.log('TokenURI: ' + tokenURI); 
             const metadataFile = await downloadFile(tokenURI, 2000);
             const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
             const metadata = JSON.parse(metadataString);
-      
+            console.log('TokenImage: ' + metadata.imageUrl); 
             metadata.url = tokenURI;
             existingTokens.push(metadata);            
          } catch (ex) {
