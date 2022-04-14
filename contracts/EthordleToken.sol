@@ -89,10 +89,14 @@ using Strings for uint256;
         return _baseURIextended;
     }
     
-    function solution(uint256 tokenId) public view virtual returns (string memory) {
+    function solution(uint256 tokenId) public view returns (string memory) {
         require(_exists(tokenId), 'TokenId does not exist');
 
         return _tokenSolutions[tokenId];
+    }
+
+    function isSolutionUnique(string memory solution_) public view returns (bool) {
+        return _solutionOwners[solution_] == address(0x0);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -101,7 +105,7 @@ using Strings for uint256;
         return _tokenURIs[tokenId];
     }
 
-    function price(uint256 tokenId) public view virtual returns (uint256) {
+    function price(uint256 tokenId) public view returns (uint256) {
         require(_exists(tokenId), 'TokenId does not exist');
 
         return _tokenPrices[tokenId];
@@ -167,5 +171,30 @@ using Strings for uint256;
 
     function _getEscalatedPrice(uint256 value) private view returns (uint256) {
         return value * _priceEscalationRate / 10000 ;  // todo need safe multiply    
+    }
+
+    function transferFrom(
+        address /*from*/,
+        address /*to*/,
+        uint256 /*tokenId*/
+    ) public pure override {
+        require(false, 'Not implemented');
+    }
+
+    function safeTransferFrom(
+        address /*from*/,
+        address /*to*/,
+        uint256 /*tokenId*/
+    ) public pure override {
+        require(false, 'Not implemented');
+    }
+
+    function safeTransferFrom(
+        address /*from*/,
+        address /*to*/,
+        uint256 /*tokenId*/,
+        bytes memory /*_data*/
+    ) public pure override {
+        require(false, 'Not implemented');
     }
 }
