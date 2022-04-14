@@ -198,19 +198,20 @@ const App = () => {
    };
 
    const updateTokenList = async () => {
-      const tokenIdsOfOwner = await tokenContract.methods.tokensOfOwner(account).call();
-      console.log('TokenCount: ' + tokenIdsOfOwner.length);
-      var existingTokens: Entities.TokenMetadata[] = [];
+      const tokenIdsOfOwner = await tokenContract.methods.tokensOfOwner(account).call();      
+      const existingTokens: Entities.TokenMetadata[] = [];
       
       for (let i = 0; i < tokenIdsOfOwner.length; i++) {
          try { 
-            const tokenURI = await tokenContract.methods.tokenURI(i).call();       
-            console.log('TokenURI: ' + tokenURI); 
+            const tokenURI = await tokenContract.methods.tokenURI(i).call();                    
             const metadataFile = await downloadFile(tokenURI, 2000);
             const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
             const metadata = JSON.parse(metadataString);
-            console.log('TokenImage: ' + metadata.imageUrl); 
             metadata.url = tokenURI;
+
+            console.log('TokenURI: ' + tokenURI);
+            console.log('TokenImage: ' + metadata.imageUrl); 
+            
             existingTokens.push(metadata);            
          } catch (ex) {
             console.log(ex);
@@ -322,7 +323,7 @@ const App = () => {
             keyboardLetter.sequence = i;
          }
 
-         var symbolMap = row.map((item) => { return statusToSymbolMap.get(item.status); }).join('');
+         const symbolMap = row.map((item) => { return statusToSymbolMap.get(item.status); }).join('');
 
          return [true, symbolMap];
       }
@@ -378,7 +379,7 @@ const App = () => {
    }
 
    const downloadFile = async (url: string, timeout: number = null) : Promise<ArrayBuffer> => {
-      var data : ArrayBuffer;
+      let data : ArrayBuffer;
     
       await axios.get(url, {
          timeout: timeout,
