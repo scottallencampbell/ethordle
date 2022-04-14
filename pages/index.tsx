@@ -16,7 +16,6 @@ import { ModeChooser } from '../components/ModeChooser';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
-import GameContract from '../abis/EthordleGame.json';
 import TokenContract from '../abis/EthordleToken.json';
 import * as Entities from '../model/entities';
 import configData from '../config.json';
@@ -67,7 +66,6 @@ const App = () => {
    const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
    const [account, setAccount] = useState('');
    const [tokens, setTokens] = useState(null);
-   const [gameContract, setGameContract] = useState(null);
    const [tokenContract, setTokenContract] = useState(null);
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
@@ -135,26 +133,17 @@ const App = () => {
       setAccount(accounts[0]);
 
       const networkId = await web3.eth.net.getId();
-      const gameNetworkData = GameContract.networks[networkId];
       const tokenNetworkData = TokenContract.networks[networkId];
 
-      if (gameNetworkData && tokenNetworkData) {
-         const gameAddress = gameNetworkData.address;
-         const gameAbi = GameContract.abi;
-         const gameContract = new web3.eth.Contract(gameAbi, gameAddress);
-         setGameContract(gameContract);
-
+      if (tokenNetworkData) {
          const tokenAddress = tokenNetworkData.address;
          const tokenAbi = TokenContract.abi;
          const tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress);
          setTokenContract(tokenContract);
 
          console.log('Account: ' + accounts[0]);
-         console.log('GameAddress: ' + gameAddress);
-         console.log('GameContract: ' + gameContract);
          console.log('TokenAddress: ' + tokenAddress);
-         console.log('TokenContract: ' + tokenContract);
-
+         
          setGameMode(Entities.GameMode.Blockchain);
       } else {
          window.alert('Smart contract not deployed to a detected network.')
@@ -209,7 +198,7 @@ const App = () => {
    };
 
    const updateTokenList = async () => {
-      const tokenIdsOfOwner = await tokenContract.methods.getMintedTokensOfOwner(account).call();
+      const tokenIdsOfOwner = await tokenContract.methods.tokensOfOwner(account).call();
       console.log('TokenCount: ' + tokenIdsOfOwner.length);
       var existingTokens: Entities.TokenMetadata[] = [];
       
@@ -260,7 +249,7 @@ const App = () => {
          if (gameMode == Entities.GameMode.Disconnected) {
             return solution;
          } else {
-            const isWordUnique = await gameContract.methods.isWordUnique(solution).call();
+            const isWordUnique = await tokenContract.methods.isSolutionUnique(solution).call();
 
             if (isWordUnique) {
                return solution;
@@ -386,8 +375,6 @@ const App = () => {
       metadata.url = metadataUrl;
 
       await tokenContract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
-
-      //await tokenContract.methods.transfer(account, '0xAA81592A42e92fa8e9ab5863Bf948cD264Eb3B37', 0).send({ from: account, value: Web3.utils.toWei('3', 'ether')  });   
    }
 
    const downloadFile = async (url: string, timeout: number = null) : Promise<ArrayBuffer> => {

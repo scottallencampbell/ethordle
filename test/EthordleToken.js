@@ -8,7 +8,7 @@ const { BADNAME } = require('dns');
 
 chai.use(bnChai(BN));
 
-// Start test block
+
 contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     const name = 'Ethordle Token';
@@ -21,6 +21,15 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
     const otherSolutions = ['CHOMP', 'SPORK', 'BLURT'];
     const tokenURI = 'http://ethordle.com';
     const otherTokenURIs = ['http://ethordle.com/1', 'http://ethordle.com/2', 'http://ethordle.com/3'];
+    
+    const getTransactionCost = async (receipt) => {
+        const gasUsed = new BN(receipt.receipt.gasUsed);
+        const tx = await web3.eth.getTransaction(receipt.tx);
+        const gasPrice = new BN(tx.gasPrice);
+        const totalGas = gasPrice.mul(gasUsed);
+
+        return totalGas;
+    };
 
     beforeEach(async function () {
         this.token = await EthordleToken.new(name, symbol, initialPrice, royaltyRate, priceEscalationRate, { from: owner });
@@ -31,6 +40,26 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(await this.token.symbol()).to.equal(symbol);
         expect((await this.token.initialPrice()).toString()).to.equal(initialPrice.toString());
         expect((await this.token.royaltyRate()).toString()).to.equal(royaltyRate);
+    });
+
+    it('ignores disallowed methods', async function () {
+        const receipt = await this.token.mint(winner, solution, tokenURI, { from: owner, value: initialPrice });
+        const price = (await this.token.price(0));
+
+        await expectRevert(
+            this.token.transferFrom(winner, transferee, 0, { from: winner, value: price }), 
+            'revert' // why not 'Not implemented'?
+        );
+
+        await expectRevert(
+            this.token.safeTransferFrom(winner, transferee, 0, { from: winner, value: price }), 
+            'revert'
+        );
+
+        await expectRevert(
+            this.token.safeTransferFrom(winner, transferee, 0, new Uint8Array(16), { from: winner, value: price }), 
+            'revert'
+        );
     });
 
     it('minter can mint token', async function () {
@@ -98,6 +127,13 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(tokens[3]).is.a.bignumber.that.equals(new BN(3));
     });
 
+    it('can determine solution uniqueness', async function () {
+        await this.token.mint(winner, solution, tokenURI, { from: owner, value: initialPrice });
+
+        expect(await this.token.isSolutionUnique(solution)).to.equal(false);
+        expect(await this.token.isSolutionUnique(otherSolutions[0])).to.equal(true);
+    });
+
     it('minted solution cannot be reused', async function () {
         await this.token.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
 
@@ -147,15 +183,6 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(new BN(newWinnerBalance)).to.be.a.bignumber.equals(expectedNewWinnerBalance);        
     });
 
-    const getTransactionCost = async (receipt) => {
-        const gasUsed = new BN(receipt.receipt.gasUsed);
-        const tx = await web3.eth.getTransaction(receipt.tx);
-        const gasPrice = new BN(tx.gasPrice);
-        const totalGas = gasPrice.mul(gasUsed);
-
-        return totalGas;
-    };
-
     it('allows transfers', async function () {
         await this.token.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
       
@@ -188,13 +215,4 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         const newExpectedTransfereeBalance = new BN(transfereeBalance).sub(expectedPrice).sub(gas);
         expect(newTransfereeBalance.toString()).to.equal(newExpectedTransfereeBalance.toString());        
     });
-    
-/*
-    it('non minter cannot mint', async function () {
-        await expectRevert(
-            this.token.mint(winner, solution, tokenURI, { from: other, value: initialPrice }), 
-            'EthordleToken: must have minter role to mint'
-        );
-    });
-    */
 });
