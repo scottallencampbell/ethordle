@@ -3,8 +3,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import Head from 'next/head';
 import Web3 from 'web3';
-import { create } from 'ipfs-http-client';
-
+import { useCrypto } from '../context/useCrypto';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
@@ -16,17 +15,13 @@ import { ModeChooser } from '../components/ModeChooser';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
-import TokenContract from '../abis/EthordleToken.json';
 import * as Entities from '../model/entities';
 import configData from '../config.json';
-
-declare let window: any;
 
 words.push(...solutions);
 
 const appName = 'Ethordle';
-// const tokenPrice = '0.005';
-const tokenPrice = '1';
+const tokenPrice = '1'; //'0.005';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -64,9 +59,12 @@ const App = () => {
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
    const [solution, setSolution] = useState('');
    const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
-   const [account, setAccount] = useState('');
-   const [tokens, setTokens] = useState(null);
-   const [tokenContract, setTokenContract] = useState(null);
+   //const [account, setAccount] = useState('');
+   //const [tokens, setTokens] = useState(null);
+   //const [tokenContract, setTokenContract] = useState(null);
+   const { getAccount,  } = useCrypto();
+   const { getTokens, setTokens } = useCrypto();
+   const { getContract,  } = useCrypto();
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
@@ -104,51 +102,6 @@ const App = () => {
          }
       })();
    }, [])
-
-   const loadWeb3 = async () => {
-      if (window.ethereum) {
-         window.web3 = new Web3(window.ethereum);
-
-         try {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            return true;
-         }
-         catch (ex) {
-            console.log(ex);
-            return false;
-         }
-      }
-      else if (window.web3) {
-         window.web3 = new Web3(window.ethereum);
-         return true;
-      }
-      else {
-         return false;
-      }
-   }
-
-   const loadBlockchainData = async () => {
-      const web3 = window.web3;
-      const accounts = await web3.eth.getAccounts();
-      setAccount(accounts[0]);
-
-      const networkId = await web3.eth.net.getId();
-      const tokenNetworkData = TokenContract.networks[networkId];
-
-      if (tokenNetworkData) {
-         const tokenAddress = tokenNetworkData.address;
-         const tokenAbi = TokenContract.abi;
-         const tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress);
-         setTokenContract(tokenContract);
-
-         console.log('Account: ' + accounts[0]);
-         console.log('TokenAddress: ' + tokenAddress);
-         
-         setGameMode(Entities.GameMode.Blockchain);
-      } else {
-         window.alert('Smart contract not deployed to a detected network.')
-      }
-   }
 
    const pinJsonToIpfs = async (json: object) : Promise<string> => {
       var ipfsUrl = '';
