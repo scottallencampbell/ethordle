@@ -1,8 +1,11 @@
 import '../styles/global.css';
+import { CryptoProvider } from '../context/useCrypto';
 
 function Ethordle({ Component, pageProps }) {
    return (
-      <Component {...pageProps} />
+      <CryptoProvider>
+       <Component {...pageProps} />
+      </CryptoProvider>
    )
 }
 
