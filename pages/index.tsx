@@ -53,18 +53,17 @@ const statisticsCookieName = 'statistics';
 const startingTime = new Date().getTime();
 
 const App = () => {
+   const { blockchain, connectToBlockchain  } = useCrypto();  // blockchain var is a dummy
+   const { account,  } = useCrypto();
+   const { tokens, setTokens } = useCrypto();
+   const { contract,  } = useCrypto();
+   
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
    const [solution, setSolution] = useState('');
-   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
-   //const [account, setAccount] = useState('');
-   //const [tokens, setTokens] = useState(null);
-   //const [tokenContract, setTokenContract] = useState(null);
-   const { getAccount,  } = useCrypto();
-   const { getTokens, setTokens } = useCrypto();
-   const { getContract,  } = useCrypto();
+   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' }); 
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
@@ -93,13 +92,8 @@ const App = () => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
-         const isEthereumEnabled = await loadWeb3();
-
-         if (isEthereumEnabled) {
-            await loadBlockchainData();
-         } else {
-            setIsGameModePopupOpen(true);
-         }
+         let connected = await connectToBlockchain;  // todo
+         console.log(connected);
       })();
    }, [])
 
@@ -151,12 +145,12 @@ const App = () => {
    };
 
    const updateTokenList = async () => {
-      const tokenIdsOfOwner = await tokenContract.methods.tokensOfOwner(account).call();      
+      const tokenIdsOfOwner = await contract.methods.tokensOfOwner(account).call();      
       const existingTokens: Entities.TokenMetadata[] = [];
       
       for (let i = 0; i < tokenIdsOfOwner.length; i++) {
          try { 
-            const tokenURI = await tokenContract.methods.tokenURI(i).call();                    
+            const tokenURI = await contract.methods.tokenURI(i).call();                    
             const metadataFile = await downloadFile(tokenURI, 2000);
             const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
             const metadata = JSON.parse(metadataString);
@@ -203,7 +197,7 @@ const App = () => {
          if (gameMode == Entities.GameMode.Disconnected) {
             return solution;
          } else {
-            const isWordUnique = await tokenContract.methods.isSolutionUnique(solution).call();
+            const isWordUnique = await contract.methods.isSolutionUnique(solution).call();
 
             if (isWordUnique) {
                return solution;
@@ -328,7 +322,7 @@ const App = () => {
       console.log('Token metadata URL: ' + metadataUrl);
       metadata.url = metadataUrl;
 
-      await tokenContract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
+      await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
    }
 
    const downloadFile = async (url: string, timeout: number = null) : Promise<ArrayBuffer> => {

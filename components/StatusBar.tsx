@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import * as Entities from '../model/entities';
 
 interface IStatusBar {
    account: string,
-   tokens: string[]
+   tokens: Entities.TokenMetadata[]
 }
 
 export const StatusBar = ({ account, tokens }: IStatusBar) => {
