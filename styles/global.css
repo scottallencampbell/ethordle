@@ -740,7 +740,7 @@ body {
   font-family: 'Courier New', Courier, monospace;
 }
 
-#token-list span {
+#token-list .guess-result span {
   width: 12px;
   height: 12px;
   min-height: 12px;
@@ -750,11 +750,11 @@ body {
   margin: 0 1px 0 1px;
 }
 
-#token-list .X {
+#token-list .guess-result span.X {
   background-color: #6aaa64;
 }
 
-#token-list .O {
+#token-list .guess-result span.O {
   background-color: #c9b458;
 }
 
@@ -762,9 +762,32 @@ body {
   line-height: 14px;
 }
 
-#token-list img {
+#token-list .token {
+  border-radius: 25px;  
   width: 570px;
-  height: 360px;
+  height: 570px;
+  border: solid 1px #aaaaaa;
+  background: no-repeat;
+}
+
+#token-list .token .details {
+  margin-top: 400px;
+}
+
+#token-list .token .price {
+  font-size: 50px;
+  font-weight: bold;
+  float: left;
+}
+
+#token-list .token .price img {
+  height: 90px;
+  width: auto;
+  float: left;
+}
+
+#token-list .token .seconds {
+  
 }
 
 @keyframes anim-lightspeed-in {

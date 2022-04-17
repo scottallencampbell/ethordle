@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import axios from 'axios';
 import Head from 'next/head';
 import Web3 from 'web3';
 import { useCrypto } from '../context/useCrypto';
+import { downloadFile, pinFileToIpfs, pinJsonToIpfs } from '../helpers/file-system';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
@@ -16,11 +16,10 @@ import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
 import * as Entities from '../model/entities';
-import configData from '../config.json';
+import configSettings from '../config.json';
 
 words.push(...solutions);
 
-const appName = 'Ethordle';
 const tokenPrice = '1'; //'0.005';
 const wordLength = 5;
 const maxGuesses = 6;
@@ -52,10 +51,10 @@ const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses))
 const statisticsCookieName = 'statistics';
 const startingTime = new Date().getTime();
 
-const App = () => {
+const Index = () => {
    const { blockchain, connectToBlockchain  } = useCrypto();  // blockchain var is a dummy
+   const { tokens, refreshTokens } = useCrypto(); 
    const { account,  } = useCrypto();
-   const { tokens, setTokens } = useCrypto();
    const { contract,  } = useCrypto();
    
    const [grid, setGrid] = useState(startingGrid);
@@ -82,7 +81,7 @@ const App = () => {
          setSolution(uniqueSolution);
 
          if (gameMode != Entities.GameMode.Blockchain) { return; }2
-         await updateTokenList();
+         await refreshTokens();
       })();
    }, [gameMode]);
 
@@ -101,77 +100,6 @@ const App = () => {
          }         
       })();
    }, [])
-
-   const pinJsonToIpfs = async (json: object) : Promise<string> => {
-      var ipfsUrl = '';
-      const apiUrl = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
-
-      await axios.post(apiUrl, json, {
-         headers: {
-            'Content-Type': 'application/json',
-            'pinata_api_key': configData.pinataApiKey,
-            'pinata_secret_api_key': configData.pinataSecretApiKey
-         }
-      }
-      ).then((response) => {
-         ipfsUrl = `https://ipfs.infura.io/ipfs/${response.data.IpfsHash}`;
-      }).catch((ex) => {
-         console.log(ex);
-         throw ex;
-      });
-
-      return ipfsUrl;
-   };
-
-   const pinFileToIpfs = async (fileUrl: string) : Promise<string> => {
-      var ipfsUrl = '';
-      const apiUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-
-      const data = await downloadFile(fileUrl);
-      
-      let formData = new FormData();
-      formData.append('file', new Blob([data]));
-
-      await axios.post(apiUrl, formData, {
-         headers: {
-            'Content-Type': 'multipart/form-data',
-            'pinata_api_key': configData.pinataApiKey,
-            'pinata_secret_api_key': configData.pinataSecretApiKey
-         }
-      }
-      ).then(response => {
-         ipfsUrl = `https://ipfs.infura.io/ipfs/${response.data.IpfsHash}`;
-      }).catch(ex => {
-         console.log(ex);
-         throw ex;
-      });
-
-      return ipfsUrl;
-   };
-
-   const updateTokenList = async () => {
-      const tokenIdsOfOwner = await contract.methods.tokensOfOwner(account).call();      
-      const existingTokens: Entities.TokenMetadata[] = [];
-      
-      for (let i = 0; i < tokenIdsOfOwner.length; i++) {
-         try { 
-            const tokenURI = await contract.methods.tokenURI(i).call();                    
-            const metadataFile = await downloadFile(tokenURI, 2000);
-            const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
-            const metadata = JSON.parse(metadataString);
-            metadata.url = tokenURI;
-
-            console.log('TokenURI: ' + tokenURI);
-            console.log('TokenImage: ' + metadata.imageUrl); 
-            
-            existingTokens.push(metadata);            
-         } catch (ex) {
-            console.log(ex);
-         }
-      }
-
-      setTokens(existingTokens);
-   }
 
    const handleKeyDown = (e) => {
       if (gameStatus == Entities.GameStatus.Won || gameStatus == Entities.GameStatus.Lost) {
@@ -330,22 +258,6 @@ const App = () => {
       await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
    }
 
-   const downloadFile = async (url: string, timeout: number = null) : Promise<ArrayBuffer> => {
-      let data : ArrayBuffer;
-    
-      await axios.get(url, {
-         timeout: timeout,
-         responseType: 'arraybuffer'
-      }).then(response => {
-         data = response.data;
-      }).catch(ex => {
-         console.log(ex);
-         throw ex;
-      });
-   
-      return data;
-   }
-
    const showSummary = async (newGameStatus: Entities.GameStatus) => {
       let newStatistics: Entities.Statistics;
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
@@ -405,16 +317,15 @@ const App = () => {
    return (
       <>
          <Head>
-            <title>{appName}</title>
+            <title>{configSettings.appName}</title>
             <link rel='icon' href='/favicon.ico'></link>
          </Head>
          {account === '' ? null : <StatusBar account={account} tokens={tokens}></StatusBar>}
          <div className='main'>
-            <Title title={appName}></Title>
+            <Title title={configSettings.appName}></Title>
             <Grid grid={grid}></Grid>
             <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
             {account === '' || !tokens ? null : <TokenList tokens={tokens}></TokenList>}
-
          </div>
          <Introduction></Introduction>
          <Summary statistics={statistics}></Summary>
@@ -423,4 +334,4 @@ const App = () => {
    )
 }
 
-export default App;
+export default Index;

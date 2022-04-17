@@ -24,7 +24,7 @@ export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopu
             <div id='mode-chooser' className='modal'>           
             <div className='content'>
                <div className='ethereum-icon'>
-                  <img src='/ethereum-icon.jpg'></img>
+                  <img src='/ethordle-to-ethereum-icon.png'></img>
                </div>              
                <p>Welcome to <b>ETHORDLE</b>, an NFT-enabled version of the popular Wordle game.</p>
                <p>Your browser is not currently configured to support Ethereum.</p>

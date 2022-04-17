@@ -27,7 +27,8 @@ export type TokenMetadata = {
    solution: string,
    imageUrl: string,
    guesses: string[],
-   secondsRequired: number
+   secondsRequired: number,
+   price: number
 }
 
 export enum GameMode {
