@@ -11,8 +11,8 @@ interface ContextInterface {
    setContract: Dispatch<SetStateAction<Contract>>,
    tokens: Entities.TokenMetadata[],
    setTokens: Dispatch<SetStateAction<Entities.TokenMetadata[]>>,
-   blockchain: Promise<boolean>, /// todo
-   connectToBlockchain: Dispatch<Promise<boolean>>
+   blockchain: Promise<boolean>,
+   connectToBlockchain: Promise<boolean>
 }
 
 declare let window: any;
@@ -94,7 +94,6 @@ export function CryptoProvider({ children }) {
          console.log('Account: ' + accounts[0]);
          console.log('TokenAddress: ' + contractAddress);
 
-         //// todo setGameMode(Entities.GameMode.Blockchain);
          return true;
       } else {
          window.alert('Smart contract not deployed to a detected network.')
@@ -112,8 +111,7 @@ export function CryptoProvider({ children }) {
          return false;
       }
       
-      return true;
-       /// todo todo setIsGameModePopupOpen(true);
+      return true;   
    }
 
    return (

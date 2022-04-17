@@ -92,8 +92,13 @@ const App = () => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
-         let connected = await connectToBlockchain;  // todo
-         console.log(connected);
+         let connected = await connectToBlockchain();
+
+         if (connected) {
+            setGameMode(Entities.GameMode.Blockchain);             
+         } else {
+            setIsGameModePopupOpen(true);
+         }         
       })();
    }, [])
 

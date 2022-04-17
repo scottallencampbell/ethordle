@@ -26,7 +26,7 @@ export const TokenList = ({ tokens }: ITokenList) => {
          <div><img src={token.imageUrl} 
          onError={({ currentTarget }) => {
             currentTarget.onerror = null;
-            currentTarget.src='./blank-solution.png';
+            currentTarget.src=`./loading/unloadable-${Math.floor(Math.random() * 7)}.png`;
         }}/></div>
          <div className='metadata-url'>{token.url}</div>
          <div className='guess-result'>
