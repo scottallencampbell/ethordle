@@ -60,7 +60,7 @@ using Strings for uint256;
         return _currentTokenId;
     }
 
-    function tokensOfOwner(address _from) external view returns(uint256[] memory ownerTokenIds) {
+    function tokensOfOwner(address _from) external view returns(uint256[] memory) {
         uint256 tokens = balanceOf(_from);
 
         if (tokens == 0) {
@@ -170,7 +170,10 @@ using Strings for uint256;
     }
 
     function _getEscalatedPrice(uint256 value) private view returns (uint256) {
-        return value * _priceEscalationRate / 10000 ;  // todo need safe multiply    
+        uint256 divisor = 10**15;
+        uint256 newPrice = value * _priceEscalationRate / 10000 ;  // todo need safe multiply    
+        
+        return (newPrice / divisor) * divisor;  // round off new price to nearest 1E15
     }
 
     function transferFrom(
