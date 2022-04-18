@@ -11,10 +11,11 @@ interface ContextInterface {
    setAccount: Dispatch<SetStateAction<string>>,
    contract: Contract,
    setContract: Dispatch<SetStateAction<Contract>>,
-   blockchain: boolean,
    connectToBlockchain: Promise<boolean>,
-   tokens: Entities.TokenMetadata[],
-   refreshTokens: Promise<Entities.TokenMetadata[]>
+   ownerTokens: Entities.TokenMetadata[],
+   getOwnerTokens: Promise<Entities.TokenMetadata[]>,
+   allTokens: Entities.TokenMetadata[],
+   getAllTokens: Promise<Entities.TokenMetadata[]>
 }
 
 declare let window: any;
@@ -22,13 +23,12 @@ declare let window: any;
 export const CryptoContext = createContext({} as ContextInterface);
 
 export function CryptoProvider({ children }) {
-
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
-   const [tokens, setTokens] = useState(null);
-   const [blockchain, ] = useState(false);
+   const [ownerTokens, setOwnerTokens] = useState([]);
+   const [allTokens, setAllTokens] = useState([]);
 
-   const loadWeb3 = async () => {
+   const loadWeb3 = async () : Promise<boolean> => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
 
@@ -50,24 +50,20 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const loadBlockchainData = async () => {
+   const loadBlockchainData = async () : Promise<boolean> => {
       const web3 = window.web3;
       const accounts = await web3.eth.getAccounts();
-      setAccount(accounts[0]);
-
       const networkId = await web3.eth.net.getId();
       const tokenNetworkData = TokenContract.networks[networkId];
+
+      setAccount(accounts[0]);
 
       if (tokenNetworkData) {
          const contractAddress = tokenNetworkData.address;
          const abi = TokenContract.abi;
          const contract = await new web3.eth.Contract(abi, contractAddress);
+         
          setContract(contract);
-
-         console.log('Account: ' + accounts[0]);
-         console.log('TokenAddress: ' + contractAddress);
-         console.log('TokenContract: ' + contract);
-
          return true;
       } else {
          window.alert('Smart contract not deployed to a detected network.')
@@ -75,34 +71,61 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const refreshTokens = async () => {
+   const getOwnerTokens = async (account: string) : Promise<void> => { 
       const tokenIdsOfOwner = await contract.methods.tokensOfOwner(account).call();      
-      const existingTokens: Entities.TokenMetadata[] = [];
-      
+      const tokens: Entities.TokenMetadata[] = [];
+     
       for (let i = 0; i < tokenIdsOfOwner.length; i++) {
          try { 
-            const tokenURI = await contract.methods.tokenURI(i).call();       
-            const price = await contract.methods.price(i).call();                    
-            const metadataFile = await downloadFile(tokenURI, 2000);
-            const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
-            const metadata = JSON.parse(metadataString);
-            metadata.url = tokenURI;
-            metadata.price = Web3.utils.fromWei(price, 'ether');
+            const id = tokenIdsOfOwner[i];
+            const token = await getToken(id);      
 
-            console.log('TokenURI: ' + tokenURI);
-            console.log('TokenImage: ' + metadata.imageUrl); 
-            
-            existingTokens.push(metadata);            
+            tokens.push(token);            
          } catch (ex) {
             console.log(ex);
          }
       }
 
-      setTokens(existingTokens);
+      tokens.sort(function(a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
+      
+      setOwnerTokens(tokens);
    }
 
-   const connectToBlockchain = async () : Promise<boolean> => { 
+   const getAllTokens = async () : Promise<Entities.TokenMetadata[]> => {
+      const tokenCount = await contract.methods.tokenCount().call();       
+      const tokens: Entities.TokenMetadata[] = [];
       
+      for (let i = 0; i < tokenCount; i++) {
+         try { 
+            const token = await getToken(i);
+            tokens.push(token);            
+         } catch (ex) {
+            console.log(ex);
+         }
+      }
+
+      tokens.sort(function(a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
+
+      return tokens;
+   }
+
+   const getToken = async(id : number) : Promise<Entities.TokenMetadata> => {
+      const owner = await contract.methods.ownerOf(id).call();
+      const tokenURI = await contract.methods.tokenURI(id).call();       
+      const price = await contract.methods.price(id).call();                    
+      const metadataFile = await downloadFile(tokenURI, 2000);
+      const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
+      const metadata = JSON.parse(metadataString);
+
+      metadata.id = id;
+      metadata.url = tokenURI;
+      metadata.price = Web3.utils.fromWei(price, 'ether');
+      metadata.owner = owner;
+
+      return metadata;
+   }
+   
+   const connectToBlockchain = async () : Promise<boolean> => {       
       if (!await loadWeb3()) {
          return false;
       }
@@ -115,17 +138,18 @@ export function CryptoProvider({ children }) {
    }
 
    return (
-      <CryptoContext.Provider value={{ account, setAccount, contract, setContract, blockchain, connectToBlockchain, tokens, refreshTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ account, setAccount, contract, setContract, connectToBlockchain, ownerTokens, getOwnerTokens, allTokens, getAllTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
 export const useCrypto = (): ContextInterface => {
 
-   const { account, setAccount } = useContext(CryptoContext)
-   const { contract, setContract } = useContext(CryptoContext)
-   const { blockchain, connectToBlockchain } = useContext(CryptoContext)
-   const { tokens, refreshTokens } = useContext(CryptoContext)
+   const { account, setAccount } = useContext(CryptoContext);
+   const { contract, setContract } = useContext(CryptoContext);
+   const { connectToBlockchain } = useContext(CryptoContext);
+   const { ownerTokens, getOwnerTokens } = useContext(CryptoContext);
+   const { allTokens, getAllTokens } = useContext(CryptoContext);
 
-   return { account, setAccount, contract, setContract, blockchain, connectToBlockchain, tokens, refreshTokens };
+   return { account, setAccount, contract, setContract, connectToBlockchain, ownerTokens, getOwnerTokens, allTokens, getAllTokens };
 }
 

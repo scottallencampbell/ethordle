@@ -68,6 +68,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(await this.token.ownerOf(0)).to.equal(winner);
         expect(await this.token.solution(0)).to.equal(solution);
         expect(await this.token.tokenURI(0)).to.equal(tokenURI);
+        expect(await this.token.tokenCount()).is.a.bignumber.that.equals(new BN(1));
 
         const price = (await this.token.price(0)).toString();
         const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000')).toString();
@@ -87,6 +88,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(await this.token.ownerOf(0)).to.equal(winner);
         expect(await this.token.solution(0)).to.equal(solution);
         expect(await this.token.tokenURI(0)).to.equal(tokenURI);
+        expect(await this.token.tokenCount()).is.a.bignumber.that.equals(new BN(1));
 
         const tokens = await this.token.tokensOfOwner(winner);
 
@@ -117,6 +119,8 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(await this.token.ownerOf(3)).to.equal(winner);
         expect(await this.token.solution(3)).to.equal(otherSolutions[2]);
         expect(await this.token.tokenURI(3)).to.equal(otherTokenURIs[2]);  
+
+        expect(await this.token.tokenCount()).is.a.bignumber.that.equals(new BN(4));
 
         const tokens = await this.token.tokensOfOwner(winner);
 
@@ -214,5 +218,18 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
         const newExpectedTransfereeBalance = new BN(transfereeBalance).sub(expectedPrice).sub(gas);
         expect(newTransfereeBalance.toString()).to.equal(newExpectedTransfereeBalance.toString());        
+    });
+
+    it('rounds high-precision values down', async function () {
+        await this.token.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+      
+        const price = (await this.token.price(0));
+        const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000'));
+        expect(price.toString()).to.equal(expectedPrice.toString());
+        
+        await this.token.buy(transferee, 0, { from: transferee, value: new BN('1234567890123456789') });
+        const newPrice = (await this.token.price(0));
+        const newExpectedPrice = new BN('1358000000000000000');
+        expect(newPrice.toString()).to.equal(newExpectedPrice.toString());
     });
 });

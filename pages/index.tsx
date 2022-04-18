@@ -52,10 +52,10 @@ const statisticsCookieName = 'statistics';
 const startingTime = new Date().getTime();
 
 const Index = () => {
-   const { blockchain, connectToBlockchain  } = useCrypto();  // blockchain var is a dummy
-   const { tokens, refreshTokens } = useCrypto(); 
-   const { account,  } = useCrypto();
-   const { contract,  } = useCrypto();
+   const { connectToBlockchain  } = useCrypto();  
+   const { account } = useCrypto();
+   const { contract } = useCrypto();
+   const { ownerTokens, getOwnerTokens } = useCrypto();
    
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
@@ -80,8 +80,9 @@ const Index = () => {
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
 
-         if (gameMode != Entities.GameMode.Blockchain) { return; }2
-         await refreshTokens();
+         if (gameMode != Entities.GameMode.Blockchain) { return; }   
+         
+         await getOwnerTokens(account);                 
       })();
    }, [gameMode]);
 
@@ -94,7 +95,7 @@ const Index = () => {
          let connected = await connectToBlockchain();
 
          if (connected) {
-            setGameMode(Entities.GameMode.Blockchain);             
+            setGameMode(Entities.GameMode.Blockchain);              
          } else {
             setIsGameModePopupOpen(true);
          }         
@@ -242,17 +243,16 @@ const Index = () => {
 
    const mintToken = async (tokenSolution: string, tokenGuessResults: string[], secondsRequired: number) => {
       const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);
-      console.log('Token image URL: ' + imageUrl);
-
+      
       const metadata: Entities.TokenMetadata = {
          solution: tokenSolution,
          imageUrl: imageUrl,
          secondsRequired: secondsRequired,
-         guesses: tokenGuessResults
+         guesses: tokenGuessResults,
+         owner: account
       };
 
       const metadataUrl = await pinJsonToIpfs(metadata);
-      console.log('Token metadata URL: ' + metadataUrl);
       metadata.url = metadataUrl;
 
       await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
@@ -320,12 +320,11 @@ const Index = () => {
             <title>{configSettings.appName}</title>
             <link rel='icon' href='/favicon.ico'></link>
          </Head>
-         {account === '' ? null : <StatusBar account={account} tokens={tokens}></StatusBar>}
+         <StatusBar></StatusBar>
          <div className='main'>
             <Title title={configSettings.appName}></Title>
             <Grid grid={grid}></Grid>
             <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
-            {account === '' || !tokens ? null : <TokenList tokens={tokens}></TokenList>}
          </div>
          <Introduction></Introduction>
          <Summary statistics={statistics}></Summary>

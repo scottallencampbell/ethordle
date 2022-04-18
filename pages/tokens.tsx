@@ -3,6 +3,8 @@ import Head from 'next/head';
 import Web3 from 'web3';
 import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
+import { Title } from '../components/Title';
+import { StatusBar } from '../components/StatusBar';
 
 import * as Entities from '../model/entities';
 import configSettings from '../config.json';
@@ -10,9 +12,12 @@ import { setConstantValue } from 'typescript';
 
 const Tokens = () => {
    const [ connected, setConnected ] = useState(false);
-   const { blockchain, connectToBlockchain  } = useCrypto();  // blockchain var is a dummy
-   const { account,  } = useCrypto();
-   const { tokens, refreshTokens} = useCrypto();
+   const [ allTokens, setAllTokens ] = useState(false);
+
+   const { connectToBlockchain } = useCrypto();  
+   const { account } = useCrypto();
+   const { ownerTokens, getOwnerTokens } = useCrypto();
+   const { getAllTokens} = useCrypto();
    const { contract,  } = useCrypto();
   
    useEffect(() => {
@@ -25,19 +30,33 @@ const Tokens = () => {
    useEffect(() => {
       (async () => {         
          if (connected) {
-            await refreshTokens();
+
+            // todo remove (cache?)
+            await getOwnerTokens(account);         
+            
+            const allMintedTokens = await getAllTokens();        
+            setAllTokens(allMintedTokens);
          }
       })();
    }, [connected]);
+
+   const buyToken = async(id: number, price: string) => {
+      var price = Web3.utils.toWei(price, 'ether');
+      console.log(account, id, price);
+      await contract.methods.buy(account, id).send({ from: account, value: price });   
+   }
 
    return (
       <>
          <Head>
             <title>{configSettings.appName}</title>
             <link rel='icon' href='/favicon.ico'></link>
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
          </Head>
+         {account === '' ? null : <StatusBar></StatusBar>}
          <div>
-         {account === '' || !tokens ? null : <TokenList tokens={tokens}></TokenList>}
+         <Title title='Token List'></Title>
+         {account === '' || !allTokens ? null : <TokenList account={account} tokens={allTokens} buyToken={buyToken}></TokenList>}
          </div>
       </>
    )

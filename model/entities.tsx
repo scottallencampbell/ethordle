@@ -23,12 +23,14 @@ export type Statistics = {
 }
 
 export type TokenMetadata = {
+   id?: number,
    url?: string,
    solution: string,
    imageUrl: string,
    guesses: string[],
    secondsRequired: number,
-   price: number
+   price?: number,
+   owner?: string
 }
 
 export enum GameMode {
