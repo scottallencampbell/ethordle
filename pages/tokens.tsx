@@ -10,30 +10,16 @@ import * as Entities from '../model/entities';
 import configSettings from '../config.json';
 
 const Tokens = () => {
-   const [ connected, setConnected ] = useState(false);
-   const [ allTokens, setAllTokens ] = useState(false);
-
    const { connectToBlockchain } = useCrypto();  
    const { account } = useCrypto();
-   const { ownerTokens, getOwnerTokens } = useCrypto();
-   const { getAllTokens} = useCrypto();
-   const { contract,  } = useCrypto();
-  
-   useEffect(() => {
-      (async () => {         
-         const isConnected = await connectToBlockchain();
-         setConnected(isConnected);
-      })();
-   }, []);
+   const { contract } = useCrypto();
+   const { tokens } = useCrypto();
 
    useEffect(() => {
       (async () => {         
-         if (connected) {
-            const allMintedTokens = await getAllTokens();        
-            setAllTokens(allMintedTokens);
-         }
+         const isConnected = await connectToBlockchain();         
       })();
-   }, [connected]);
+   }, []);
 
    const buyToken = async(id: number, price: string) => {
       var price = Web3.utils.toWei(price, 'ether');
@@ -47,10 +33,10 @@ const Tokens = () => {
             <title>{configSettings.appName}</title>
             <link rel='icon' href='/favicon.ico'></link>            
          </Head>
-         {account === '' ? null : <StatusBar></StatusBar>}
+         <StatusBar></StatusBar>
          <div>
          <Title title='Marketplace'></Title>
-         {account === '' || !allTokens ? null : <TokenList account={account} tokens={allTokens} buyToken={buyToken}></TokenList>}
+         {account === '' || !tokens ? null : <TokenList account={account} tokens={tokens} buyToken={buyToken}></TokenList>}
          </div>
       </>
    )

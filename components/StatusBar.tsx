@@ -6,13 +6,20 @@ interface IStatusBar {
 }
 
 export const StatusBar = ({} : IStatusBar) => {
-   const { ownerTokens } = useCrypto(); 
-   const { account  } = useCrypto();
+   const { tokens } = useCrypto(); 
+   const { account } = useCrypto();
  
+   const ownerTokenCount = tokens.filter((token) => token.owner == account).length;
+
    return (
+      <>
+      { account != '' ? 
       <div className='top-bar'>
-         <div className='token-count'>NFTs earned: {ownerTokens ? <a href='/tokens'>{ownerTokens.length}</a> : null}</div>
+         <div className='token-count'>NFTs owned: {tokens ? <a href='/tokens'>{ownerTokenCount}</a> : null}</div>
          <div className='account'>{account}</div>
       </div>   
+      : <></> 
+      }
+      </>
    )
 }

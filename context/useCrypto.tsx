@@ -12,10 +12,8 @@ interface ContextInterface {
    contract: Contract,
    setContract: Dispatch<SetStateAction<Contract>>,
    connectToBlockchain: Promise<boolean>,
-   ownerTokens: Entities.TokenMetadata[],
-   getOwnerTokens: Promise<Entities.TokenMetadata[]>,
-   allTokens: Entities.TokenMetadata[],
-   getAllTokens: Promise<Entities.TokenMetadata[]>
+   tokens: Entities.TokenMetadata[],
+   getTokens: Promise<Entities.TokenMetadata[]>
 }
 
 declare let window: any;
@@ -25,17 +23,15 @@ export const CryptoContext = createContext({} as ContextInterface);
 export function CryptoProvider({ children }) {
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
-   const [ownerTokens, setOwnerTokens] = useState([]);
-   const [allTokens, setAllTokens] = useState([]);
-
+   const [tokens, setTokens] = useState([]);
+   
    useEffect(() => {
       (async () => {
-         if (contract != null) {
-            console.log(account);
-            await getOwnerTokens(account);
+         if (contract != null && account != '') {
+            await getTokens();
          }
       })();
-   }, [account]);
+   }, [account, contract]);
 
    const loadWeb3 = async (): Promise<boolean> => {
       if (window.ethereum) {
@@ -80,27 +76,7 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const getOwnerTokens = async (account: string): Promise<void> => {
-      const tokenIdsOfOwner = await contract.methods.tokensOfOwner(account).call();
-      const tokens: Entities.TokenMetadata[] = [];
-
-      for (let i = 0; i < tokenIdsOfOwner.length; i++) {
-         try {
-            const id = tokenIdsOfOwner[i];
-            const token = await getToken(id);
-
-            tokens.push(token);
-         } catch (ex) {
-            console.log(ex);
-         }
-      }
-
-      tokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
-
-      setOwnerTokens(tokens);
-   }
-
-   const getAllTokens = async (): Promise<Entities.TokenMetadata[]> => {
+   const getTokens = async (): Promise<Entities.TokenMetadata[]> => {
       const tokenCount = await contract.methods.tokenCount().call();
       const tokens: Entities.TokenMetadata[] = [];
 
@@ -115,6 +91,7 @@ export function CryptoProvider({ children }) {
 
       tokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
 
+      setTokens(tokens);
       return tokens;
    }
 
@@ -147,7 +124,7 @@ export function CryptoProvider({ children }) {
    }
 
    return (
-      <CryptoContext.Provider value={{ account, setAccount, contract, setContract, connectToBlockchain, ownerTokens, getOwnerTokens, allTokens, getAllTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
@@ -156,9 +133,8 @@ export const useCrypto = (): ContextInterface => {
    const { account, setAccount } = useContext(CryptoContext);
    const { contract, setContract } = useContext(CryptoContext);
    const { connectToBlockchain } = useContext(CryptoContext);
-   const { ownerTokens, getOwnerTokens } = useContext(CryptoContext);
-   const { allTokens, getAllTokens } = useContext(CryptoContext);
+   const { tokens, getTokens } = useContext(CryptoContext);
 
-   return { account, setAccount, contract, setContract, connectToBlockchain, ownerTokens, getOwnerTokens, allTokens, getAllTokens };
+   return { account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens };
 }
 

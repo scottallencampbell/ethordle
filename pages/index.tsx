@@ -55,7 +55,6 @@ const Index = () => {
    const { connectToBlockchain  } = useCrypto();  
    const { account } = useCrypto();
    const { contract } = useCrypto();
-   const { ownerTokens, getOwnerTokens } = useCrypto();
    
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
@@ -84,9 +83,7 @@ const Index = () => {
 
          if (gameMode != Entities.GameMode.Blockchain) { 
             return;
-         }
-
-         await getOwnerTokens(account);                 
+         }             
       })();
    }, [gameMode]);
 

@@ -13,7 +13,6 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     const name = 'Ethordle Token';
     const symbol = 'EthordleToken';
-    const baseURI = '';
     const initialPrice = web3.utils.toWei(new BN(1), 'ether'); 
     const royaltyRate = '500';
     const priceEscalationRate = '11000';
@@ -34,7 +33,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
     beforeEach(async function () {
         this.token = await EthordleToken.new(name, symbol, initialPrice, royaltyRate, priceEscalationRate, { from: owner });
     });
-/*
+
     it('has metadata', async function () {
         expect(await this.token.name()).to.equal(name);
         expect(await this.token.symbol()).to.equal(symbol);
@@ -232,7 +231,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         const newExpectedPrice = new BN('1358000000000000000');
         expect(newPrice.toString()).to.equal(newExpectedPrice.toString());
     });
-*/
+
     it('rounds high-precision values down as transfers occur', async function () {
         await this.token.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
       
