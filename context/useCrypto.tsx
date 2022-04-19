@@ -1,9 +1,8 @@
-import { createContext, Dispatch, SetStateAction, useContext, useState, useEffect } from "react"
+import { createContext, Dispatch, SetStateAction, useContext, useState, useEffect } from 'react'
 import Web3 from 'web3';
-import { Contract } from "web3-eth-contract"
+import { Contract } from 'web3-eth-contract';
 import TokenContract from '../abis/EthordleToken.json';
-import { downloadFile } from '../helpers/file-system';
-
+import { downloadFile } from '../services/file-system';
 import * as Entities from '../model/entities';
 
 interface ContextInterface {
@@ -13,9 +12,9 @@ interface ContextInterface {
    setAccount: Dispatch<SetStateAction<string>>,
    contract: Contract,
    setContract: Dispatch<SetStateAction<Contract>>,
-   connectToBlockchain: Promise<boolean>,
+   connectToBlockchain: () => Promise<boolean>,
    tokens: Entities.TokenMetadata[],
-   getTokens: Promise<Entities.TokenMetadata[]>
+   getTokens: () => Promise<Entities.TokenMetadata[]>
 }
 
 declare let window: any;
@@ -93,8 +92,8 @@ export function CryptoProvider({ children }) {
       }
 
       tokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
-
       setTokens(tokens);
+
       return tokens;
    }
 

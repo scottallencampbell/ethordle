@@ -787,6 +787,18 @@ body {
   clear: both;
 }
 
+@media (max-width: 1350px) {
+  #token-list {
+    width: 1000px;
+  }
+}
+
+@media (max-width: 1000px) {
+  #token-list {
+    width: 500px;
+  }
+}
+
 #token-list:after {
   content: "";
   display: table;

@@ -3,7 +3,6 @@ import Cookies from 'js-cookie';
 import Head from 'next/head';
 import Web3 from 'web3';
 import { useCrypto } from '../context/useCrypto';
-import { downloadFile, pinFileToIpfs, pinJsonToIpfs } from '../helpers/file-system';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
@@ -12,9 +11,9 @@ import { Introduction } from '../components/Introduction';
 import { Title } from '../components/Title';
 import { Summary } from '../components/Summary';
 import { ModeChooser } from '../components/ModeChooser';
-import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
-
+import { pinFileToIpfs, pinJsonToIpfs } from '../services/file-system';
+import getSomething from '../pages/api/load-nfts';  // todo
 import * as Entities from '../model/entities';
 import configSettings from '../config.json';
 
@@ -249,7 +248,7 @@ const Index = () => {
    }
 
    const mintToken = async (tokenSolution: string, tokenGuessResults: string[], secondsRequired: number) => {
-      const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);
+      const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);  //todo
       
       const metadata: Entities.TokenMetadata = {
          solution: tokenSolution,
