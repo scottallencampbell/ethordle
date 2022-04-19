@@ -49,12 +49,14 @@ const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses))
 })
 
 const statisticsCookieName = 'statistics';
+const introShownCookieName = 'intro-shown6';
 const startingTime = new Date().getTime();
 
 const Index = () => {
-   const { connectToBlockchain  } = useCrypto();  
+   const { connectToBlockchain } = useCrypto();  
    const { account } = useCrypto();
    const { contract } = useCrypto();
+   const { gameMode, setGameMode } = useCrypto();
    
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
@@ -63,14 +65,31 @@ const Index = () => {
    const [solution, setSolution] = useState('');
    const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' }); 
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
-   const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
-   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
    const [guessResults, setGuessResults] = useState([]);
-
+   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
+   const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
+   const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(false);
+   
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
       return () => { document.removeEventListener('keydown', handleKeyDown); }
    });
+
+   useEffect(() => {
+      (async () => {
+         setTimeout(() => {
+            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
+         }, 1000);
+
+         const isConnected = await connectToBlockchain();
+
+         if (isConnected) {
+            setGameMode(Entities.GameMode.Blockchain);              
+         } else {
+            setIsGameModePopupOpen(true);
+         }                  
+      })();
+   }, []);
 
    useEffect(() => {
       (async () => {
@@ -79,29 +98,16 @@ const Index = () => {
          }
 
          let uniqueSolution = await chooseSolution();
-         setSolution(uniqueSolution);
-
-         if (gameMode != Entities.GameMode.Blockchain) { 
-            return;
-         }             
+         setSolution(uniqueSolution);   
+         
+         if (!Cookies.get(introShownCookieName)) {
+            setTimeout(() => {
+               Cookies.set(introShownCookieName, 'true', { expires: 7 })
+               setIsIntroductionPopupOpen(true);
+            }, 100);
+         }      
       })();
    }, [gameMode]);
-
-   useEffect(() => {
-      (async () => {
-         setTimeout(() => {
-            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
-         }, 1000);
-
-         let connected = await connectToBlockchain();
-
-         if (connected) {
-            setGameMode(Entities.GameMode.Blockchain);              
-         } else {
-            setIsGameModePopupOpen(true);
-         }         
-      })();
-   }, [])
 
    const handleKeyDown = (e) => {
       if (gameStatus == Entities.GameStatus.Won || gameStatus == Entities.GameStatus.Lost) {
@@ -294,7 +300,7 @@ const Index = () => {
       setGameStatus(newGameStatus);
       
       setTimeout(() => {
-         document.getElementById('show-summary').click();
+         setIsSummaryPopupOpen(true);
       }, 1500);
 
       setTimeout(() => {
@@ -327,8 +333,8 @@ const Index = () => {
             <Grid grid={grid}></Grid>
             <Keyboard keyboard={keyboard} handleKeyDown={(e) => handleKeyDown(e)}></Keyboard>
          </div>
-         <Introduction></Introduction>
-         <Summary statistics={statistics}></Summary>
+         <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>
+         <Summary statistics={statistics} isSummaryPopupOpen={isSummaryPopupOpen} setIsSummaryPopupOpen={setIsSummaryPopupOpen}></Summary>
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
       </>
    )

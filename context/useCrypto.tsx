@@ -7,6 +7,8 @@ import { downloadFile } from '../helpers/file-system';
 import * as Entities from '../model/entities';
 
 interface ContextInterface {
+   gameMode: Entities.GameMode,
+   setGameMode: Dispatch<SetStateAction<Entities.GameMode>>,
    account: string,
    setAccount: Dispatch<SetStateAction<string>>,
    contract: Contract,
@@ -24,7 +26,8 @@ export function CryptoProvider({ children }) {
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
    const [tokens, setTokens] = useState([]);
-   
+   const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
+  
    useEffect(() => {
       (async () => {
          if (contract != null && account != '') {
@@ -124,17 +127,17 @@ export function CryptoProvider({ children }) {
    }
 
    return (
-      <CryptoContext.Provider value={{ account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
 export const useCrypto = (): ContextInterface => {
-
+   const { gameMode, setGameMode } = useContext(CryptoContext);
    const { account, setAccount } = useContext(CryptoContext);
    const { contract, setContract } = useContext(CryptoContext);
    const { connectToBlockchain } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
 
-   return { account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens };
+   return { gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens };
 }
 

@@ -1,29 +1,27 @@
 import { useEffect } from 'react';
 import Popup from 'reactjs-popup';
 import { StaticGridRow } from './GridRow'
-import Cookies from 'js-cookie';
 
-const introShownCookieName = 'intro-shown';
+interface IIntroduction {   
+   isIntroductionPopupOpen: boolean,
+   setIsIntroductionPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
 
-export const Introduction = () => {
+export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpen} : IIntroduction) => {
    useEffect(() => {
-      if (!Cookies.get(introShownCookieName)) {
-         setTimeout(() => {
-            Cookies.set(introShownCookieName, 'true', { expires: 7 })
-            document.getElementById('show-intro').click();
-         }, 100);
-
+         
+      if (isIntroductionPopupOpen) {
          setTimeout(() => {
             document.getElementById('intro').classList.add('flippable');
          }, 500);
-      }
-   }, [])
+      }      
+   }, [isIntroductionPopupOpen]);
 
    return (
-      <Popup modal trigger={<button id='show-intro' type='button' className='button'>  </button>} closeOnDocumentClick contentStyle={{ maxWidth: '600px', width: '90%' }} >
-         {close => (
+      <Popup modal open={isIntroductionPopupOpen} closeOnDocumentClick={false} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+         {() => (
             <div id='intro' className='modal'>
-               <a className='close' onClick={close}>&times;</a>
+               <a className='close' onClick={() => setIsIntroductionPopupOpen(false)}>&times;</a>
                <div className='content'>
                   <p>Welcome to <b>ETHORDLE</b>, an NFT-enabled version of the popular Wordle game.</p>
                   <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess.</p>

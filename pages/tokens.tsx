@@ -5,6 +5,7 @@ import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { Title } from '../components/Title';
 import { StatusBar } from '../components/StatusBar';
+import { ModeChooser } from '../components/ModeChooser';
 
 import * as Entities from '../model/entities';
 import configSettings from '../config.json';
@@ -14,10 +15,21 @@ const Tokens = () => {
    const { account } = useCrypto();
    const { contract } = useCrypto();
    const { tokens } = useCrypto();
-
+   const { gameMode, setGameMode } = useCrypto();
+   
+   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
+  
    useEffect(() => {
-      (async () => {         
-         const isConnected = await connectToBlockchain();         
+      (async () => {    
+         setTimeout(() => {
+            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
+         }, 1000);
+
+         const isConnected = await connectToBlockchain();    
+         
+         if (!isConnected) {
+            setIsGameModePopupOpen(true);
+         }           
       })();
    }, []);
 
@@ -38,6 +50,7 @@ const Tokens = () => {
          <Title title='Marketplace'></Title>
          {account === '' || !tokens ? null : <TokenList account={account} tokens={tokens} buyToken={buyToken}></TokenList>}
          </div>
+         <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
       </>
    )
 }

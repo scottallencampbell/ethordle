@@ -4,16 +4,18 @@ import Popup from 'reactjs-popup';
 import { StaticGridRow } from './GridRow';
 
 interface ISummary {
+   isSummaryPopupOpen: boolean,
+   setIsSummaryPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
    statistics: Entities.Statistics
 }
 
-export const Summary = ({ statistics } : ISummary) => {
+export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen } : ISummary) => {
  
    return (
-      <Popup modal trigger={<button id='show-summary' type='button' className='button'>Show Statistics</button>} closeOnDocumentClick contentStyle={{ maxWidth: '600px', width: '90%' }} >
-         {close => (
+      <Popup modal open={isSummaryPopupOpen} closeOnDocumentClick={false} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+         {() => (        
             <div id='summary' className='modal'>
-               <a className='close' onClick={close}>&times;</a>
+               <a className='close' onClick={() => setIsSummaryPopupOpen(false)}>&times;</a>
                <div className='content'>
                   <p className='header'>Solution</p>
                   <div className='summary-row'>

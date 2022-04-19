@@ -9,7 +9,7 @@ interface IModeChooser {
 }
 
 export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopupOpen} : IModeChooser) => {
-  
+   
    const downloadFile = () => {
       window.location.href = 'https://metamask.io/download/';
    }

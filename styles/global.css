@@ -573,12 +573,6 @@ body {
   font-size: 40px;
 }
 
-#show-intro,
-#show-summary,
-#show-mode-chooser {
-  display: none;
-}
-
 #intro {
   animation: anvil .05s;
 }
