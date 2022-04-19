@@ -35,8 +35,9 @@ const Tokens = () => {
 
    const buyToken = async(id: number, price: string) => {
       var price = Web3.utils.toWei(price, 'ether');
-      console.log(account, id, price);
-      await contract.methods.buy(account, id).send({ from: account, value: price });   
+      await contract.methods.buy(account, id).send({ from: account, value: price });  
+      
+      window.location.reload(); 
    }
 
    return (
