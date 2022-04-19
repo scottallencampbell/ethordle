@@ -75,13 +75,17 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         if (gameMode == Entities.GameMode.Unknown) { return; }
+         if (gameMode == Entities.GameMode.Unknown) { 
+            return; 
+         }
 
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
 
-         if (gameMode != Entities.GameMode.Blockchain) { return; }   
-         
+         if (gameMode != Entities.GameMode.Blockchain) { 
+            return;
+         }
+
          await getOwnerTokens(account);                 
       })();
    }, [gameMode]);

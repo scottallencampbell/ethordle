@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
 body {
   width: 100%;
   text-align: center;
@@ -862,7 +864,7 @@ body {
   width: 100%;
   top: 212px;
   text-align: right;
-  right: 10px;
+  right: 17px;
 }
 
 #token-list .token .links strong {
@@ -870,8 +872,13 @@ body {
   font-size: 23px;
   cursor: pointer;
   position: relative;
-  margin-right: 6px;
+  margin-left: 12px;
   transition: all .15s linear;
+}
+
+#token-list .token .links strong.smaller {
+  font-size: 20px !important  ;
+  
 }
 
 #token-list .token .links strong:hover {

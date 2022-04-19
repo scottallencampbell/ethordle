@@ -1,4 +1,4 @@
-import { createContext, Dispatch, SetStateAction, useContext, useState } from "react"
+import { createContext, Dispatch, SetStateAction, useContext, useState, useEffect } from "react"
 import Web3 from 'web3';
 import { Contract } from "web3-eth-contract"
 import TokenContract from '../abis/EthordleToken.json';
@@ -28,7 +28,16 @@ export function CryptoProvider({ children }) {
    const [ownerTokens, setOwnerTokens] = useState([]);
    const [allTokens, setAllTokens] = useState([]);
 
-   const loadWeb3 = async () : Promise<boolean> => {
+   useEffect(() => {
+      (async () => {
+         if (contract != null) {
+            console.log(account);
+            await getOwnerTokens(account);
+         }
+      })();
+   }, [account]);
+
+   const loadWeb3 = async (): Promise<boolean> => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
 
@@ -50,7 +59,7 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const loadBlockchainData = async () : Promise<boolean> => {
+   const loadBlockchainData = async (): Promise<boolean> => {
       const web3 = window.web3;
       const accounts = await web3.eth.getAccounts();
       const networkId = await web3.eth.net.getId();
@@ -62,7 +71,7 @@ export function CryptoProvider({ children }) {
          const contractAddress = tokenNetworkData.address;
          const abi = TokenContract.abi;
          const contract = await new web3.eth.Contract(abi, contractAddress);
-         
+
          setContract(contract);
          return true;
       } else {
@@ -71,48 +80,48 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const getOwnerTokens = async (account: string) : Promise<void> => { 
-      const tokenIdsOfOwner = await contract.methods.tokensOfOwner(account).call();      
+   const getOwnerTokens = async (account: string): Promise<void> => {
+      const tokenIdsOfOwner = await contract.methods.tokensOfOwner(account).call();
       const tokens: Entities.TokenMetadata[] = [];
-     
-      for (let i = 0; i < tokenIdsOfOwner.length; i++) {
-         try { 
-            const id = tokenIdsOfOwner[i];
-            const token = await getToken(id);      
 
-            tokens.push(token);            
+      for (let i = 0; i < tokenIdsOfOwner.length; i++) {
+         try {
+            const id = tokenIdsOfOwner[i];
+            const token = await getToken(id);
+
+            tokens.push(token);
          } catch (ex) {
             console.log(ex);
          }
       }
 
-      tokens.sort(function(a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
-      
+      tokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
+
       setOwnerTokens(tokens);
    }
 
-   const getAllTokens = async () : Promise<Entities.TokenMetadata[]> => {
-      const tokenCount = await contract.methods.tokenCount().call();       
+   const getAllTokens = async (): Promise<Entities.TokenMetadata[]> => {
+      const tokenCount = await contract.methods.tokenCount().call();
       const tokens: Entities.TokenMetadata[] = [];
-      
+
       for (let i = 0; i < tokenCount; i++) {
-         try { 
+         try {
             const token = await getToken(i);
-            tokens.push(token);            
+            tokens.push(token);
          } catch (ex) {
             console.log(ex);
          }
       }
 
-      tokens.sort(function(a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
+      tokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
 
       return tokens;
    }
 
-   const getToken = async(id : number) : Promise<Entities.TokenMetadata> => {
+   const getToken = async (id: number): Promise<Entities.TokenMetadata> => {
       const owner = await contract.methods.ownerOf(id).call();
-      const tokenURI = await contract.methods.tokenURI(id).call();       
-      const price = await contract.methods.price(id).call();                    
+      const tokenURI = await contract.methods.tokenURI(id).call();
+      const price = await contract.methods.price(id).call();
       const metadataFile = await downloadFile(tokenURI, 2000);
       const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
       const metadata = JSON.parse(metadataString);
@@ -124,8 +133,8 @@ export function CryptoProvider({ children }) {
 
       return metadata;
    }
-   
-   const connectToBlockchain = async () : Promise<boolean> => {       
+
+   const connectToBlockchain = async (): Promise<boolean> => {
       if (!await loadWeb3()) {
          return false;
       }
@@ -133,8 +142,8 @@ export function CryptoProvider({ children }) {
       if (!await loadBlockchainData()) {
          return false;
       }
-      
-      return true;   
+
+      return true;
    }
 
    return (

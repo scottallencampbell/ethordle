@@ -28,9 +28,9 @@ export const TokenList = ({ tokens, account, buyToken }: ITokenList) => {
                <div className='token' key={`${i}`}>
                   <img src={token.imageUrl}></img>          
                   <div className='links'>
-                     <strong title='Metadata' onClick={() => window.open(token.url)} className='material-icons md-18'>&#xe54e;</strong>
-                     <strong title='Image' onClick={() => window.open(token.imageUrl)} className='material-icons md-18'>&#xea10;</strong>
-                     <strong title='Owner' onClick={() => window.open(token.owner)} className='material-icons md-18'>&#xe7fd;</strong>
+                     <strong title='Metadata' onClick={() => window.open(token.url)} className='material-icons smaller'>&#xe54e;</strong>
+                     <strong title='Image' onClick={() => window.open(token.imageUrl)} className='material-icons'>&#xea10;</strong>
+                     <strong title='Owner' onClick={() => window.open(token.owner)} className='material-icons'>&#xe7fd;</strong>
                   </div>
                   <div className='details'>                    
                      <div className='details-column'>

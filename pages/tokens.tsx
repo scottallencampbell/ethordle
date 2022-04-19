@@ -8,7 +8,6 @@ import { StatusBar } from '../components/StatusBar';
 
 import * as Entities from '../model/entities';
 import configSettings from '../config.json';
-import { setConstantValue } from 'typescript';
 
 const Tokens = () => {
    const [ connected, setConnected ] = useState(false);
@@ -30,10 +29,6 @@ const Tokens = () => {
    useEffect(() => {
       (async () => {         
          if (connected) {
-
-            // todo remove (cache?)
-            await getOwnerTokens(account);         
-            
             const allMintedTokens = await getAllTokens();        
             setAllTokens(allMintedTokens);
          }
@@ -50,12 +45,11 @@ const Tokens = () => {
       <>
          <Head>
             <title>{configSettings.appName}</title>
-            <link rel='icon' href='/favicon.ico'></link>
-            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
+            <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          {account === '' ? null : <StatusBar></StatusBar>}
          <div>
-         <Title title='Token List'></Title>
+         <Title title='Marketplace'></Title>
          {account === '' || !allTokens ? null : <TokenList account={account} tokens={allTokens} buyToken={buyToken}></TokenList>}
          </div>
       </>
