@@ -2,7 +2,10 @@ import { createContext, Dispatch, SetStateAction, useContext, useState, useEffec
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import TokenContract from '../abis/EthordleToken.json';
-import { downloadFile } from '../services/file-system';
+import { downloadFile } from '../services/fileSystem';
+import { useLocalStorage } from '../services/localStorage';
+import { pinFileToIpfs, pinJsonToIpfs } from '../services/fileSystem';
+
 import * as Entities from '../model/entities';
 
 interface ContextInterface {
@@ -13,8 +16,10 @@ interface ContextInterface {
    contract: Contract,
    setContract: Dispatch<SetStateAction<Contract>>,
    connectToBlockchain: () => Promise<boolean>,
+   mintToken: (solution: string, price: string, guessResults: string[], secondsRequired: number) => Promise<void>,
+   buyToken: (id: number, price: string) => Promise<void>,
    tokens: Entities.TokenMetadata[],
-   getTokens: () => Promise<Entities.TokenMetadata[]>
+   getTokens: (boolean) => Promise<Entities.TokenMetadata[]>
 }
 
 declare let window: any;
@@ -24,9 +29,9 @@ export const CryptoContext = createContext({} as ContextInterface);
 export function CryptoProvider({ children }) {
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
-   const [tokens, setTokens] = useState([]);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
-  
+   const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.TokenMetadata[]);
+
    useEffect(() => {
       (async () => {
          if (contract != null && account != '') {
@@ -34,11 +39,25 @@ export function CryptoProvider({ children }) {
          }
       })();
    }, [account, contract]);
+   
+   const connectToBlockchain = async (): Promise<boolean> => {
+      if (!await loadWeb3()) {
+         return false;
+      }
+
+      if (!await loadBlockchainData()) {
+         return false;
+      }
+
+      return true;
+   }
 
    const loadWeb3 = async (): Promise<boolean> => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
-
+         window.ethereum.on('accountsChanged', () => loadBlockchainData());
+         window.ethereum.on('chainChanged', () => connectToBlockchain()); 
+            
          try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             return true;
@@ -78,23 +97,27 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const getTokens = async (): Promise<Entities.TokenMetadata[]> => {
+   const getTokens = async (force = false): Promise<Entities.TokenMetadata[]> => {
+      if (tokens != null && !force) {
+         return;
+      }
+
       const tokenCount = await contract.methods.tokenCount().call();
-      const tokens: Entities.TokenMetadata[] = [];
+      const newTokens: Entities.TokenMetadata[] = [];
 
       for (let i = 0; i < tokenCount; i++) {
          try {
             const token = await getToken(i);
-            tokens.push(token);
+            newTokens.push(token);
          } catch (ex) {
             console.log(ex);
          }
       }
 
-      tokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
-      setTokens(tokens);
+      newTokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
+      setTokens(newTokens, 60);
 
-      return tokens;
+      return newTokens;
    }
 
    const getToken = async (id: number): Promise<Entities.TokenMetadata> => {
@@ -113,20 +136,36 @@ export function CryptoProvider({ children }) {
       return metadata;
    }
 
-   const connectToBlockchain = async (): Promise<boolean> => {
-      if (!await loadWeb3()) {
-         return false;
-      }
+   const mintToken = async (solution: string, price: string, guessResults: string[], secondsRequired: number) => {
+      const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);  
+      console.log('solution: ' + solution);
+      console.log('price: ' + price);
+      console.log('guessResults: ' + guessResults);
+      console.log('seconds: ' + secondsRequired);
+      
+      const metadata: Entities.TokenMetadata = {
+         solution: solution,
+         imageUrl: imageUrl,
+         secondsRequired: secondsRequired,
+         guesses: guessResults,
+         owner: account
+      };
 
-      if (!await loadBlockchainData()) {
-         return false;
-      }
+      const metadataUrl = await pinJsonToIpfs(metadata);
+      metadata.url = metadataUrl;
 
-      return true;
+      await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(price, 'ether') });   
+   }
+  
+   const buyToken = async (id: number, price: string) => {
+      var price = Web3.utils.toWei(price, 'ether');
+      await contract.methods.buy(account, id).send({ from: account, value: price });  
+      
+      getTokens(true);
    }
 
    return (
-      <CryptoContext.Provider value={{ gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
@@ -135,8 +174,9 @@ export const useCrypto = (): ContextInterface => {
    const { account, setAccount } = useContext(CryptoContext);
    const { contract, setContract } = useContext(CryptoContext);
    const { connectToBlockchain } = useContext(CryptoContext);
+   const { mintToken, buyToken } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
 
-   return { gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, tokens, getTokens };
+   return { gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens };
 }
 

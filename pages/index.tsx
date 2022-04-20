@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import Head from 'next/head';
-import Web3 from 'web3';
 import { useCrypto } from '../context/useCrypto';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
@@ -12,14 +11,13 @@ import { Title } from '../components/Title';
 import { Summary } from '../components/Summary';
 import { ModeChooser } from '../components/ModeChooser';
 import { StatusBar } from '../components/StatusBar';
-import { pinFileToIpfs, pinJsonToIpfs } from '../services/file-system';
 import getSomething from '../pages/api/load-nfts';  // todo
 import * as Entities from '../model/entities';
 import configSettings from '../config.json';
 
 words.push(...solutions);
 
-const tokenPrice = '1'; //'0.005';
+const newTokenPrice = '1'; //'0.005';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -53,9 +51,9 @@ const startingTime = new Date().getTime();
 
 const Index = () => {
    const { connectToBlockchain } = useCrypto();  
-   const { account } = useCrypto();
    const { contract } = useCrypto();
    const { gameMode, setGameMode } = useCrypto();
+   const { mintToken } = useCrypto();
    
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
@@ -238,30 +236,13 @@ const Index = () => {
             await showSummary(Entities.GameStatus.Won);
            
             if (gameMode == Entities.GameMode.Blockchain) {
-               await mintToken(solution, newGuessResults, secondsRequired);
+               await mintToken(solution, newTokenPrice, newGuessResults, secondsRequired);
             }
          }
          else if (currentRowIndex >= maxGuesses - 1) {
             await showSummary(Entities.GameStatus.Lost);
          }
       }
-   }
-
-   const mintToken = async (tokenSolution: string, tokenGuessResults: string[], secondsRequired: number) => {
-      const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);  //todo
-      
-      const metadata: Entities.TokenMetadata = {
-         solution: tokenSolution,
-         imageUrl: imageUrl,
-         secondsRequired: secondsRequired,
-         guesses: tokenGuessResults,
-         owner: account
-      };
-
-      const metadataUrl = await pinJsonToIpfs(metadata);
-      metadata.url = metadataUrl;
-
-      await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(tokenPrice, 'ether') });   
    }
 
    const showSummary = async (newGameStatus: Entities.GameStatus) => {
