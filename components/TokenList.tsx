@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import * as Entities from '../model/entities';
 
 interface ITokenList {
-   tokens: Entities.TokenMetadata[],
+   tokens: Entities.Token[],
    account: string,
    buyToken: Function
 }

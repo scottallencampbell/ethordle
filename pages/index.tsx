@@ -12,12 +12,13 @@ import { Summary } from '../components/Summary';
 import { ModeChooser } from '../components/ModeChooser';
 import { StatusBar } from '../components/StatusBar';
 import getSomething from '../pages/api/load-nfts';  // todo
+
 import * as Entities from '../model/entities';
 import configSettings from '../config.json';
 
 words.push(...solutions);
 
-const newTokenPrice = '1'; //'0.005';
+const initialTokenPrice = '1'; //'0.005';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -236,7 +237,7 @@ const Index = () => {
             await showSummary(Entities.GameStatus.Won);
            
             if (gameMode == Entities.GameMode.Blockchain) {
-               await mintToken(solution, newTokenPrice, newGuessResults, secondsRequired);
+               await mintToken(solution, initialTokenPrice, newGuessResults, secondsRequired);
             }
          }
          else if (currentRowIndex >= maxGuesses - 1) {

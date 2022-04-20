@@ -18,8 +18,8 @@ interface ContextInterface {
    connectToBlockchain: () => Promise<boolean>,
    mintToken: (solution: string, price: string, guessResults: string[], secondsRequired: number) => Promise<void>,
    buyToken: (id: number, price: string) => Promise<void>,
-   tokens: Entities.TokenMetadata[],
-   getTokens: (boolean) => Promise<Entities.TokenMetadata[]>
+   tokens: Entities.Token[],
+   getTokens: (boolean) => Promise<Entities.Token[]>
 }
 
 declare let window: any;
@@ -30,7 +30,7 @@ export function CryptoProvider({ children }) {
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
-   const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.TokenMetadata[]);
+   const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
 
    useEffect(() => {
       (async () => {
@@ -97,13 +97,13 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const getTokens = async (force = false): Promise<Entities.TokenMetadata[]> => {
+   const getTokens = async (force = false): Promise<Entities.Token[]> => {
       if (tokens != null && !force) {
          return;
       }
 
       const tokenCount = await contract.methods.tokenCount().call();
-      const newTokens: Entities.TokenMetadata[] = [];
+      const newTokens: Entities.Token[] = [];
 
       for (let i = 0; i < tokenCount; i++) {
          try {
@@ -120,7 +120,7 @@ export function CryptoProvider({ children }) {
       return newTokens;
    }
 
-   const getToken = async (id: number): Promise<Entities.TokenMetadata> => {
+   const getToken = async (id: number): Promise<Entities.Token> => {
       const owner = await contract.methods.ownerOf(id).call();
       const tokenURI = await contract.methods.tokenURI(id).call();
       const price = await contract.methods.price(id).call();
@@ -142,8 +142,8 @@ export function CryptoProvider({ children }) {
       console.log('price: ' + price);
       console.log('guessResults: ' + guessResults);
       console.log('seconds: ' + secondsRequired);
-      
-      const metadata: Entities.TokenMetadata = {
+
+      const metadata: Entities.Token = {
          solution: solution,
          imageUrl: imageUrl,
          secondsRequired: secondsRequired,

@@ -22,7 +22,7 @@ export type Statistics = {
    averageGuesses?: number
 }
 
-export type TokenMetadata = {
+export type Token = {
    id?: number,
    url?: string,
    solution: string,
