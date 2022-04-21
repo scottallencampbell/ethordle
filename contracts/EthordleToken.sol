@@ -62,6 +62,10 @@ using Strings for uint256;
         _priceEscalationRate = priceEscalationRate_;
     }
 
+    function priceEscalationRate() external view returns (uint256) {
+        return _priceEscalationRate;
+    }
+
     function tokenCount() external view returns (uint256) {
         return _currentTokenId;
     }
@@ -131,7 +135,9 @@ using Strings for uint256;
         require(msg.value >= _initialPrice, 'Insufficient ether sent with this transaction'); 
         require(_solutionOwners[solution_] == address(0x0), 'A token has already been minted with this solution');
         require(_tokenURIOwners[tokenURI_] == address(0x0), 'A token has already been minted with this URI');
-        
+        require(bytes(solution_).length >= 5, 'A value for solution is required');
+        require(bytes(tokenURI_).length >= 28, 'A value for tokenURI is required'); // https://ipfs.infura.io/ipfs/
+
         payable(owner()).transfer(msg.value);
 
         _mint(to, _currentTokenId);
@@ -152,8 +158,8 @@ using Strings for uint256;
         address to,
         uint256 tokenId
     ) external payable {        
-        require(msg.sender == to, 'Invalid to address');
         require(_exists(tokenId), 'TokenId does not exist');   
+        require(msg.sender == to, 'Buyer already owns token');
         require(!_isApprovedOrOwner(_msgSender(), tokenId), "Buyer already owns token");   
 
         Token memory token = _tokens[tokenId];
@@ -179,11 +185,11 @@ using Strings for uint256;
 
         token.owner = to;
         token.price = newPrice;
-        token.transactionCount++;        
-    }
-    
-    // todo how to prevent base _transfer from being called directly
+        token.transactionCount++;       
 
+        _tokens[tokenId] = token; 
+    }
+  
     function _getRoyalty(uint256 value) private view returns (uint256) {
         return value * _royaltyRate / 10000 ;  // todo need safe multiply    
     }
@@ -194,6 +200,8 @@ using Strings for uint256;
         
         return (newPrice / divisor) * divisor;  // round off new price to nearest 1E15
     }
+  
+    // todo how to prevent base _transfer from being called directly
 
     function transferFrom(
         address /*from*/,
