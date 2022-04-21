@@ -96,59 +96,45 @@ export function CryptoProvider({ children }) {
          return false;
       }
    }
-
+        
    const getTokens = async (force = false): Promise<Entities.Token[]> => {
-      if (tokens != null && !force) {
-         return;
-      }
+      const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
+      let newTokens: Entities.Token[] = [];
+      
+      for (const [i, token] of contractTokens.entries()) {
+         let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], transactionCount: token[5] });
 
-      const tokenCount = await contract.methods.tokenCount().call();
-      const newTokens: Entities.Token[] = [];
+         try
+         {
+            const metadataFile = await downloadFile(token.url, 2000);
+            const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
+            const metadata = JSON.parse(metadataString);
 
-      for (let i = 0; i < tokenCount; i++) {
-         try {
-            const token = await getToken(i);
-            newTokens.push(token);
-         } catch (ex) {
+            newToken.imageUrl = metadata.imageUrl;
+            newToken.guesses = metadata.guesses;
+            newToken.secondsRequired = metadata.secondsRequired; 
+
+            newTokens.push(newToken);  // only add the token to the marketplace after the metadata becomes available on IPFS
+         }
+         catch (ex) {
             console.log(ex);
          }
       }
-
+ 
       newTokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
       setTokens(newTokens, 60);
 
       return newTokens;
    }
 
-   const getToken = async (id: number): Promise<Entities.Token> => {
-      const owner = await contract.methods.ownerOf(id).call();
-      const tokenURI = await contract.methods.tokenURI(id).call();
-      const price = await contract.methods.price(id).call();
-      const metadataFile = await downloadFile(tokenURI, 2000);
-      const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
-      const metadata = JSON.parse(metadataString);
-
-      metadata.id = id;
-      metadata.url = tokenURI;
-      metadata.price = Web3.utils.fromWei(price, 'ether');
-      metadata.owner = owner;
-
-      return metadata;
-   }
-
    const mintToken = async (solution: string, price: string, guessResults: string[], secondsRequired: number) => {
       const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);  
-      console.log('solution: ' + solution);
-      console.log('price: ' + price);
-      console.log('guessResults: ' + guessResults);
-      console.log('seconds: ' + secondsRequired);
-
-      const metadata: Entities.Token = {
+     
+      const metadata: any = {
          solution: solution,
          imageUrl: imageUrl,
          secondsRequired: secondsRequired,
-         guesses: guessResults,
-         owner: account
+         guesses: guessResults
       };
 
       const metadataUrl = await pinJsonToIpfs(metadata);

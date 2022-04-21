@@ -22,15 +22,22 @@ export type Statistics = {
    averageGuesses?: number
 }
 
-export type Token = {
-   id?: number,
-   url?: string,
-   solution: string,
-   imageUrl: string,
-   guesses: string[],
-   secondsRequired: number,
-   price?: number,
-   owner?: string
+export class Token {
+   // loaded from blockchain
+   public id: number;
+   public owner: string;
+   public price: number;
+   public url: string;
+   public solution: string;
+   public transactionCount: number;
+   // loaded from metadata
+   public imageUrl: string;
+   public guesses: string[];
+   public secondsRequired: number;
+
+   public constructor(init?:Partial<Token>) {
+      Object.assign(this, init);
+   }
 }
 
 export enum GameMode {

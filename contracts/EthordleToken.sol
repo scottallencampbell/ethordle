@@ -7,10 +7,16 @@ contract EthordleToken is ERC721, Ownable {
     
 using Strings for uint256;
     
-    mapping (uint256 => string) private _tokenSolutions;
-    mapping (uint256 => string) private _tokenURIs;
-    mapping (uint256 => address) private _tokenAccounts;
-    mapping (uint256 => uint256) public _tokenPrices;
+    struct Token {
+        uint256 id;        
+        address owner;
+        uint256 price;
+        string url;
+        string solution;
+        uint256 transactionCount;        
+    }
+
+    mapping (uint256 => Token) public _tokens;
     mapping (string => address) private _solutionOwners;
     mapping (string => address) private _tokenURIOwners;
 
@@ -60,25 +66,42 @@ using Strings for uint256;
         return _currentTokenId;
     }
 
-    function tokensOfOwner(address _from) external view returns(uint256[] memory) {
-        uint256 tokens = balanceOf(_from);
+    function tokenById(uint256 tokenId) external view returns(Token memory) {
+        require(_exists(tokenId), 'TokenId does not exist');  
 
-        if (tokens == 0) {
-            return new uint256[](0);
-        } else {
-            uint256[] memory result = new uint256[](tokens);
-            uint256 resultIndex = 0;
-            uint256 tokenId;
+        Token memory token = _tokens[tokenId];
+        require(_exists(tokenId), 'Token does not exist');   
 
-            for (tokenId = 0; tokenId < _currentTokenId; tokenId++) {
-                if (_tokenAccounts[tokenId] == _from) {
-                    result[resultIndex] = tokenId;
-                    resultIndex++;
+        return token;
+    }
+
+    function tokensOfOwner(address _from) external view returns(Token[] memory) {
+        uint256 ownerCount = balanceOf(_from);
+        uint256 ownerIndex = 0;
+        Token[] memory ownerTokens = new Token[](ownerCount);
+
+        if (ownerCount > 0) {
+            Token[] memory allTokens = this.tokens();
+            
+            for (uint256 i = 0; i < _currentTokenId; i++) {
+                if (allTokens[i].owner == _from) {
+                    ownerTokens[ownerIndex] = allTokens[i];
+                    ownerIndex++;
                 }
             }
-
-            return result;
         }
+
+        return ownerTokens;
+    }
+
+    function tokens() external view returns(Token[] memory) {  
+        Token[] memory allTokens = new Token[](_currentTokenId);
+
+        for (uint256 i = 0; i < _currentTokenId; i++) {
+            allTokens[i] = _tokens[i];
+        }
+
+        return allTokens;
     }
     
     function setBaseURI(string memory baseURI) external onlyOwner() {
@@ -89,12 +112,6 @@ using Strings for uint256;
         return _baseURIextended;
     }
     
-    function solution(uint256 tokenId) public view returns (string memory) {
-        require(_exists(tokenId), 'TokenId does not exist');
-
-        return _tokenSolutions[tokenId];
-    }
-
     function isSolutionUnique(string memory solution_) public view returns (bool) {
         return _solutionOwners[solution_] == address(0x0);
     }
@@ -102,15 +119,9 @@ using Strings for uint256;
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), 'TokenId does not exist');
 
-        return _tokenURIs[tokenId];
+        return _tokens[tokenId].url;
     }
 
-    function price(uint256 tokenId) public view returns (uint256) {
-        require(_exists(tokenId), 'TokenId does not exist');
-
-        return _tokenPrices[tokenId];
-    }
-    
     function mint(
         address payable to,
         string memory solution_,
@@ -125,10 +136,11 @@ using Strings for uint256;
 
         _mint(to, _currentTokenId);
 
-        _tokenSolutions[_currentTokenId] = solution_;
-        _tokenURIs[_currentTokenId] = tokenURI_;
-        _tokenPrices[_currentTokenId] = _getEscalatedPrice(msg.value);
-        _tokenAccounts[_currentTokenId] = to;
+        uint256 newPrice =_getEscalatedPrice(msg.value);
+
+        Token memory token = Token(_currentTokenId, to, newPrice, tokenURI_, solution_, 1);
+       
+        _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
         _currentTokenId++;        
@@ -143,12 +155,15 @@ using Strings for uint256;
         require(msg.sender == to, 'Invalid to address');
         require(_exists(tokenId), 'TokenId does not exist');   
         require(!_isApprovedOrOwner(_msgSender(), tokenId), "Buyer already owns token");   
-        require(msg.value >= _tokenPrices[tokenId], 'Insufficient ether sent with this transaction');
-       
-        string memory solution_ = _tokenSolutions[tokenId];
-        string memory tokenURI_ = _tokenURIs[tokenId];
 
-        address from = _tokenAccounts[tokenId];
+        Token memory token = _tokens[tokenId];
+        require(_exists(token.id), 'Token does not exist');        
+        require(msg.value >= token.price, 'Insufficient ether sent with this transaction');
+       
+        string memory solution_ = token.solution;
+        string memory tokenURI_ = token.url;
+
+        address from = token.owner;
         uint256 totalRoyalty = _getRoyalty(msg.value); 
         uint256 remainder = msg.value - totalRoyalty;
 
@@ -159,8 +174,12 @@ using Strings for uint256;
 
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
-        _tokenAccounts[tokenId] = to;
-        _tokenPrices[tokenId] = _getEscalatedPrice(msg.value);        
+
+        uint256 newPrice = _getEscalatedPrice(msg.value);
+
+        token.owner = to;
+        token.price = newPrice;
+        token.transactionCount++;        
     }
     
     // todo how to prevent base _transfer from being called directly
@@ -180,16 +199,16 @@ using Strings for uint256;
         address /*from*/,
         address /*to*/,
         uint256 /*tokenId*/
-    ) public pure override {
-        require(false, 'Not implemented');
+    ) public view override {
+        require(msg.sender == _owner, 'Method may only be called by the owner');
     }
 
     function safeTransferFrom(
         address /*from*/,
         address /*to*/,
         uint256 /*tokenId*/
-    ) public pure override {
-        require(false, 'Not implemented');
+    ) public view override {
+        require(msg.sender == _owner, 'Method may only be called by the owner');
     }
 
     function safeTransferFrom(
@@ -197,7 +216,7 @@ using Strings for uint256;
         address /*to*/,
         uint256 /*tokenId*/,
         bytes memory /*_data*/
-    ) public pure override {
-        require(false, 'Not implemented');
+    ) public view override {
+        require(msg.sender == _owner, 'Method may only be called by the owner');
     }
 }
