@@ -24,9 +24,11 @@ export const TokenList = ({ tokens, account, buyToken }: ITokenList) => {
    return (
       <div id='token-list'>
          {
-            tokens.map((token, i) => (
-               <div className='token' key={`${i}`}>
-                  <img src={token.imageUrl}></img>          
+            tokens.map((token, i) => (            
+               <div className={`token ${token.imageUrl == '' ? 'no-metadata' : ''}`} key={`${i}`}>            
+                  <img src={token.imageUrl == '' ? '/metadata-not-available.png' : token.imageUrl}></img>   
+                  <div className='solution'>{token.solution}</div>  
+                  <div className='disclaimer'>This token's metadata is currently being saved to the blockchain. Please wait 10 minutes and refresh your browser.</div>
                   <div className='links'>
                      <strong title='Metadata' onClick={() => window.open(token.url)} className='material-icons smaller'>&#xe54e;</strong>
                      <strong title='Image' onClick={() => window.open(token.imageUrl)} className='material-icons'>&#xea10;</strong>

@@ -113,12 +113,17 @@ export function CryptoProvider({ children }) {
             newToken.imageUrl = metadata.imageUrl;
             newToken.guesses = metadata.guesses;
             newToken.secondsRequired = metadata.secondsRequired; 
-
-            newTokens.push(newToken);  // only add the token to the marketplace after the metadata becomes available on IPFS
          }
          catch (ex) {
             console.log(ex);
+            // let's assume that the metadata file hasn't been fully written to IPFS yet
+            newToken.imageUrl = '';
+            newToken.guesses = [];
+            newToken.secondsRequired = 0; 
          }
+
+         newTokens.push(newToken);  
+         
       }
  
       newTokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
@@ -143,9 +148,9 @@ export function CryptoProvider({ children }) {
       await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(price, 'ether') });   
    }
   
-   const buyToken = async (id: number, price: string) => {
-      var price = Web3.utils.toWei(price, 'ether');
-      await contract.methods.buy(account, id).send({ from: account, value: price });  
+   const buyToken = async (id: number, price: string) => {      
+      var wei = Web3.utils.toWei(price.toString(), 'ether');
+      await contract.methods.buy(account, id).send({ from: account, value: wei });  
       
       getTokens(true);
    }

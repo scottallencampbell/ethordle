@@ -814,13 +814,18 @@ body {
   border-top-right-radius: 25px;  
   width: 400px;
   height: 505px;
-  xborder: solid 1px #aaaaaa;
   background: no-repeat;
   background-size: contain;
   display: inline-block;
   margin: 15px;
   position: relative;
   box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
+}
+
+#token-list .token.no-metadata .guess-result,
+#token-list .token.no-metadata .seconds,
+#token-list .token.no-metadata .links {
+  visibility: hidden;
 }
 
 #token-list img {
@@ -832,6 +837,43 @@ body {
   top: 0;
   left: 0;
 }
+
+#token-list .solution {
+  position: absolute;
+  top: 102px;
+  left: 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 34px;
+  width: 100%;
+  letter-spacing: 25px;
+  margin-left: 12px;
+  color: #999999;
+  display: none;
+}
+
+#token-list .token.no-metadata .solution {
+  display: block;
+}
+
+#token-list .disclaimer {
+  position: absolute;
+  top: 172px;
+  left: 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 0 30px;
+  color: #000000;
+  display: none;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#token-list .token.no-metadata .disclaimer {
+  display: block;
+}
+
 
 #token-list .token .details .details-column {
   width: 160px;
