@@ -6,6 +6,7 @@ interface IGridTile {
 
 export const GridTile = ({ tile } : IGridTile) => {
    return (
+      (tile.value != ' ') ? 
       <div className='tile-container'>
          <div className={`tile sequence${tile.tileIndex} ${tile.status}`}>
             <div className='inner'>
@@ -14,5 +15,6 @@ export const GridTile = ({ tile } : IGridTile) => {
             </div>
          </div>
       </div>
+      : <span> </span>      
    )
 }

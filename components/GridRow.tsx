@@ -20,7 +20,7 @@ const statusCodes = new Map([
 
 export const GridRow = ({ row } : IGridRow) => {
    return (
-      <div className='row' > {
+      <div className='row'> {
          row.map((tile) => (
             <GridTile key={`${row[0].rowIndex}-${tile.tileIndex}`} tile={tile}></GridTile>
          ))
@@ -30,18 +30,11 @@ export const GridRow = ({ row } : IGridRow) => {
 }
 
 export const StaticGridRow = ({ word, statusMap, i } : IStaticGridRow) => {
-   let spacer = 0;
-
    return (
-      <div className='row example'> {
+      <div className='row example' key={i}> {
          word.split('').map((letter, j) => {
             return (
-               <>
-               { letter.toString() != ' ' ? 
-               <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, rowIndex: i, status: statusCodes.get(statusMap[j]) }}></GridTile>
-               : <span> </span>             
-               }
-               </>             
+               <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, rowIndex: i, status: statusCodes.get(statusMap[j]) }}></GridTile>               
             )
          })
       }            

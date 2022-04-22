@@ -6,10 +6,6 @@ body {
   background-color: #ffffff;
 }
 
-.force-vertical-scrollbar {
-  overflow-y:scroll;
-}
-
 .outer {
   width: 100%;
   height: 100%;
@@ -18,7 +14,8 @@ body {
 .top-bar {
   background-color: #000000;
   width: 100%;
-  height: 34px;
+  height: 60px;
+  text-align: left;
 }
 
 .top-bar-disconnected {
@@ -27,24 +24,49 @@ body {
 }
 
 .top-bar .account {
-  color: #ffffff;
-  font-size: 13px;
+  color: #ffffff; 
   float: right;
-  padding: 10px 16px 10px;
-  font-family: 'Courier New';
+  margin-top: 21px;  
+  margin-right: 21px;
+  font-weight: bold;
+  font-size: 15px;
 }
 
-.top-bar .token-count {
-  color: #ffffff;
-  font-size: 13px;
+.top-bar #logo {
+  margin-top: 21px;
+  margin-left: 21px;
+  zoom: 50%;
+  -moz-transform: scale(.5);
+  width: 80px;
   float: left;
-  padding: 10px 0 10px 16px;
-  font-family: 'Courier New';
 }
 
-.top-bar .token-count a {
+.top-bar #logo .tile .face.front {
+  background-color: #ffffff;
+}
+
+.top-bar .menu-items {
   color: #ffffff;
-  text-decoration: underline;
+  font-weight: bold;
+  float: left;
+  font-size: 15px;
+  margin-top: 21px;  
+}
+
+.top-bar a {
+  color: #ffffff !important;
+  margin-left: 30px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s linear;
+}
+
+.top-bar a:visited {
+  color: #ffffff !important;
+}
+
+.top-bar a:hover {
+  color: #43ABDC !important;
 }
 
 .main {
@@ -62,10 +84,19 @@ body {
   }
 }
 
+.force-vertical-scrollbar {
+  overflow-y:scroll;
+}
+
 .title {
   font-weight: bold;
   font-size: 45px;
   margin: 30px auto 20px;
+}
+
+.title span {
+  width: 20px;
+  display: inline-block;
 }
 
 .title .row {}
@@ -185,7 +216,6 @@ body {
   transition: all .2s linear;
   transition-delay: 0s;
 }
-
 .flippable .tile.sequence1 .inner {
   transition-delay: .2s;
 }
@@ -856,9 +886,10 @@ body {
   display: block;
 }
 
-#token-list .disclaimer {
+#token-list .disclaimer-metadata,
+#token-list .disclaimer-image {
   position: absolute;
-  top: 172px;
+  top: 150px;
   left: 0;
   text-align: center;
   font-weight: bold;
@@ -870,10 +901,13 @@ body {
   font-weight: bold;
 }
 
-#token-list .token.no-metadata .disclaimer {
+#token-list .token.no-metadata .disclaimer-metadata {
   display: block;
 }
 
+#token-list .token.no-image .disclaimer-image {
+  display: block;
+}
 
 #token-list .token .details .details-column {
   width: 160px;
@@ -942,6 +976,7 @@ body {
   font-weight: bold;
   font-size: 20px;
 }
+
 
 #token-list .guess-result strong {
   position: relative;

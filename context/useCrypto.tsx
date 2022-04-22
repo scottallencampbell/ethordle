@@ -33,7 +33,7 @@ export function CryptoProvider({ children }) {
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
 
    useEffect(() => {
-      (async () => {
+      (async () => {         
          if (contract != null && account != '') {
             await getTokens();
          }
@@ -97,7 +97,7 @@ export function CryptoProvider({ children }) {
       }
    }
         
-   const getTokens = async (force = false): Promise<Entities.Token[]> => {
+   const getTokens = async (): Promise<Entities.Token[]> => {
       const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
       let newTokens: Entities.Token[] = [];
       
@@ -152,7 +152,7 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
       await contract.methods.buy(account, id).send({ from: account, value: wei });  
       
-      getTokens(true);
+      getTokens();
    }
 
    return (
