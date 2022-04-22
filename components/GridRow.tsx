@@ -30,14 +30,21 @@ export const GridRow = ({ row } : IGridRow) => {
 }
 
 export const StaticGridRow = ({ word, statusMap, i } : IStaticGridRow) => {
+   let spacer = 0;
+
    return (
       <div className='row example'> {
          word.split('').map((letter, j) => {
             return (
+               <>
+               { letter.toString() != ' ' ? 
                <GridTile key={`${i}-${j}`} tile={{ value: letter, tileIndex: j, rowIndex: i, status: statusCodes.get(statusMap[j]) }}></GridTile>
+               : <span> </span>             
+               }
+               </>             
             )
          })
-      }
+      }            
       </div>
    )
 }

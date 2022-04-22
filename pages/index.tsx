@@ -286,7 +286,7 @@ const Index = () => {
 
       setTimeout(() => {
          document.getElementById('summary').classList.add('flippable');
-         document.getElementById('distribution').classList.remove('closed');
+         document.getElementById('distribution').classList.remove('closed');         
       }, 1800);
    }
 
