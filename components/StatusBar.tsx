@@ -11,6 +11,7 @@ interface IStatusBar {
 export const StatusBar = ({} : IStatusBar) => {
    const { tokens } = useCrypto(); 
    const { account } = useCrypto();
+   const { isBlockchainConnected } = useCrypto();
 
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
 
@@ -20,16 +21,17 @@ export const StatusBar = ({} : IStatusBar) => {
             document.getElementById('logo').classList.add('flippable');
          }, 1000);         
       }
-   }, [account, tokens]);
+
+   }, [isBlockchainConnected]);
 
    return (
       <>
-      { account != '' && tokens != null ? 
+      { isBlockchainConnected ? 
       <>
          <div className='top-bar'>         
             <div id='logo'><GridTile key='logo' tile={{ value: 'E', tileIndex: 0, rowIndex: -1, status: Entities.TileStatus.Correct }}></GridTile></div>
             <div className='menu-items'>   
-               <a onClick={() => window.location.href='/'}>New game</a> 
+               { !window.location.href.endsWith('/') ? <Link href='/'>New game</Link> : <a onClick={() => window.location.href='/'}>New game</a> }
                <Link href='/tokens'>My tokens</Link>        
                <Link href='/marketplace'>Marketplace</Link>                               
                <a onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            

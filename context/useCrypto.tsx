@@ -9,6 +9,7 @@ import { pinFileToIpfs, pinJsonToIpfs } from '../services/fileSystem';
 import * as Entities from '../model/entities';
 
 interface ContextInterface {
+   isBlockchainConnected,
    gameMode: Entities.GameMode,
    setGameMode: Dispatch<SetStateAction<Entities.GameMode>>,
    account: string,
@@ -31,6 +32,7 @@ export function CryptoProvider({ children }) {
    const [contract, setContract] = useState(null);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
+   const [isBlockchainConnected, setIsBlockchainConnected] = useState(false);
 
    useEffect(() => {
       (async () => {         
@@ -38,17 +40,20 @@ export function CryptoProvider({ children }) {
             await getTokens();
          }
       })();
-   }, [account, contract]);
+   }, [account]);
    
    const connectToBlockchain = async (): Promise<boolean> => {
       if (!await loadWeb3()) {
+         setIsBlockchainConnected(false);
          return false;
       }
 
       if (!await loadBlockchainData()) {
+         setIsBlockchainConnected(false);
          return false;
       }
 
+      setIsBlockchainConnected(true);
       return true;
    }
 
@@ -97,38 +102,43 @@ export function CryptoProvider({ children }) {
       }
    }
         
-   const getTokens = async (): Promise<Entities.Token[]> => {
+   const getTokens = async (): Promise<Entities.Token[]> => {      
+      console.log('reloading tokens to cache'); // todo remove
+
       const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
       let newTokens: Entities.Token[] = [];
       
-      for (const [i, token] of contractTokens.entries()) {
+      const urls = contractTokens.map((token) => token.url);
+      const metadataFiles = await Promise.all(
+         urls.map(url => downloadFile(url, 2000)
+           .then(r => String.fromCharCode.apply(null, new Uint8Array(r)))
+           .then(data => JSON.parse(data))
+           .catch(error => ({ error, url }))
+         )
+       );
+    
+      for (const [i, token] of contractTokens.entries()) {         
          let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], transactionCount: token[5] });
-
-         try
-         {
-            const metadataFile = await downloadFile(token.url, 2000);
-            const metadataString = String.fromCharCode.apply(null, new Uint8Array(metadataFile));
-            const metadata = JSON.parse(metadataString);
-
-            newToken.imageUrl = metadata.imageUrl;
-            newToken.guesses = metadata.guesses;
-            newToken.secondsRequired = metadata.secondsRequired; 
-         }
-         catch (ex) {
-            console.log(ex);
+         const metadataFile = metadataFiles[i];
+      
+         if (!metadataFile.imageUrl || metadataFile.imageUrl == '') {         
             // let's assume that the metadata file hasn't been fully written to IPFS yet
             newToken.imageUrl = '';
             newToken.guesses = [];
             newToken.secondsRequired = 0; 
+            console.log('Unable to load metadata from ' + token.url);
+         } else {        
+            newToken.imageUrl = metadataFile.imageUrl;
+            newToken.guesses = metadataFile.guesses;
+            newToken.secondsRequired = metadataFile.secondsRequired; 
          }
 
          newTokens.push(newToken);  
-         
-      }
- 
+      } 
+
       newTokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
       setTokens(newTokens, 60);
-
+      
       return newTokens;
    }
 
@@ -152,15 +162,16 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
       await contract.methods.buy(account, id).send({ from: account, value: wei });  
       
-      getTokens();
+      await getTokens();
    }
 
    return (
-      <CryptoContext.Provider value={{ gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ isBlockchainConnected, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
 export const useCrypto = (): ContextInterface => {
+   const { isBlockchainConnected } = useContext(CryptoContext);
    const { gameMode, setGameMode } = useContext(CryptoContext);
    const { account, setAccount } = useContext(CryptoContext);
    const { contract, setContract } = useContext(CryptoContext);
@@ -168,6 +179,6 @@ export const useCrypto = (): ContextInterface => {
    const { mintToken, buyToken } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
 
-   return { gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens };
+   return { isBlockchainConnected, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens };
 }
 

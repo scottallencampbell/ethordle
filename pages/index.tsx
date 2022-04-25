@@ -51,7 +51,7 @@ const introShownCookieName = 'intro-shown6';
 const startingTime = new Date().getTime();
 
 const Index = () => {
-   const { connectToBlockchain } = useCrypto();  
+   const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
    const { contract } = useCrypto();
    const { gameMode, setGameMode } = useCrypto();
    const { mintToken } = useCrypto();
@@ -74,23 +74,33 @@ const Index = () => {
    });
 
    useEffect(() => {
-      (async () => {
+      (async () => {   
+         console.log('Use effect: []');
          setTimeout(() => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
-         const isConnected = await connectToBlockchain();
+         const isConnected = await connectToBlockchain();  
 
+         
          if (isConnected) {
             setGameMode(Entities.GameMode.Blockchain);              
          } else {
             setIsGameModePopupOpen(true);
-         }                  
-      })();
+         }  
+        })();
    }, []);
 
    useEffect(() => {
       (async () => {
+         console.log('Use effect: [isBlockchainConnected]: ' + isBlockchainConnected);            
+      })();
+   }, [isBlockchainConnected]);
+
+   useEffect(() => {
+      (async () => {
+         console.log('Use effect: [gameMode]');            
+
          if (gameMode == Entities.GameMode.Unknown) { 
             return; 
          }
@@ -308,7 +318,7 @@ const Index = () => {
             <title>{configSettings.appName}</title>
             <link rel='icon' href='/favicon.ico'></link>
          </Head>
-         <StatusBar></StatusBar>
+         <StatusBar></StatusBar>      
          <div className='main'>
             <Title title={configSettings.appName}></Title>
             <Grid grid={grid}></Grid>
