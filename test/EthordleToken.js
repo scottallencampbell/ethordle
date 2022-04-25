@@ -8,7 +8,6 @@ const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 
 chai.use(bnChai(BN));
 
-
 contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     const name = 'Ethordle Token';
@@ -115,12 +114,14 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     it('can set royalty rate', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });
       
         const ownerBalance = await web3.eth.getBalance(owner);
         
         const token = await this.contract.tokenById(0);
         await this.contract.buy(transferee, 0, { from: transferee, value: token.price });
-        
+        await this.contract.allowSale(transferee, 0, { from: transferee });
+      
         const newToken = await this.contract.tokenById(0);
         const expectedRoyalty = web3.utils.toWei('0.055', 'ether');        
         const newOwnerBalance = await web3.eth.getBalance(owner);
@@ -141,13 +142,15 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     it('can set price escalation rate', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });
       
         const token = await this.contract.tokenById(0);
         const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000'));        
         expect(token.price.toString()).to.equal(expectedPrice.toString());
         
         await this.contract.buy(transferee, 0, { from: transferee, value: token.price });
-        
+        await this.contract.allowSale(transferee, 0, { from: transferee });
+      
         const newToken = await this.contract.tokenById(0);
         const newExpectedPrice = initialPrice.mul(new BN('11000')).mul(new BN('11000')).div(new BN('100000000'));
         expect(newToken.price.toString()).to.equal(newExpectedPrice.toString());
@@ -169,6 +172,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(token.owner).to.equal(winner);
         expect(token.url).to.equal('https://ipfs.infura.io/ipfs/ethordle');
         expect(token.solution).to.equal('STARE');
+        expect(token.isForSale).to.equal(false);
         expect(token.transactionCount.toString()).is.a.bignumber.that.equals(new BN(1));
         expect(await this.contract.tokenCount()).is.a.bignumber.that.equals(new BN(1));
         expect(await this.contract.tokenURI(0)).to.equal('https://ipfs.infura.io/ipfs/ethordle');
@@ -196,6 +200,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(token.owner).to.equal(winner);
         expect(token.url).to.equal(tokenURI);
         expect(token.solution).to.equal(solution);
+        expect(token.isForSale).to.equal(false);
         expect(token.transactionCount.toString()).is.a.bignumber.that.equals(new BN(1));
         
         const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000')).toString();
@@ -280,6 +285,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     it('rejects attempt to send to owner', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });      
         const token = await this.contract.tokenById(0);
         
         await expectRevert(
@@ -293,9 +299,9 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         );
     });
 
-    
     it('rejects attempt to buy invalid token', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });
         const token = await this.contract.tokenById(0);
         
         await expectRevert(
@@ -304,8 +310,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         );
     });
 
-    it('rejects attempt to mint without required values', async function () {
-        
+    it('rejects attempt to mint without required values', async function () {        
         await expectRevert(
             this.contract.mint(winner, '', tokenURI, { from: winner, value: initialPrice }),
             'A value for solution is required'
@@ -351,6 +356,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     it('allows transfers', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });
       
         const ownerBalance = await web3.eth.getBalance(owner);
         const winnerBalance = await web3.eth.getBalance(winner);
@@ -359,14 +365,16 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         const token = await this.contract.tokenById(0);
         const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000'));
         expect(token.price.toString()).to.equal(expectedPrice.toString());
+        expect(token.isForSale).to.equal(true);
         expect(token.transactionCount.toString()).to.equal('1');
         
         const receipt = await this.contract.buy(transferee, 0, { from: transferee, value: token.price });
         const gas = await getTransactionCost(receipt);
-
+ 
         const newToken = await this.contract.tokenById(0);
         const newExpectedPrice = initialPrice.mul(new BN('11000')).mul(new BN('11000')).div(new BN('100000000'));
         expect(newToken.price.toString()).to.equal(newExpectedPrice.toString());
+        expect(newToken.isForSale).to.equal(false);
         expect(newToken.transactionCount.toString()).to.equal('2');
         
         const newOwnerBalance = await web3.eth.getBalance(owner);
@@ -376,7 +384,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         
         const newExpectedOwnerBalance = new BN(ownerBalance).add(expectedRoyalty);
         expect(newOwnerBalance.toString()).to.equal(newExpectedOwnerBalance.toString());
-        
+              
         const newExpectedWinnerBalance = new BN(winnerBalance).add(expectedPrice).sub(expectedRoyalty);
         expect(newWinnerBalance.toString()).to.equal(newExpectedWinnerBalance.toString());
 
@@ -386,7 +394,10 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     it('rounds high-precision values down during one-off transaction', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });
+      
         const token = await this.contract.tokenById(0);
+
         const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000'));
         expect(token.price.toString()).to.equal(expectedPrice.toString());
         
@@ -399,6 +410,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     it('rounds high-precision values down as transfers occur', async function () {
         await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        await this.contract.allowSale(winner, 0, { from: winner });
       
         let token = await this.contract.tokenById(0);
         const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000'));
@@ -406,16 +418,98 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         
         for (let i = 0; i < 3; i++) {
             await this.contract.buy(transferee, 0, { from: transferee, value: token.price });
+            await this.contract.allowSale(transferee, 0, { from: transferee });
+      
             token = await this.contract.tokenById(0);
            
             await this.contract.buy(other, 0, { from: other, value: token.price });
+            await this.contract.allowSale(other, 0, { from: other });
+      
             token = await this.contract.tokenById(0);
             
             await this.contract.buy(winner, 0, { from: winner, value: token.price });
+            await this.contract.allowSale(winner, 0, { from: winner });
+      
             token = await this.contract.tokenById(0);        
         }
 
         const newExpectedPrice = new BN('2591000000000000000');
         expect(token.price.toString()).to.equal(newExpectedPrice.toString());
     });  
+
+    it('allows and denies token sale', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        let token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(false);
+
+        await this.contract.allowSale(winner, 0, { from: winner });
+        token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(true);
+    });  
+
+    it('prevents sale when token is not marked for sale', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        let token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(false);
+
+        await expectRevert(
+            this.contract.buy(transferee, 0, { from: transferee, value: token.price }),
+                'Token is not for sale'
+        );    
+    });  
+
+    it('requires toggle of token marked for sale to be owner', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        let token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(false);
+
+        await expectRevert(
+            this.contract.allowSale(winner, 0, { from: transferee }),
+                'Sender must be token owner or contract owner'
+        );    
+
+        await expectRevert(
+            this.contract.allowSale(transferee, 0, { from: transferee }),
+                'Sender must be token owner or contract owner'
+        );  
+        
+        await this.contract.allowSale(winner, 0, { from: winner });
+        token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(true);
+
+        await expectRevert(
+            this.contract.preventSale(winner, 0, { from: transferee }),
+                'Sender must be token owner or contract owner'
+        );    
+
+        await expectRevert(
+            this.contract.preventSale(transferee, 0, { from: transferee }),
+                'Sender must be token owner or contract owner'
+        );  
+        
+        await this.contract.preventSale(winner, 0, { from: winner });
+
+        token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(false);
+    });  
+
+    it('reverts sale toggle if already in that state', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        let token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(false);
+
+        await expectRevert(
+            this.contract.preventSale(winner, 0, { from: winner }),
+                'Token is already prevented from being sold'
+        );    
+
+        await this.contract.allowSale(winner, 0, { from: winner });
+        token = await this.contract.tokenById(0);
+        expect(token.isForSale).to.equal(true);
+
+        await expectRevert(
+            this.contract.allowSale(winner, 0, { from: winner }),
+                'Token is already marked for sale'
+        );    
+    });     
 });

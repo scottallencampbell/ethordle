@@ -75,9 +75,14 @@ export const TokenList = ({ tokens, account, buyToken, title }: ITokenList) => {
                                     </div>
                                     <div className='buy'>
                                        {(token.owner != account) ?
-                                          <button id='buy-token' className='material-button' role='button' onClick={() => buyToken(token.id, token.price)}><span className='material-icons md-18'>&#xe854;</span>Purchase</button>
+                                          token.isForSale ? 
+                                             <button id='buy-token' className='material-button' role='button' onClick={() => buyToken(token.id, token.price)}><span className='material-icons md-18'>&#xe854;</span>Purchase</button>
+                                             :
+                                             <button id='not-for-sale-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for Sale</button>                                             
+                                          : !token.isForSale ?                                           
+                                             <button id='for-sale-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>For sale</button>
                                           :
-                                          <button id='owned-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>Owned</button>
+                                             <button id='owned-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>Not for sale</button>
                                        }
                                     </div>
                                  </div>

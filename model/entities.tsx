@@ -29,6 +29,7 @@ export class Token {
    public price: number;
    public url: string;
    public solution: string;
+   public isForSale: boolean;
    public transactionCount: number;
    // loaded from metadata
    public imageUrl: string;

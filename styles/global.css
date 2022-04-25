@@ -910,11 +910,11 @@ body {
 }
 
 #token-list .token .details .details-column {
-  width: 160px;
+  width: 155px;
 }
 
 #token-list .token .details .details-column:nth-child(2) {
-  width: 190px;
+  width: 195px;
 }
 
 #token-list .token .details {
@@ -1097,8 +1097,9 @@ body {
 #token-list button {
   font-weight: bold;
   text-transform: uppercase;
-  width: 165px;
+  width: 170px;
   margin-top: 10px;
+  font-size: 14px;
 }
 
 #token-list button span {
@@ -1126,7 +1127,23 @@ body {
 }
 
 #token-list #owned-token {
+  padding-left: 0;
+  padding-right: 0;
   background-color: #6aaa64;
+  color: #ffffff;
+  cursor: default;
+}
+
+#token-list #not-for-sale-token {
+  padding-left: 0;
+  padding-right: 0;
+  background-color: #cccccc;
+  color: #ffffff;
+  cursor: default;
+}
+
+#token-list #for-sale-token {
+   background-color: #6aaa64;
   color: #ffffff;
   cursor: default;
 }

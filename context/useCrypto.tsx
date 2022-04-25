@@ -118,7 +118,7 @@ export function CryptoProvider({ children }) {
        );
     
       for (const [i, token] of contractTokens.entries()) {         
-         let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], transactionCount: token[5] });
+         let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], isForSale: token[5], transactionCount: token[6] });
          const metadataFile = metadataFiles[i];
       
          if (!metadataFile.imageUrl || metadataFile.imageUrl == '') {         

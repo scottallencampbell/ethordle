@@ -13,6 +13,7 @@ using Strings for uint256;
         uint256 price;
         string url;
         string solution;
+        bool isForSale;
         uint256 transactionCount;        
     }
 
@@ -144,7 +145,7 @@ using Strings for uint256;
 
         uint256 newPrice =_getEscalatedPrice(msg.value);
 
-        Token memory token = Token(_currentTokenId, to, newPrice, tokenURI_, solution_, 1);
+        Token memory token = Token(_currentTokenId, to, newPrice, tokenURI_, solution_, false, 1);
        
         _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
@@ -154,29 +155,60 @@ using Strings for uint256;
         emit TokenMinted(solution_, to, _currentTokenId, tokenURI_);
     }
 
+    function allowSale(
+        address from,
+        uint256 tokenId
+    ) external {    
+        toggleSale(from, tokenId, true);
+    }
+
+    function preventSale(
+        address from,
+        uint256 tokenId
+    ) external {    
+        toggleSale(from, tokenId, false);        
+    }
+
+    function toggleSale( 
+        address from, 
+        uint256 tokenId,
+        bool markForSale
+    ) private {
+        require(_exists(tokenId), 'TokenId does not exist');   
+        require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
+        require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');   
+
+        Token memory token = _tokens[tokenId];
+        require(_exists(token.id), 'Token does not exist');  
+        require(markForSale != token.isForSale, markForSale ? 'Token is already marked for sale' : 'Token is already prevented from being sold'); 
+        
+        token.isForSale = markForSale;
+
+        _tokens[tokenId] = token; 
+    }
+
     function buy(
         address to,
         uint256 tokenId
     ) external payable {        
         require(_exists(tokenId), 'TokenId does not exist');   
-        require(msg.sender == to, 'Buyer already owns token');
-        require(!_isApprovedOrOwner(_msgSender(), tokenId), "Buyer already owns token");   
 
         Token memory token = _tokens[tokenId];
         require(_exists(token.id), 'Token does not exist');        
         require(msg.value >= token.price, 'Insufficient ether sent with this transaction');
+        require(token.isForSale, 'Token is not for sale');
+        require(token.owner != to, 'Buyer already owns token'); 
        
         string memory solution_ = token.solution;
         string memory tokenURI_ = token.url;
 
-        address from = token.owner;
         uint256 totalRoyalty = _getRoyalty(msg.value); 
         uint256 remainder = msg.value - totalRoyalty;
 
         payable(owner()).transfer(totalRoyalty);
-        payable(address(from)).transfer(remainder);
-
-        _transfer(from, to, tokenId);
+        payable(address(token.owner)).transfer(remainder);
+        
+        _transfer(token.owner, to, tokenId);
 
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
@@ -185,6 +217,7 @@ using Strings for uint256;
 
         token.owner = to;
         token.price = newPrice;
+        token.isForSale = false;
         token.transactionCount++;       
 
         _tokens[tokenId] = token; 
@@ -208,7 +241,7 @@ using Strings for uint256;
         address /*to*/,
         uint256 /*tokenId*/
     ) public view override {
-        require(msg.sender == _owner, 'Method may only be called by the owner');
+        require(_msgSender() == _owner, 'Method may only be called by the owner');
     }
 
     function safeTransferFrom(
@@ -216,7 +249,7 @@ using Strings for uint256;
         address /*to*/,
         uint256 /*tokenId*/
     ) public view override {
-        require(msg.sender == _owner, 'Method may only be called by the owner');
+        require(_msgSender() == _owner, 'Method may only be called by the owner');
     }
 
     function safeTransferFrom(
@@ -225,6 +258,6 @@ using Strings for uint256;
         uint256 /*tokenId*/,
         bytes memory /*_data*/
     ) public view override {
-        require(msg.sender == _owner, 'Method may only be called by the owner');
+        require(_msgSender() == _owner, 'Method may only be called by the owner');
     }
 }
