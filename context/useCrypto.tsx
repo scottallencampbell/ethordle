@@ -156,12 +156,12 @@ export function CryptoProvider({ children }) {
       metadata.url = metadataUrl;
 
       await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(price, 'ether') });   
+      await getTokens();
    }
   
    const buyToken = async (id: number, price: string) => {      
       var wei = Web3.utils.toWei(price.toString(), 'ether');
-      await contract.methods.buy(account, id).send({ from: account, value: wei });  
-      
+      await contract.methods.buy(account, id).send({ from: account, value: wei });        
       await getTokens();
    }
 

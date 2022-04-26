@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import * as Entities from '../model/entities';
 import { useCrypto } from '../context/useCrypto';
 import { GridTile } from './GridTile';
-import Link from "next/link";
-import { Introduction } from "./Introduction";
+import Link from 'next/link';
+import { Introduction } from './Introduction';
 
 interface IStatusBar {  
 }

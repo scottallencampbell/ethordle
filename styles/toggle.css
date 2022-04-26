@@ -1,0 +1,75 @@
+.toggle-checkbox {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+  
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    width: 178px;
+    height: 48px;
+    background: #bbbbbb;
+    border-radius: 48px;
+    position: relative;
+    transition: background-color .2s;
+    border-style: none;
+    box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
+    box-sizing: border-box;
+  }
+  
+  .toggle-label.is-on {
+    background: #43ABDC;
+  }
+
+  .toggle-label .toggle-button {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 44px;
+    height: 44px;
+    border-radius: 44px;
+    transition: 0.2s;
+    background: #fff;
+    box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+  }
+  
+  .toggle-checkbox:checked + .toggle-label .toggle-button {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+  }
+  
+  .toggle-label:active .toggle-button {
+    xwidth: 60px;
+  }
+
+  .toggle-label p {   
+    color: #ffffff !important;
+    transition: .2s;    
+    width: 100% !important;
+    position: absolute;
+    font-size: 14px !important;
+    display: block;
+  }
+
+  .toggle-label p:first-child {
+    opacity: 0;    
+    left: 20px; 
+  }
+
+  .toggle-label.is-on p:first-child {
+    opacity: 1;
+  }
+
+  .toggle-label p:nth-child(2) {
+    opacity: 1;
+    right: 20px;
+    text-align: right !important;
+  }
+
+  .toggle-label.is-on p:nth-child(2) {
+    opacity: 0;
+  }
