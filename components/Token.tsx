@@ -24,10 +24,9 @@ export const Token = ({ token, index }: IToken) => {
    
    return (
       <div className={`token ${token.imageUrl == '' ? 'no-metadata' : ''}`} key={`token-${index}`}>
-         <img src={token.imageUrl == '' ? '/metadata-not-available.png' : token.imageUrl}></img>
-         <div className='solution-temporary'>{token.solution}</div>
-         <div className='disclaimer-metadata'>This token's metadata is currently being saved to the blockchain. Please wait 10 minutes and refresh your browser.</div>
-         <div className='disclaimer-image'>This token's image is currently being saved to the blockchain. Please wait 10 minutes and refresh your browser.</div>
+         <img src={token.imageUrl == '' ? '/metadata-not-available.png' : token.imageUrl} key={`token-image-${index}`}></img>
+         <div className='disclaimer-metadata'>This token's metadata is currently being saved to the blockchain.<br/><br/>Please wait 10 minutes and refresh your browser.</div>
+         <div className='disclaimer-image'>This token's image is currently being saved to the blockchain.<br/><br/>Please wait 10 minutes and refresh your browser.</div>
          <div className='links'>
             <strong title='Metadata' onClick={() => window.open(token.url)} className='material-icons smaller'>&#xe54e;</strong>
             <strong title='Image' onClick={() => window.open(token.imageUrl)} className='material-icons'>&#xea10;</strong>
@@ -63,7 +62,7 @@ export const Token = ({ token, index }: IToken) => {
                </div>
                <div className='clear'></div>   
                <div className='last-transaction'>
-                  <p>Last transaction</p>
+                  <p>Last transaction (UTC)</p>
                   <strong>{token.lastTransactionTimestamp}</strong>
                </div>               
                <div className='for-sale-status'>
