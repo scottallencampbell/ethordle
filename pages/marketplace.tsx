@@ -11,7 +11,6 @@ const Marketplace = () => {
    const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
    const { account, contract } = useCrypto();
    const { tokens, getTokens } = useCrypto();
-   const { buyToken } = useCrypto();
    const { setGameMode } = useCrypto();
    
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
@@ -55,7 +54,7 @@ const Marketplace = () => {
             <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          <StatusBar></StatusBar>
-         <TokenList account={account} buyToken={buyToken} tokens={tokensToRender} title='Marketplace'></TokenList>         
+         <TokenList isMarketplace={true} title='Marketplace' account={account} tokens={tokens}></TokenList>         
       </>
    )
 }

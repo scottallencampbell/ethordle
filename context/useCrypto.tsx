@@ -18,9 +18,10 @@ interface ContextInterface {
    setContract: Dispatch<SetStateAction<Contract>>,
    connectToBlockchain: () => Promise<boolean>,
    mintToken: (solution: string, price: string, guessResults: string[], secondsRequired: number) => Promise<void>,
-   buyToken: (id: number, price: string) => Promise<void>,
+   buyToken: (id: number, price: number) => Promise<null>,
+   toggleTokenIsForSale: (id: number, isForSale: boolean) => Promise<null>,
    tokens: Entities.Token[],
-   getTokens: (boolean) => Promise<Entities.Token[]>
+   getTokens: () => Promise<Entities.Token[]>
 }
 
 declare let window: any;
@@ -159,14 +160,23 @@ export function CryptoProvider({ children }) {
       await getTokens();
    }
   
-   const buyToken = async (id: number, price: string) => {      
+   const buyToken = async (id: number, price: number) => {    
       var wei = Web3.utils.toWei(price.toString(), 'ether');
       await contract.methods.buy(account, id).send({ from: account, value: wei });        
       await getTokens();
+      return true;
+   }
+
+   const toggleTokenIsForSale = async (id: number, isForSale: boolean) => {   
+      if (isForSale) {
+         await contract.methods.allowSale(account, id).send({ from: account });        
+      } else {
+         await contract.methods.preventSale(account, id).send({ from: account });        
+      }     
    }
 
    return (
-      <CryptoContext.Provider value={{ isBlockchainConnected, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ isBlockchainConnected, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, toggleTokenIsForSale, tokens, getTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
@@ -177,8 +187,9 @@ export const useCrypto = (): ContextInterface => {
    const { contract, setContract } = useContext(CryptoContext);
    const { connectToBlockchain } = useContext(CryptoContext);
    const { mintToken, buyToken } = useContext(CryptoContext);
+   const { toggleTokenIsForSale } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
-
-   return { isBlockchainConnected, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, tokens, getTokens };
+   
+   return { isBlockchainConnected, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, toggleTokenIsForSale, tokens, getTokens };
 }
 

@@ -340,6 +340,32 @@
     cursor: default;
   }
   
+  #token-list .for-sale-status {
+    display: none;
+  }
+
+  #token-list.is-not-marketplace .for-sale-status {
+    display: block;
+  }
+
+  #token-list .buy {
+    display: none;
+  }
+
+  #token-list.is-marketplace .buy {
+    display: block;
+  }
+
+  #no-tokens a {
+    font-weight: bold;
+    text-decoration: none;
+    color: #43ABDC
+  }
+
+  #no-tokens img {
+    margin-bottom: 20px;
+  }
+
   @keyframes anim-lightspeed-in {
     0% {
       opacity: 1;

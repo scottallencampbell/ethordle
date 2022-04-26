@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
@@ -9,9 +10,8 @@ import configSettings from '../config.json';
 
 const Tokens = () => {
    const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
-   const { account, contract } = useCrypto();
+   const { account } = useCrypto();
    const { tokens, getTokens } = useCrypto();
-   const { buyToken } = useCrypto();
    const { setGameMode } = useCrypto();
    
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
@@ -45,6 +45,7 @@ const Tokens = () => {
          if (tokens == null) { return; }
         
          const myTokens = tokens.filter((token) => token.owner == account);
+         
          setTokensToRender(myTokens);
         })();
    }, [tokens]);
@@ -56,7 +57,7 @@ const Tokens = () => {
             <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          <StatusBar></StatusBar>
-         <TokenList account={account} buyToken={buyToken} tokens={tokensToRender} title='My tokens'></TokenList>         
+         <TokenList isMarketplace={false} title='My tokens' account={account} tokens={tokensToRender}></TokenList>                  
       </>
    )
 }
