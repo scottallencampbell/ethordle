@@ -18,8 +18,8 @@ interface ContextInterface {
    setContract: Dispatch<SetStateAction<Contract>>,
    connectToBlockchain: () => Promise<boolean>,
    mintToken: (solution: string, price: string, guessResults: string[], secondsRequired: number) => Promise<void>,
-   buyToken: (id: number, price: number) => Promise<null>,
-   toggleTokenIsForSale: (id: number, isForSale: boolean) => Promise<null>,
+   buyToken: (id: number, price: number) => Promise<void>,
+   toggleTokenIsForSale: (id: number, isForSale: boolean) => Promise<void>,
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>
 }
@@ -119,7 +119,7 @@ export function CryptoProvider({ children }) {
        );
     
       for (const [i, token] of contractTokens.entries()) {         
-         let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], isForSale: token[5], transactionCount: token[6] });
+         let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], isForSale: token[5], lastTransactionTimestamp: new Date(token[6] * 1000).toISOString().slice(0, 19).replace('T', ' ') + 'Z', transactionCount: token[7] });
          const metadataFile = metadataFiles[i];
       
          if (!metadataFile.imageUrl || metadataFile.imageUrl == '') {         
@@ -164,7 +164,6 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
       await contract.methods.buy(account, id).send({ from: account, value: wei });        
       await getTokens();
-      return true;
    }
 
    const toggleTokenIsForSale = async (id: number, isForSale: boolean) => {   

@@ -64,7 +64,7 @@ export const Token = ({ token, index }: IToken) => {
                <div className='clear'></div>   
                <div className='last-transaction'>
                   <p>Last transaction</p>
-                  <strong>2022-04-24 18:21:56</strong>
+                  <strong>{token.lastTransactionTimestamp}</strong>
                </div>               
                <div className='for-sale-status'>
                   {(token.owner == account ) ?

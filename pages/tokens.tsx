@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
-import * as Entities from '../model/entities';
 import configSettings from '../config.json';
 
 const Tokens = () => {
    const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
    const { account } = useCrypto();
    const { tokens, getTokens } = useCrypto();
-   const { setGameMode } = useCrypto();
    
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
    const [tokensToRender, setTokensToRender] = useState([]);
@@ -41,14 +38,13 @@ const Tokens = () => {
    }, [isBlockchainConnected]);
 
    useEffect(() => {
-      (async () => {            
-         if (tokens == null) { return; }
-        
-         const myTokens = tokens.filter((token) => token.owner == account);
+      (async () => {   
+         if (!isBlockchainConnected || tokens == null) { return; }
          
+         const myTokens = tokens.filter((token) => token.owner == account);
          setTokensToRender(myTokens);
         })();
-   }, [tokens]);
+   }, [tokens, isBlockchainConnected]);
 
    return (
       <>

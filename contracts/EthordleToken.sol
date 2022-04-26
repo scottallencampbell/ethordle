@@ -14,6 +14,7 @@ using Strings for uint256;
         string url;
         string solution;
         bool isForSale;
+        uint256 lastTransactionTimestamp;
         uint256 transactionCount;        
     }
 
@@ -33,6 +34,14 @@ using Strings for uint256;
         address payable account,
         uint256 tokenId,
         string metadataURI
+    );
+
+    event TokenForSaleStatusChanged (
+        string solution,
+        address account,
+        uint256 tokenId,
+        string metadataURI,
+        bool isForSale
     );
 
     constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_) ERC721(_name, _symbol) {
@@ -145,7 +154,7 @@ using Strings for uint256;
 
         uint256 newPrice =_getEscalatedPrice(msg.value);
 
-        Token memory token = Token(_currentTokenId, to, newPrice, tokenURI_, solution_, false, 1);
+        Token memory token = Token(_currentTokenId, to, newPrice, tokenURI_, solution_, false, block.timestamp, 1);
        
         _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
@@ -183,8 +192,10 @@ using Strings for uint256;
         require(markForSale != token.isForSale, markForSale ? 'Token is already marked for sale' : 'Token is already prevented from being sold'); 
         
         token.isForSale = markForSale;
-
+        
         _tokens[tokenId] = token; 
+
+        emit TokenForSaleStatusChanged(token.solution, token.owner, tokenId, token.url, markForSale);
     }
 
     function buy(
@@ -218,6 +229,7 @@ using Strings for uint256;
         token.owner = to;
         token.price = newPrice;
         token.isForSale = false;
+        token.lastTransactionTimestamp = block.timestamp;
         token.transactionCount++;       
 
         _tokens[tokenId] = token; 

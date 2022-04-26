@@ -30,6 +30,7 @@ export class Token {
    public url: string;
    public solution: string;
    public isForSale: boolean;
+   public lastTransactionTimestamp: string;
    public transactionCount: number;
    // loaded from metadata
    public imageUrl: string;

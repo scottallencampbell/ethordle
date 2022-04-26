@@ -4,14 +4,12 @@ import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
-import * as Entities from '../model/entities';
 import configSettings from '../config.json';
 
 const Marketplace = () => {
    const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
-   const { account, contract } = useCrypto();
+   const { account } = useCrypto();
    const { tokens, getTokens } = useCrypto();
-   const { setGameMode } = useCrypto();
    
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
    const [tokensToRender, setTokensToRender] = useState([]);
@@ -41,11 +39,11 @@ const Marketplace = () => {
 
    useEffect(() => {
       (async () => {            
-         if (tokens == null) { return; }
+         if (!isBlockchainConnected || tokens == null) { return; }
       
          setTokensToRender(tokens);
         })();
-   }, [tokens]);
+   }, [tokens, isBlockchainConnected]);
 
    return (
       <>
@@ -54,7 +52,7 @@ const Marketplace = () => {
             <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          <StatusBar></StatusBar>
-         <TokenList isMarketplace={true} title='Marketplace' account={account} tokens={tokens}></TokenList>         
+         <TokenList isMarketplace={true} title='Marketplace' account={account} tokens={tokensToRender}></TokenList>         
       </>
    )
 }
