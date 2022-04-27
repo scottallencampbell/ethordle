@@ -36,7 +36,7 @@ export const Token = ({ token, index }: IToken) => {
    return (
       <div className={`token ${token.imageUrl == '' ? 'no-metadata' : ''}`} key={`token-${index}`}>
          {(token.owner == account && !token.isForSale) ? 
-         <PriceChooser token={token} newPrice={newPrice} setNewPrice={setNewPrice} isPriceChooserOpen={isPriceChooserOpen} setIsPriceChooserOpen={setIsPriceChooserOpen} handleTokenSetForSale={handleTokenSetForSale}></PriceChooser>                
+         <PriceChooser token={token} newPrice={newPrice} setNewPrice={setNewPrice} isPriceChooserOpen={isPriceChooserOpen} setIsPriceChooserOpen={setIsPriceChooserOpen} handleTokenSetForSale={handleTokenSetForSale} solution={token.solution}></PriceChooser>                
          : <></>
          }
          <img src={token.imageUrl == '' ? '/metadata-not-available.png' : token.imageUrl} key={`token-image-${index}`}></img>
