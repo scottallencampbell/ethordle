@@ -18,7 +18,6 @@ import configSettings from '../config.json';
 
 words.push(...solutions);
 
-const initialTokenPrice = '1'; //'0.005';
 const wordLength = 5;
 const maxGuesses = 6;
 const letters = [
@@ -80,6 +79,10 @@ const Index = () => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
+         if (isBlockchainConnected) {
+            return;
+         }
+
          const isConnected = await connectToBlockchain();  
 
          if (isConnected) {
@@ -98,14 +101,20 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         console.log('Use effect: [gameMode]');            
-
+         
          if (gameMode == Entities.GameMode.Unknown) { 
             return; 
          }
 
+         if (solution != '') {
+            return;
+         }
+
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);   
+         
+         console.log(keyboard);
+         console.log(grid);
          
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
@@ -246,7 +255,7 @@ const Index = () => {
             await showSummary(Entities.GameStatus.Won);
            
             if (gameMode == Entities.GameMode.Blockchain) {
-               await mintToken(solution, initialTokenPrice, newGuessResults, secondsRequired);
+               await mintToken(solution, newGuessResults, secondsRequired);
             }
          }
          else if (currentRowIndex >= maxGuesses - 1) {

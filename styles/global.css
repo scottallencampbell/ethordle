@@ -594,6 +594,15 @@ body {
   font-size: 18px;
 }
 
+.popup-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
 .popup-content {
   margin: auto;
   background: rgb(255, 255, 255);

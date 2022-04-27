@@ -12,7 +12,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
     const name = 'Ethordle Token';
     const symbol = 'EthordleToken';
-    const initialPrice = web3.utils.toWei(new BN(1), 'ether'); 
+    const initialPrice = web3.utils.toWei(new BN(0.01), 'ether'); 
     const royaltyRate = '500';
     const priceEscalationRate = '11000';
     const solution = 'STARE';

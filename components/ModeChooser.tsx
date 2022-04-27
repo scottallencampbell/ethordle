@@ -21,7 +21,7 @@ export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopu
    return (
       <Popup modal open={isGameModePopupOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
-            <div id='mode-chooser' className='modal'>           
+            <div id='mode-chooser' className='modal'>  
             <div className='content'>
                <div className='ethereum-icon'>
                   <img src='/ethordle-to-ethereum-icon.png'></img>

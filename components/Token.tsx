@@ -23,7 +23,7 @@ export const Token = ({ token, index }: IToken) => {
          setNewPrice(token.price);
          setIsPriceChooserOpen(true);
       } else {
-         await preventTokenSale(token.id);
+         await preventTokenSale(token.id);         
          setIsForSale(false);             
       }
    }

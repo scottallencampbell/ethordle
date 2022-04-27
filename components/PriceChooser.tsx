@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 import Popup from 'reactjs-popup';
+import { useCrypto } from '../context/useCrypto';
+
 import * as Entities from '../model/entities';
 
 interface IPriceChooser {
@@ -15,7 +17,9 @@ export const PriceChooser = ({ isPriceChooserOpen, setIsPriceChooserOpen, token,
    const maxPrice = 999.999;
    const maxDecimals = 3;
    const [errorDetected, setErrorDetected] = useState('');
-
+   
+   const { royaltyRate } = useCrypto();
+   
    const getDecimals = (value) => {
       if (Math.floor(value.valueOf()) === value.valueOf()) return 0;
       const tokens = value.toString().split('.');
@@ -48,13 +52,14 @@ export const PriceChooser = ({ isPriceChooserOpen, setIsPriceChooserOpen, token,
    }
 
    return (
-      <Popup modal open={isPriceChooserOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isPriceChooserOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '620px', width: '90%' }} >
          {() => (
             <div id='price-chooser' className={`modal ${errorDetected}`}>
+               <div className='popup-title'>Offer Your Token for Sale</div>
                <div className='content'>
-                  <p>Congratulations, you're about to list your token for sale on the Ethordle marketplace!</p>
-                  <p>Accept the sale price shown below or enter a new, higher value. <span className='minimum-value'>The sale price cannot be less than {token.price} eth.</span></p>
-                  <p>Please note that the Ethordle contract will deduct a 99% royalty from the seller on every transaction.</p>
+                  <p>Congratulations, you're about to offer your token for sale on the Ethordle marketplace!</p>
+                  <p>Please note that the contract will deduct a <strong>{royaltyRate}% royalty</strong> from the proceeds when your token sells.  At the price below, a sale of this token will net you <strong>{newPrice * (100 - royaltyRate) / 100} ETH</strong>.</p>
+                  <p>Accept the sale price shown below or enter a new, higher value. <span className='minimum-value'>The sale price cannot be less than <strong>{token.price} ETH</strong>.</span></p>
                   <p className='too-many-decimals-alert'>The sale price may not have more than three decimal places.</p>
                   <div className='center'>
                      <input type='number' className='price' min={token.price} onChange={handlePriceChange} value={newPrice}></input>

@@ -12,14 +12,16 @@ const Tokens = () => {
    const { tokens, getTokens } = useCrypto();
    
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
-   const [tokensToRender, setTokensToRender] = useState([]);
+   const [tokensToRender, setTokensToRender] = useState(null);
    
+   const fadeElementsIn = () => {
+      setTimeout(() => {
+         document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
+      }, 1000);
+   }
+
    useEffect(() => {
       (async () => {   
-         setTimeout(() => {
-            document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
-         }, 1000);
-
          await connectToBlockchain();  
         })();
    }, []);
@@ -33,7 +35,11 @@ const Tokens = () => {
 
          if (tokens == null) {            
             await getTokens();
+            fadeElementsIn();
+         } else {
+            fadeElementsIn();
          }
+
         })();
    }, [isBlockchainConnected]);
 
@@ -53,7 +59,10 @@ const Tokens = () => {
             <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          <StatusBar></StatusBar>
+         { tokensToRender != null ?
          <TokenList isMarketplace={false} title='My tokens' account={account} tokens={tokensToRender}></TokenList>           
+         : <></>
+         }
       </>
    )
 }

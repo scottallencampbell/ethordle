@@ -34,26 +34,24 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
 
    return (    
       <>
-         <div>
-            <Title title={title}></Title>
-            { tokens.length == 0 && !isMarketplace ?        
-               <div id='no-tokens' className='hidden-on-load vertically-centered'>
-                  <img src='./crying-emoji.png'></img>
-                  <p>We're sorry, this account currently owns no tokens.</p>
-                  <p>Why not play a <Link href='/'>new game</Link> in order to mint a token?</p>
-               </div> 
-               :
-               <div className='hidden-on-load'>
-                  {account === '' || !tokens ? null :
-                     <div id='token-list' className={isMarketplace ? 'is-marketplace' : 'is-not-marketplace'}>
-                        { tokens.map((token, i) => (
-                           <Token token={token} index={i} key={i}></Token>                        
-                        ))}
-                     </div>
-                  }
-               </div>
-            }
-         </div>
+         <Title title={title}></Title>
+         { tokens.length == 0 && !isMarketplace ?        
+            <div id='no-tokens' className='vertically-centered hidden-on-load'>
+               <img src='./crying-emoji.png'></img>
+               <p>We're sorry, this account currently owns no tokens.</p>
+               <p>Why not play a <Link href='/'>new game</Link> in order to mint a token?</p>
+            </div> 
+            :
+            <div className='hidden-on-load'>
+               {account === '' || !tokens ? null :
+                  <div id='token-list' className={isMarketplace ? 'is-marketplace' : 'is-not-marketplace'}>
+                     { tokens.map((token, i) => (
+                        <Token token={token} index={i} key={i}></Token>                        
+                     ))}
+                  </div>
+               }
+            </div>
+         }
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
       </>
    )
