@@ -82,7 +82,6 @@ const Index = () => {
 
          const isConnected = await connectToBlockchain();  
 
-         
          if (isConnected) {
             setGameMode(Entities.GameMode.Blockchain);              
          } else {

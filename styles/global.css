@@ -7,8 +7,22 @@ body {
   background-color: #ffffff;
 }
 
-html { 
+html {
   height: 100%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.center {
+  text-align: center;
 }
 
 .vertically-centered {
@@ -40,9 +54,9 @@ html {
 }
 
 .top-bar .account {
-  color: #ffffff; 
+  color: #ffffff;
   float: right;
-  margin-top: 21px;  
+  margin-top: 21px;
   margin-right: 21px;
   font-weight: bold;
   font-size: 15px;
@@ -66,7 +80,7 @@ html {
   font-weight: bold;
   float: left;
   font-size: 15px;
-  margin-top: 21px;  
+  margin-top: 21px;
 }
 
 .top-bar a {
@@ -101,7 +115,7 @@ html {
 }
 
 .force-vertical-scrollbar {
-  overflow-y:scroll;
+  overflow-y: scroll;
 }
 
 .title {
@@ -232,6 +246,7 @@ html {
   transition: all .2s linear;
   transition-delay: 0s;
 }
+
 .flippable .tile.sequence1 .inner {
   transition-delay: .2s;
 }
@@ -824,5 +839,5 @@ body {
 #mode-chooser button img {
   width: 25px;
   height: auto;
-  margin-left: 10px;
+  margin-left: 15px;
 }

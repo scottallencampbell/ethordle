@@ -53,7 +53,7 @@ const Tokens = () => {
             <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          <StatusBar></StatusBar>
-         <TokenList isMarketplace={false} title='My tokens' account={account} tokens={tokensToRender}></TokenList>                  
+         <TokenList isMarketplace={false} title='My tokens' account={account} tokens={tokensToRender}></TokenList>           
       </>
    )
 }

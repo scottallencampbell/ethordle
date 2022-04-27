@@ -36,12 +36,19 @@ using Strings for uint256;
         string metadataURI
     );
 
-    event TokenForSaleStatusChanged (
+    event TokenSaleAllowed (
         string solution,
         address account,
         uint256 tokenId,
         string metadataURI,
-        bool isForSale
+        uint256 price
+    );
+
+    event TokenSalePrevented (
+        string solution,
+        address account,
+        uint256 tokenId,
+        string metadataURI
     );
 
     constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_) ERC721(_name, _symbol) {
@@ -166,36 +173,43 @@ using Strings for uint256;
 
     function allowSale(
         address from,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 price
     ) external {    
-        toggleSale(from, tokenId, true);
+        require(_exists(tokenId), 'TokenId does not exist');   
+        require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
+        require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');         
+        
+        Token memory token = _tokens[tokenId];
+        require(_exists(token.id), 'Token does not exist');  
+        require(!token.isForSale, 'Token is already marked for sale');
+        require(price >= token.price, 'Token cannot be priced less than the current asking price');
+        
+        token.isForSale = true;
+        token.price = price;
+
+        _tokens[tokenId] = token; 
+
+        emit TokenSaleAllowed(token.solution, token.owner, tokenId, token.url, price);
     }
 
     function preventSale(
         address from,
         uint256 tokenId
-    ) external {    
-        toggleSale(from, tokenId, false);        
-    }
-
-    function toggleSale( 
-        address from, 
-        uint256 tokenId,
-        bool markForSale
-    ) private {
+    ) external {   
         require(_exists(tokenId), 'TokenId does not exist');   
         require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
-        require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');   
-
+        require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');    
+        
         Token memory token = _tokens[tokenId];
         require(_exists(token.id), 'Token does not exist');  
-        require(markForSale != token.isForSale, markForSale ? 'Token is already marked for sale' : 'Token is already prevented from being sold'); 
+        require(token.isForSale, 'Token is already prevented from being sold'); 
         
-        token.isForSale = markForSale;
+        token.isForSale = false;
         
         _tokens[tokenId] = token; 
 
-        emit TokenForSaleStatusChanged(token.solution, token.owner, tokenId, token.url, markForSale);
+        emit TokenSalePrevented(token.solution, token.owner, tokenId, token.url);
     }
 
     function buy(

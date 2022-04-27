@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Toggle } from './Toggle';
+import { PriceChooser } from '../components/PriceChooser';
 import * as Entities from '../model/entities';
 import { useCrypto } from '../context/useCrypto';
 
@@ -10,20 +11,34 @@ interface IToken {
 
 export const Token = ({ token, index }: IToken) => {
    const { buyToken } = useCrypto();
-   const { toggleTokenIsForSale } = useCrypto();
+   const { allowTokenSale, preventTokenSale } = useCrypto();
    const { account } = useCrypto();
    
+   const [newPrice, setNewPrice] = useState(token.price);
    const [isForSale, setIsForSale] = useState(token.isForSale);
+   const [isPriceChooserOpen, setIsPriceChooserOpen] = useState(false);   
 
-   const toggle = () => {
-      token.isForSale = !token.isForSale;
-      setIsForSale(token.isForSale);    
-
-      toggleTokenIsForSale(token.id, token.isForSale);
+   const handleToggle = async () => {
+      if (!token.isForSale) {
+         setNewPrice(token.price);
+         setIsPriceChooserOpen(true);
+      } else {
+         await preventTokenSale(token.id);
+         setIsForSale(false);             
+      }
    }
-   
+
+   const handleTokenSetForSale = async () => {
+      await allowTokenSale(token.id, newPrice);
+      setIsForSale(true);
+   }
+
    return (
       <div className={`token ${token.imageUrl == '' ? 'no-metadata' : ''}`} key={`token-${index}`}>
+         {(token.owner == account && !token.isForSale) ? 
+         <PriceChooser token={token} newPrice={newPrice} setNewPrice={setNewPrice} isPriceChooserOpen={isPriceChooserOpen} setIsPriceChooserOpen={setIsPriceChooserOpen} handleTokenSetForSale={handleTokenSetForSale}></PriceChooser>                
+         : <></>
+         }
          <img src={token.imageUrl == '' ? '/metadata-not-available.png' : token.imageUrl} key={`token-image-${index}`}></img>
          <div className='disclaimer-metadata'>This token's metadata is currently being saved to the blockchain.<br/><br/>Please wait 10 minutes and refresh your browser.</div>
          <div className='disclaimer-image'>This token's image is currently being saved to the blockchain.<br/><br/>Please wait 10 minutes and refresh your browser.</div>
@@ -67,7 +82,7 @@ export const Token = ({ token, index }: IToken) => {
                </div>               
                <div className='for-sale-status'>
                   {(token.owner == account ) ?
-                  <Toggle id={`toggle-${token.id}}`} isOn={token.isForSale} handleToggle={() => toggle() } onText='For sale' offText='Not for sale' />
+                  <Toggle id={`toggle-${token.id}}`} isOn={token.isForSale} handleToggle={handleToggle} onText='For sale' offText='Not for sale' />
                   :
                   <></>
                   }

@@ -47,7 +47,7 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
                   {account === '' || !tokens ? null :
                      <div id='token-list' className={isMarketplace ? 'is-marketplace' : 'is-not-marketplace'}>
                         { tokens.map((token, i) => (
-                           <Token token={token} index={i} key={i}></Token>
+                           <Token token={token} index={i} key={i}></Token>                        
                         ))}
                      </div>
                   }
