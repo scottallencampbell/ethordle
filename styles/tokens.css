@@ -1,430 +1,451 @@
-
 #token-list {
-    margin-bottom: 30px;
-    width: 1300px;
-    margin-left: auto;
-    margin-right: auto;
-    outline: none;
-    float: none;
-    clear: both;
+  margin-bottom: 30px;
+  width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+  outline: none;
+  float: none;
+  clear: both;
+}
+
+@media (max-width: 1350px) {
+  #token-list {
+    width: 1000px;
   }
-  
-  @media (max-width: 1350px) {
-    #token-list {
-      width: 1000px;
-    }
+}
+
+@media (max-width: 1000px) {
+  #token-list {
+    width: 500px;
   }
-  
-  @media (max-width: 1000px) {
-    #token-list {
-      width: 500px;
-    }
-  }
-  
-  #token-list:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-  
-  #token-list .token {
-    border-top-left-radius: 25px;  
-    border-top-right-radius: 25px;  
-    width: 400px;
-    height: 590px;
-    background: no-repeat;
-    background-size: contain;
-    display: inline-block;
-    margin: 15px;
-    position: relative;
-    box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
-  }
-  
-  #token-list .token.no-metadata .guess-result,
-  #token-list .token.no-metadata .seconds,
-  #token-list .token.no-metadata .links {
-    visibility: hidden;
-  }
-  
-  #token-list img {
-    border-top-left-radius: 25px;
-    height: auto;
-    width: 100%;
-    border-top-right-radius: 25px;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  
-  #token-list .solution-temporary {
-    position: absolute;
-    top: 102px;
-    left: 0;
-    text-align: center;
-    font-weight: bold;
-    font-size: 34px;
-    width: 100%;
-    letter-spacing: 25px;
-    margin-left: 12px;
-    color: #999999;
-    display: none;
-  }
-  
-  #token-list .token.no-metadata .solution {
-    display: block;
-  }
-  
-  #token-list .disclaimer-metadata,
-  #token-list .disclaimer-image {
-    position: absolute;
-    top: 83px;
-    left: 0;
-    text-align: center;
-    font-weight: bold;
-    font-size: 15px;
-    padding: 0 47px;
-    color: #000000;
-    display: none;
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-  
-  #token-list .token.no-metadata .disclaimer-metadata {
-    display: block;
-  }
-  
-  #token-list .token.no-image .disclaimer-image {
-    display: block;
-  }
-  
-  #token-list .token .details .details-column {
-    width: 150px;
-  }
-  
-  #token-list .token .details .details-column:nth-child(2) {
-    width: 195px;
-  }
-  
-  #token-list .token .details {
-    margin-top: 280px;
-    margin-left: 40px;  
-  }
-  
-  #token-list .token .details .details-column > div {
-    xheight: 60px;
-  }
-  
-  #token-list .token .details p {
-    color: #999999;
-    text-transform: uppercase;
-    font-size: 12px;
-    font-weight: bold;
-  }
-  
-  #token-list .token .details > div {
-    float: left;
-    xwidth: 160px;
-    text-align: left;
-    color: #555555;
-  }
-  
-  #token-list .token .details span {
-    color: #999999;
-    text-transform: uppercase;
-  }
-  
-  #token-list .token .links  {
-    position: absolute;
-    width: 100%;
-    top: 212px;
-    text-align: right;
-    right: 17px;
-  }
-  
-  #token-list .token .links strong {
-    color: #ffffff;
-    font-size: 23px;
-    cursor: pointer;
-    position: relative;
-    transition: all .15s linear;
-    display: inline-block;
-    margin: 0 0 0 12px;
-  }
-  
-  #token-list .token .links strong.smaller {
-    font-size: 20px !important  ;
-    
-  }
-  
-  #token-list .token .links strong:hover {
-    color: #43ABDC;
-  }
-  
-  #token-list .title {
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: 20px;
-  }
-  
-  #token-list strong {
-    margin-bottom: 25px;
-    display: block;
-  }
-  
-  #token-list .guess-result strong {
-    position: relative;
-    left: -2px;
-  }
-  
-  #token-list .guess-result span {
-    width: 16px;
-    height: 16px;
-    min-height: 16px;
-    min-width: 16px;
-    display: inline-block;
-    background-color: #787C7F;
-    margin: 0 1px 0 1px;
-    font-family: 'Courier New', Courier, monospace;
-  }
-  
-  #token-list .details > div { 
-  }
-  
-  #token-list .guess-result span.X {
-    background-color: #6aaa64;
-  }
-  
-  #token-list .guess-result span.O {
-    background-color: #c9b458;
-  }
-  
-  #token-list .guess-result {
-    line-height: 14px;
-  }
-  
-  #token-list .token .price {
-    font-size: 21px;
-    font-weight: bold;
-    float: left;
-    height: 115px !important;
-  }
-  
-  #token-list .token .price.price-length-1,
-  #token-list .token .price.price-length-2,
-  #token-list .token .price.price-length-3,
-  #token-list .token .price.price-length-4 {
-    font-size: 60px;
-  }
-  
-  #token-list .token .price.price-length-5 {
-    font-size: 52px;
-  }
-  
-  #token-list .token .price.price-length-6 {
-    font-size: 44px;
-  }
-  
-  #token-list .token .price.price-length-7 {
-    font-size: 37px;
-  }
-  
-  #token-list .token .price.price-length-8 {
-    font-size: 31px;
-  }
-  
-  #token-list .token .price.price-length-9 {
-    font-size: 26px;
-  }
-  
-  #token-list .token .price.price-length-10 {
-    font-size: 21px;
-  }
-  
-  #token-list .token .price img {
-    height: 51px;
-    width: auto;
-    float: left;
-    position: relative;
-    top: 8px;
-    margin-right: 10px;
-  }
-  
-  #token-list .token .price.price-length-1 img,
-  #token-list .token .price.price-length-2 img,
-  #token-list .token .price.price-length-3 img,
-  #token-list .token .price.price-length-4 img {
-    top: 8px;
-    height: 51px;
-  }
-  
-  #token-list .token .price.price-length-5 img {
-    top: 8px;
-    height: 44px;
-  }
-  
-  #token-list .token .price.price-length-6 img {
-    top: 6px;
-    height: 39px;
-  }
-  
-  #token-list .token .price.price-length-7 img {
-    top: 4px;
-    height: 35px;
-  }
-  
-  #token-list .token .price.price-length-8 img {
-    top: 4px;
-    height: 29px;
-  }
-  
-  #token-list .token .price.price-length-9 img {
-    top: 4px;
-    height: 24px;
-  }
-  
-  #token-list .token .price.price-length-10 {
-    font-size: 21px;
-  }
-  
-  #token-list button {
-    font-weight: bold;
-    text-transform: uppercase;
-    width: 170px;
-    margin-top: 10px;
-    font-size: 14px;
-  }
-  
-  #token-list button span {
-    color: #ffffff !important;
-    font-size: 18px;
-    margin-right: 10px;
-  }
-  
-  #token-list #buy-token span {
-    transition: all .15s linear;
-  }
-  
-  #token-list #buy-token {
-    background-color: #43ABDC;
-    color: #ffffff;
-  }
-  
-  #token-list #buy-token:hover {
-    background-color: #ffffff;
-    color: #43ABDC;
-  }
-  
-  #token-list #buy-token:hover span {
-    color: #43ABDC !important;
-  }
-  
-  #token-list #owned-token {
-    padding-left: 0;
-    padding-right: 0;
-    background-color: #bbbbbb;
-    color: #ffffff;
-    cursor: default;
-  }
-  
-  #token-list #not-for-sale-token {
-    padding-left: 0;
-    padding-right: 0;
-    background-color: #bbbbbb;
-    color: #ffffff;
-    cursor: default;
-  }
-  
-  #token-list #for-sale-token {
-     background-color: #6aaa64;
-    color: #ffffff;
-    cursor: default;
-  }
-  
-  #token-list .for-sale-status {
-    display: none;
+}
+
+#token-list:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#token-list .token {
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  width: 400px;
+  height: 590px;
+  background: no-repeat;
+  background-size: contain;
+  display: inline-block;
+  margin: 15px;
+  position: relative;
+  box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
+}
+
+#token-list .token.no-metadata .guess-result,
+#token-list .token.no-metadata .seconds,
+#token-list .token.no-metadata .links {
+  visibility: hidden;
+}
+
+#token-list img {
+  border-top-left-radius: 25px;
+  height: auto;
+  width: 100%;
+  border-top-right-radius: 25px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#token-list .solution-temporary {
+  position: absolute;
+  top: 102px;
+  left: 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 34px;
+  width: 100%;
+  letter-spacing: 25px;
+  margin-left: 12px;
+  color: #999999;
+  display: none;
+}
+
+#token-list .token.no-metadata .solution {
+  display: block;
+}
+
+#token-list .disclaimer-metadata,
+#token-list .disclaimer-image {
+  position: absolute;
+  top: 83px;
+  left: 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+  padding: 0 47px;
+  color: #000000;
+  display: none;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#token-list .token.no-metadata .disclaimer-metadata {
+  display: block;
+}
+
+#token-list .token.no-image .disclaimer-image {
+  display: block;
+}
+
+#token-list .token .details .details-column {
+  width: 150px;
+}
+
+#token-list .token .details .details-column:nth-child(2) {
+  width: 195px;
+}
+
+#token-list .token .details {
+  margin-top: 280px;
+  margin-left: 40px;
+}
+
+#token-list .token .details .details-column>div {
+  xheight: 60px;
+}
+
+#token-list .token .details p {
+  color: #999999;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+#token-list .token .details>div {
+  float: left;
+  xwidth: 160px;
+  text-align: left;
+  color: #555555;
+}
+
+#token-list .token .details span {
+  color: #999999;
+  text-transform: uppercase;
+}
+
+#token-list .token .links {
+  position: absolute;
+  width: 100%;
+  top: 212px;
+  text-align: right;
+  right: 17px;
+}
+
+#token-list .token .links strong {
+  color: #ffffff;
+  font-size: 23px;
+  cursor: pointer;
+  position: relative;
+  transition: all .15s linear;
+  display: inline-block;
+  margin: 0 0 0 12px;
+}
+
+#token-list .token .links strong.smaller {
+  font-size: 20px !important;
+
+}
+
+#token-list .token .links strong:hover {
+  color: #43ABDC;
+}
+
+#token-list .title {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#token-list strong {
+  margin-bottom: 25px;
+  display: block;
+}
+
+#token-list .guess-result strong {
+  position: relative;
+  left: -2px;
+}
+
+#token-list .guess-result span {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  display: inline-block;
+  background-color: #787C7F;
+  margin: 0 1px 0 1px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#token-list .details>div {}
+
+#token-list .guess-result span.X {
+  background-color: #6aaa64;
+}
+
+#token-list .guess-result span.O {
+  background-color: #c9b458;
+}
+
+#token-list .guess-result {
+  line-height: 14px;
+}
+
+#token-list .token .price {
+  font-size: 21px;
+  font-weight: bold;
+  float: left;
+  height: 115px !important;
+}
+
+#token-list .token .price.price-length-1,
+#token-list .token .price.price-length-2,
+#token-list .token .price.price-length-3,
+#token-list .token .price.price-length-4 {
+  font-size: 60px;
+}
+
+#token-list .token .price.price-length-5 {
+  font-size: 52px;
+}
+
+#token-list .token .price.price-length-6 {
+  font-size: 44px;
+}
+
+#token-list .token .price.price-length-7 {
+  font-size: 37px;
+}
+
+#token-list .token .price.price-length-8 {
+  font-size: 31px;
+}
+
+#token-list .token .price.price-length-9 {
+  font-size: 26px;
+}
+
+#token-list .token .price.price-length-10 {
+  font-size: 21px;
+}
+
+#token-list .token .price img {
+  height: 51px;
+  width: auto;
+  float: left;
+  position: relative;
+  top: 8px;
+  margin-right: 10px;
+}
+
+#token-list .token .price.price-length-1 img,
+#token-list .token .price.price-length-2 img,
+#token-list .token .price.price-length-3 img,
+#token-list .token .price.price-length-4 img {
+  top: 8px;
+  height: 51px;
+}
+
+#token-list .token .price.price-length-5 img {
+  top: 8px;
+  height: 44px;
+}
+
+#token-list .token .price.price-length-6 img {
+  top: 6px;
+  height: 39px;
+}
+
+#token-list .token .price.price-length-7 img {
+  top: 4px;
+  height: 35px;
+}
+
+#token-list .token .price.price-length-8 img {
+  top: 4px;
+  height: 29px;
+}
+
+#token-list .token .price.price-length-9 img {
+  top: 4px;
+  height: 24px;
+}
+
+#token-list .token .price.price-length-10 {
+  font-size: 21px;
+}
+
+#token-list button {
+  font-weight: bold;
+  text-transform: uppercase;
+  width: 170px;
+  margin-top: 10px;
+  font-size: 14px;
+  position: absolute;
+  bottom: 35px;
+}
+
+#token-list button span {
+  color: #ffffff !important;
+  font-size: 18px;
+  margin-right: 10px;
+  xposition: relative;
+  xtop: 4px;
+}
+
+#token-list .buy-token span {
+  transition: all .15s linear;
+}
+
+#token-list .status-for-sale {
+  background-color: #43ABDC;
+  color: #ffffff;
+}
+
+#token-list .status-for-sale:hover {
+  background-color: #ffffff;
+  color: #43ABDC;
+}
+
+#token-list .status-for-sale:hover span {
+  color: #43ABDC !important;
+}
+
+#token-list .status-not-for-sale {
+  padding-left: 0;
+  padding-right: 0;
+  background-color: #bbbbbb;
+  color: #ffffff;
+  cursor: default;
+}
+
+#token-list .status-not-for-sale-by-this-owner {
+  padding-left: 0;
+  padding-right: 0;
+  background-color: #bbbbbb;
+  color: #ffffff;
+  cursor: default;
+}
+
+#token-list .status-for-sale-by-this-owner {
+  background-color: #6aaa64;
+  color: #ffffff;
+  cursor: default;
+}
+
+#token-list .status-transacting {
+  background-color: #AC59C7;
+  color: #ffffff;
+  cursor: default;
+  padding-left: 50px;
+}
+
+#token-list .buy button { 
+  display: none;
+}
+
+#token-list .token.not-for-sale-by-this-owner .buy button.status-not-for-sale-by-this-owner,
+#token-list .token.transacting .buy button.status-transacting,
+#token-list .token.for-sale .buy button.status-for-sale,
+#token-list .token.not-for-sale .buy button.status-not-for-sale,
+#token-list .token.for-sale-by-this-owner .buy button.status-for-sale-by-this-owner { 
+  display: inline-flex;
+}
+
+#token-list .for-sale-status {
+  display: none;
+}
+
+#token-list.is-not-marketplace .for-sale-status {
+  display: block;
+}
+
+#token-list .buy {
+  display: none;
+}
+
+#token-list.is-marketplace .buy {
+  display: block;
+}
+
+#no-tokens a {
+  font-weight: bold;
+  text-decoration: none;
+  color: #43ABDC
+}
+
+#no-tokens img {
+  margin-bottom: 20px;
+}
+
+@keyframes anim-lightspeed-in {
+  0% {
+    opacity: 1;
   }
 
-  #token-list.is-not-marketplace .for-sale-status {
-    display: block;
+  100% {
+    opacity: 1;
   }
+}
 
-  #token-list .buy {
-    display: none;
-  }
+#price-chooser .buttons {
+  text-align: center;
+}
 
-  #token-list.is-marketplace .buy {
-    display: block;
-  }
+#price-chooser button {
+  margin: 10px;
+}
 
-  #no-tokens a {
-    font-weight: bold;
-    text-decoration: none;
-    color: #43ABDC
-  }
+#price-chooser #offer-for-sale.material-button {
+  background-color: #43ABDC;
+  color: #ffffff;
+}
 
-  #no-tokens img {
-    margin-bottom: 20px;
-  }
+#price-chooser .price {
+  color: #555555;
+  text-align: center;
+  font-size: 60px;
+  width: 230px;
+  margin: 24px 0 40px 0;
+  font-weight: bold;
+  border-radius: 5px;
+  border: solid 1px #999999 !important;
+  outline: none;
+  padding: 10px 10px 10px 10px;
+  -webkit-appearance: none;
+}
 
-  @keyframes anim-lightspeed-in {
-    0% {
-      opacity: 1;
-    }
-  
-    100% {
-      opacity: 1;
-    }
-  }
-  
-  #price-chooser .buttons {
-    text-align: center;
-  }
-  
-  #price-chooser button {
-    margin: 10px;
-  }
-  
-  #price-chooser #offer-for-sale.material-button {
-    background-color: #43ABDC;
-    color: #ffffff;
-  }
+#price-chooser.too-high .price,
+#price-chooser.too-low .price {
+  color: #aa0000;
+  background-color: #ffeeee;
+  border-color: #aa0000 !important;
+}
 
-  #price-chooser .price {
-    color: #555555;
-    text-align: center;
-    font-size: 60px;
-    width: 230px;
-    margin:  24px 0 40px 0;
-    font-weight: bold;
-    border-radius: 5px;
-    border: solid 1px #999999 !important;
-    outline: none;
-    padding: 10px 10px 10px 10px;
-    -webkit-appearance: none;
-  }
+#price-chooser.too-low .minimum-value {
+  color: #aa0000;
+  font-weight: bold;
+}
 
-  #price-chooser.too-high .price,
-  #price-chooser.too-low .price {
-    color: #aa0000;
-    background-color: #ffeeee;
-    border-color: #aa0000 !important;
-  }
-  
-  #price-chooser.too-low .minimum-value {
-    color: #aa0000;
-    font-weight: bold;
-  }
+#price-chooser .too-many-decimals-alert {
+  display: none;
+}
 
-  #price-chooser .too-many-decimals-alert {
-    display: none;
-  }
+#price-chooser.too-many-decimals .too-many-decimals-alert {
+  display: block;
+  color: #aa0000;
+  font-weight: bold;
+}
 
-  #price-chooser.too-many-decimals .too-many-decimals-alert {
-    display: block;
-    color: #aa0000;
-    font-weight: bold;
-  }
-
-  #price-chooser strong {
-    color: #43ABDC;
-  }
+#price-chooser strong {
+  color: #43ABDC;
+}

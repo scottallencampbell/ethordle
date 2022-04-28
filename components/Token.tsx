@@ -17,26 +17,41 @@ export const Token = ({ token, index }: IToken) => {
    const [newPrice, setNewPrice] = useState(token.price);
    const [isForSale, setIsForSale] = useState(token.isForSale);
    const [isPriceChooserOpen, setIsPriceChooserOpen] = useState(false);   
+   const [status, setStatus] = useState('');
 
-   const handleToggle = async () => {
+   const handleToggle = async () => {        
       if (!token.isForSale) {
          setNewPrice(token.price);
          setIsPriceChooserOpen(true);
       } else {
-         await preventTokenSale(token.id);         
+         await preventTokenSale(token.id);  
+         setStatus('transacting');   
          setIsForSale(false);             
       }
    }
 
-   const handleTokenSetForSale = async () => {
+   const handleSetTokenForSale = async () => {
+      setIsPriceChooserOpen(false);
       await allowTokenSale(token.id, newPrice);
+      setStatus('transacting');
       setIsForSale(true);
    }
 
+   const handleBuyToken = async () => {
+      await buyToken(token.id, token.price);
+      setStatus('transacting');      
+   }
+   
+   useEffect(() => {
+
+      setStatus(`${token.isForSale ? 'for-sale' : 'not-for-sale'}${token.owner == account ? '-by-this-owner' : ''}`);
+
+   }, [account, token]);
+
    return (
-      <div className={`token ${token.imageUrl == '' ? 'no-metadata' : ''}`} key={`token-${index}`}>
+      <div className={`token ${token.imageUrl == '' ? 'no-metadata' : ''} ${status}`} key={`token-${index}`}>
          {(token.owner == account && !token.isForSale) ? 
-         <PriceChooser token={token} newPrice={newPrice} setNewPrice={setNewPrice} isPriceChooserOpen={isPriceChooserOpen} setIsPriceChooserOpen={setIsPriceChooserOpen} handleTokenSetForSale={handleTokenSetForSale} solution={token.solution}></PriceChooser>                
+         <PriceChooser token={token} newPrice={newPrice} setNewPrice={setNewPrice} isPriceChooserOpen={isPriceChooserOpen} setIsPriceChooserOpen={setIsPriceChooserOpen} handleSetTokenForSale={handleSetTokenForSale} solution={token.solution}></PriceChooser>                
          : <></>
          }
          <img src={token.imageUrl == '' ? '/metadata-not-available.png' : token.imageUrl} key={`token-image-${index}`}></img>
@@ -86,18 +101,13 @@ export const Token = ({ token, index }: IToken) => {
                   :
                   <></>
                   }
-               </div>
-               <div className='buy'>
-                  {(token.owner != account) ?
-                     token.isForSale ? 
-                        <button id='buy-token' className='material-button' role='button' onClick={() => buyToken(token.id, token.price)}><span className='material-icons md-18'>&#xe854;</span>Purchase</button>
-                        :
-                        <button id='not-for-sale-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for Sale</button>                                             
-                     : token.isForSale ?                                           
-                        <button id='for-sale-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>For sale</button>
-                     :
-                        <button id='owned-token' className='material-button' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for sale</button>
-                  }
+               </div>            
+               <div className='buy'>            
+                  <button className='material-button status-transacting pinwheel' disabled role='button'><span></span>Working...</button>
+                  <button className='material-button status-for-sale-by-this-owner' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>For sale</button>
+                  <button className='material-button status-not-for-sale-by-this-owner' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for sale</button>
+                  <button className='material-button status-for-sale' role='button' onClick={handleBuyToken}><span className='material-icons md-18'>&#xe854;</span>Purchase</button>
+                  <button className='material-button status-not-for-sale' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for Sale</button>                
                </div>
             </div>
          </div>.

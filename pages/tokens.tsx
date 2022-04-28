@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
+import { fulfillWithTimeLimit } from '../services/async';
 import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
@@ -22,7 +23,8 @@ const Tokens = () => {
 
    useEffect(() => {
       (async () => {   
-         await connectToBlockchain();  
+         if (isBlockchainConnected) { return; }         
+         const isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);         
         })();
    }, []);
 
@@ -41,7 +43,7 @@ const Tokens = () => {
          }
 
         })();
-   }, [isBlockchainConnected]);
+   }, [isBlockchainConnected, tokens]);
 
    useEffect(() => {
       (async () => {   

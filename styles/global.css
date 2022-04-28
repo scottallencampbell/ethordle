@@ -599,7 +599,7 @@ body {
   text-align: center;
   font-weight: bold;
   font-size: 20px;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 30px;
   text-transform: uppercase;
 }
@@ -609,6 +609,8 @@ body {
   background: rgb(255, 255, 255);
   width: 50%;
   padding: 5px;
+  border-radius: 15px;
+  box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
 }
 
 .popup-overlay {
@@ -637,6 +639,8 @@ body {
   background-color: #aaa;
   height: 1px;
   border: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .modal .close {
@@ -850,4 +854,41 @@ body {
   width: 25px;
   height: auto;
   margin-left: 15px;
+}
+
+.pinwheel {
+  display: inline-block;
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+
+.pinwheel:after {
+  content: " ";
+  display: block;
+  border-radius: 50%;
+  width: 0;
+  height: 0;
+  margin: 8px;
+  box-sizing: border-box;
+  border: 8px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: pinwheel 1.2s infinite;
+  position: absolute;
+  left: 17px;
+  top: 8px;
+}
+
+@keyframes pinwheel {
+  0% {
+    transform: rotate(0);
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  50% {
+    transform: rotate(900deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  100% {
+    transform: rotate(1800deg);
+  }
 }

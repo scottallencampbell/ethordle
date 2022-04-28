@@ -29,7 +29,7 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
                token.classList.add('no-image');
             }
          });
-      }, 2000);
+      }, 5000);
    }, []);
 
    return (    

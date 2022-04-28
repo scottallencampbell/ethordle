@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import Head from 'next/head';
+import { fulfillWithTimeLimit } from '../services/async';
 import { useCrypto } from '../context/useCrypto';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
@@ -79,12 +80,9 @@ const Index = () => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
-         if (isBlockchainConnected) {
-            return;
-         }
-
-         const isConnected = await connectToBlockchain();  
-
+         if (isBlockchainConnected) { return; }         
+         const isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
+         
          if (isConnected) {
             setGameMode(Entities.GameMode.Blockchain);              
          } else {

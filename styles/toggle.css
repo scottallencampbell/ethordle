@@ -75,3 +75,37 @@
 .toggle-label.is-on p:nth-child(2) {
   opacity: 0;
 }
+
+.toggle-label strong {  
+  display: none !important;
+}
+
+.toggle-label .pinwheel {
+  display: none;
+}
+
+.transacting .toggle-label {
+  background-color: #AC59C7;
+}
+
+.transacting .toggle-label p,
+.transacting .toggle-label span.toggle-button {
+  display: none;
+} 
+
+.transacting .toggle-label .pinwheel {
+  display: inline-block;
+  top: -8px;
+}
+
+.transacting .toggle-label strong {
+  display: block !important;
+  color: #ffffff;
+  position: absolute;
+  font-weight: bold;
+  font-size: 14px !important;
+  display: block;
+  left: 55px;
+  top: 15px;
+  text-transform: uppercase;;
+}

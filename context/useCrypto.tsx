@@ -11,6 +11,7 @@ import * as Entities from '../model/entities';
 interface ContextInterface {
    isBlockchainConnected: boolean,
    initialTokenPrice: number,
+   priceEscalationRate: number,
    royaltyRate: number,
    gameMode: Entities.GameMode,
    setGameMode: Dispatch<SetStateAction<Entities.GameMode>>,
@@ -38,15 +39,16 @@ export function CryptoProvider({ children }) {
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
    const [isBlockchainConnected, setIsBlockchainConnected] = useState(false); 
    const [initialTokenPrice, setInitialTokenPrice] = useState(0);
+   const [priceEscalationRate, setPriceEscalationRate] = useState(0);
    const [royaltyRate, setRoyaltyRate] = useState(0);
    
    useEffect(() => {
-      (async () => {         
+      (async () => {                 
          if (contract != null && account != '') {
             await getTokens();
          }
       })();
-   }, [account]);
+   }, [account, contract]);
    
    const connectToBlockchain = async (): Promise<boolean> => {
       if (!await loadWeb3()) {
@@ -102,10 +104,12 @@ export function CryptoProvider({ children }) {
          
          const initialTokenPrice_ = Number(Web3.utils.fromWei(await contract.methods.initialPrice().call(), 'ether'));
          const royaltyRate_ = ((await contract.methods.royaltyRate().call()) / 100);
+         const priceEscalationRate_ = ((await contract.methods.priceEscalationRate().call()) / 100);
             
          setContract(contract);
          setInitialTokenPrice(initialTokenPrice_);
          setRoyaltyRate(royaltyRate_);
+         setPriceEscalationRate(priceEscalationRate_);
 
          return true;
       } else {
@@ -183,19 +187,22 @@ export function CryptoProvider({ children }) {
       getTokens();       
    }
    
-   const preventTokenSale = async (id: number) => {   
+   const preventTokenSale = async (id: number) => { 
+      console.log('starting');  
       await contract.methods.preventSale(account, id).send({ from: account });  
-      getTokens();      
+      console.log('ending');
+      getTokens();    
+      console.log('and got tokens');  
    }
 
    return (
-      <CryptoContext.Provider value={{ isBlockchainConnected, initialTokenPrice, royaltyRate, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ isBlockchainConnected, initialTokenPrice, priceEscalationRate, royaltyRate, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens }}>{children}</CryptoContext.Provider>
    )
 }
 
 export const useCrypto = (): ContextInterface => {
    const { isBlockchainConnected } = useContext(CryptoContext);
-   const { initialTokenPrice, royaltyRate } = useContext(CryptoContext);
+   const { initialTokenPrice, priceEscalationRate, royaltyRate } = useContext(CryptoContext);
    const { gameMode, setGameMode } = useContext(CryptoContext);
    const { account, setAccount } = useContext(CryptoContext);
    const { contract, setContract } = useContext(CryptoContext);
@@ -204,6 +211,6 @@ export const useCrypto = (): ContextInterface => {
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
    
-   return { isBlockchainConnected, initialTokenPrice, royaltyRate, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens };
+   return { isBlockchainConnected, initialTokenPrice, priceEscalationRate, royaltyRate, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens };
 }
 
