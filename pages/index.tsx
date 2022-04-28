@@ -75,7 +75,6 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {   
-         console.log('Use effect: []');
          setTimeout(() => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
@@ -93,7 +92,9 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         console.log('Use effect: [isBlockchainConnected]: ' + isBlockchainConnected);            
+         if (isBlockchainConnected) {
+            setIsGameModePopupOpen(false);
+         }
       })();
    }, [isBlockchainConnected]);
 
@@ -111,8 +112,12 @@ const Index = () => {
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);   
          
+         console.log('Keyboard: ');
          console.log(keyboard);
+         console.log('Grid: ');
          console.log(grid);
+         console.log('Solution: ');
+         console.log(uniqueSolution);
          
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {

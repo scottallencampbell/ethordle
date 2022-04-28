@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StaticGridRow } from './GridRow';
+import { StaticGridRow } from './StaticGridRow';
 
 interface ITitle {
    title: string
@@ -14,7 +14,7 @@ export const Title = ({ title } : ITitle) => {
 
    return (
    <div id='title' className='title'>
-      <StaticGridRow word={title} statusMap={'XXXXXXXXXXX'} i={0}></StaticGridRow>
+      <StaticGridRow word={title} statusMap={'XXXXXXXXXXX'}></StaticGridRow>   
    </div>
    )
 }

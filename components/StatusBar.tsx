@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import * as Entities from '../model/entities';
 import { useCrypto } from '../context/useCrypto';
-import { GridTile } from './GridTile';
 import Link from 'next/link';
 import { Introduction } from './Introduction';
+import { StaticGridRow } from './StaticGridRow';
 
 interface IStatusBar {  
 }
@@ -29,7 +28,9 @@ export const StatusBar = ({} : IStatusBar) => {
       { isBlockchainConnected ? 
       <>
          <div className='top-bar'>         
-            <div id='logo'><GridTile key='logo' tile={{ value: 'E', tileIndex: 0, rowIndex: -1, status: Entities.TileStatus.Correct }}></GridTile></div>
+            <div id='logo'>
+               <StaticGridRow word='E' statusMap='X'></StaticGridRow>               
+            </div>
             <div className='menu-items'>   
                { !window.location.href.endsWith('/') ? <Link href='/'>New game</Link> : <a onClick={() => window.location.href='/'}>New game</a> }
                <Link href='/tokens'>My tokens</Link>        

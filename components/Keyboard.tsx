@@ -24,10 +24,10 @@ export const Keyboard = ({ keyboard, handleKeyDown } : IKeyboard) => {
 
    return (
       <div className='keyboard hidden-on-load'> {
-         keyboard.map((row) => (
-            <div className='keyboard-row' key={row[0].rowIndex}> {
-               row.map((key) => (
-                  <div className={`keyboard-letter ${key.status} ${key.sequence == null ? '' : `sequence${key.sequence}`}`} key={`${row[0].rowIndex}-${key.keyIndex}`} onClick={() => handleClick(key.value)}>{key.value}</div>
+         keyboard.map((row, i) => (
+            <div className='keyboard-row' key={`keyboard-${i}`}> {
+               row.map((key, j) => (
+                  <div className={`keyboard-letter ${key.status} ${key.sequence == null ? '' : `sequence${key.sequence}`}`} key={`keyboard-${i}-${j}`} onClick={() => handleClick(key.value)}>{key.value}</div>
                ))
             }
             </div>

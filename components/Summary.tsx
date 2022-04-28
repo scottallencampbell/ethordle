@@ -1,7 +1,7 @@
 import * as Entities from '../model/entities';
 
 import Popup from 'reactjs-popup';
-import { StaticGridRow } from './GridRow';
+import { StaticGridRow } from './StaticGridRow';
 
 interface ISummary {
    isSummaryPopupOpen: boolean,
@@ -19,7 +19,7 @@ export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen 
                <div className='content'>
                   <p className='header'>Solution</p>
                   <div className='summary-row'>
-                  <StaticGridRow word={statistics.solution} statusMap={'X'.repeat(statistics.solution.length)} i={0}></StaticGridRow>      
+                  <StaticGridRow word={statistics.solution} statusMap={'X'.repeat(statistics.solution.length)}></StaticGridRow>      
                   </div>            
                   <p className='header'>Statistics</p>
                   <div className='statistics'>

@@ -119,30 +119,6 @@ input[type=number] {
   overflow-y: scroll;
 }
 
-.title {
-  font-weight: bold;
-  font-size: 45px;
-  margin: 30px auto 20px;
-}
-
-.title span {
-  width: 20px;
-  display: inline-block;
-}
-
-.title .row {}
-
-.title .face {
-  font-size: 60px !important;
-  xborder: none !important;
-}
-
-@media (max-width: 700px) {
-  .title {
-    margin-bottom: 30px;
-  }
-}
-
 .hidden-on-load {
   opacity: 0;
   transition: opacity .3s linear;
@@ -163,25 +139,39 @@ input[type=number] {
   margin: 0 auto;
 }
 
-.row.example {
+.examples > div {
   zoom: 70%;
   -moz-transform: scale(.7);
   width: 100%;
+  margin: 0 auto;
 }
 
-.row.example .tile-container {
+.examples .tile-container {
   display: inline-block;
   min-width: 64px;
 }
 
-.row.summary-row {
+.summary-row {
   margin: 0 auto;
+  zoom: 50%;
+  -moz-transform: scale(.5);
+  width: 100%;
+  text-align: center;
+  padding-bottom: 40px;
 }
 
+.summary-row .tile-container {
+  display: inline-block;
+}
 
-.row.example .tile.correct .face.front,
-.row.example .tile.incorrect .face.front,
-.row.example .tile.incorrect-position .face.front {
+.summary-row .face {
+  position: relative;
+  padding-top: 4px;
+}
+
+.examples .row .tile.correct .face.front,
+.examples .row .tile.incorrect .face.front,
+.examples .row .tile.incorrect-position .face.front {
   border: solid 1px #000000;
 }
 
@@ -220,10 +210,6 @@ input[type=number] {
   z-index: 1;
   perspective: 1000;
   display: inline-block;
-}
-
-.row.example .tile {
-  line-height: 70px;
 }
 
 .tile.entered {
@@ -360,7 +346,6 @@ input[type=number] {
   transition-delay: 2.9s;
 }
 
-
 .flippable.title .tile.sequence1 .inner {
   transition-delay: .1s;
 }
@@ -476,22 +461,45 @@ input[type=number] {
   color: #ffffff;
 }
 
-.title .tile .face {
-  background-color: #ffffff !important;
-  border: none !important;
-  color: #ffffff !important;
-}
 
 .flippable.title .tile.correct .back {
   color: #000000 !important;
 }
 
+.title {
+  font-weight: bold;
+  font-size: 45px;
+}
+
+.title span {
+  width: 20px;
+  display: inline-block;
+}
+
+@media (max-width: 700px) {
+  .title {
+    margin-bottom: 30px;
+  }
+}
+
+.title .tile .face {
+  background-color: #ffffff !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 40px;
+}
+
 .title .tile-container {
-  width: 58px;
+  width: 48px;
+  min-width: 48px;
+}
+
+.title > div {
+  display: inline-block;
 }
 
 .title .tile {
-  width: 50px;
+  width: 45px;
 }
 
 .tile.error .front {
@@ -606,11 +614,8 @@ body {
 
 .popup-content {
   margin: auto;
-  background: rgb(255, 255, 255);
   width: 50%;
   padding: 5px;
-  border-radius: 15px;
-  box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
 }
 
 .popup-overlay {
@@ -621,6 +626,11 @@ body {
   font-size: 15px;
   padding: 20px 30px 20px 30px;
   text-align: left;
+  border-radius: 15px; 
+  -webkit-box-shadow: 0px 0px 15px 2px rgba(0,0,0,0.5); 
+  box-shadow: 0px 0px 15px 2px rgba(0,0,0,0.5);
+  background: rgb(255, 255, 255);
+  
 }
 
 .modal .header {

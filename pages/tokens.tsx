@@ -62,7 +62,7 @@ const Tokens = () => {
          </Head>
          <StatusBar></StatusBar>
          { tokensToRender != null ?
-         <TokenList isMarketplace={false} title='My tokens' account={account} tokens={tokensToRender}></TokenList>           
+         <TokenList isMarketplace={false} title='My&nbsp;tokens' account={account} tokens={tokensToRender}></TokenList>           
          : <></>
          }
       </>
