@@ -99,6 +99,16 @@ const Index = () => {
    }, [isBlockchainConnected]);
 
    useEffect(() => {
+      console.log('Grid updated to:');
+      console.log(grid);
+   }, [grid]);
+
+   useEffect(() => {
+      console.log('Keyboard updated to:');
+      console.log(keyboard);
+   }, [keyboard]);
+
+   useEffect(() => {
       (async () => {
          
          if (gameMode == Entities.GameMode.Unknown) { 
@@ -110,14 +120,7 @@ const Index = () => {
          }
 
          let uniqueSolution = await chooseSolution();
-         setSolution(uniqueSolution);   
-         
-         console.log('Keyboard: ');
-         console.log(keyboard);
-         console.log('Grid: ');
-         console.log(grid);
-         console.log('Solution: ');
-         console.log(uniqueSolution);
+         setSolution(uniqueSolution);            
          
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
@@ -187,7 +190,6 @@ const Index = () => {
       thisTile.value = '';
 
       for (const [i, tile] of newGrid[currentRowIndex].entries()) {
-
          if (i >= currentTileIndex - 1) {
             tile.status = Entities.TileStatus.None;
          }
@@ -338,6 +340,18 @@ const Index = () => {
          <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>
          <Summary statistics={statistics} isSummaryPopupOpen={isSummaryPopupOpen} setIsSummaryPopupOpen={setIsSummaryPopupOpen}></Summary>
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
+         
+         <br></br>
+         <div>Solution: {solution}</div>
+         <br></br>
+         { grid.map((row, i) => 
+            <div>Grid[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>     
+         )}
+         <br></br>
+         { keyboard.map((row, i) => 
+            <div>Keyboard[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>     
+         )}      
+         <br></br>  
       </>
    )
 }
