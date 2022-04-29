@@ -134,7 +134,18 @@ export function CryptoProvider({ children }) {
        );
     
       for (const [i, token] of contractTokens.entries()) {         
-         let newToken = new Entities.Token({ id: token[0], owner: token[1], price: Number(Web3.utils.fromWei(token[2], 'ether')), url: token[3], solution: token[4], isForSale: token[5], lastTransactionTimestamp: new Date(token[6] * 1000).toISOString().slice(0, 19).replace('T', ' '), transactionCount: token[7] });
+         let newToken = new Entities.Token({ 
+            id: token[0], 
+            owner: token[1], 
+            price: Number(Web3.utils.fromWei(token[2], 'ether')), 
+            lastPrice: Number(Web3.utils.fromWei(token[3], 'ether')), 
+            url: token[4], 
+            solution: token[5], 
+            isForSale: token[6], 
+            lastTransactionTimestamp: new Date(token[7] * 1000).toISOString().slice(0, 19).replace('T', ' '), 
+            transactionCount: token[8] });
+            
+         console.log(newToken);
          const metadataFile = metadataFiles[i];
       
          if (!metadataFile.imageUrl || metadataFile.imageUrl == '') {         
@@ -144,9 +155,9 @@ export function CryptoProvider({ children }) {
             newToken.secondsRequired = 0; 
             console.log('Unable to load metadata from ' + token.url);
          } else {        
-            newToken.imageUrl = metadataFile.imageUrl;
-            newToken.guesses = metadataFile.guesses;
-            newToken.secondsRequired = metadataFile.secondsRequired; 
+            newToken.imageUrl = metadataFile.image;
+            newToken.guesses = metadataFile.attributes.guesses;
+            newToken.secondsRequired = metadataFile.attributes.secondsRequired; 
          }
 
          newTokens.push(newToken);  
@@ -162,10 +173,13 @@ export function CryptoProvider({ children }) {
       const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);  
      
       const metadata: any = {
-         solution: solution,
-         imageUrl: imageUrl,
-         secondsRequired: secondsRequired,
-         guesses: guessResults
+         name: solution,
+         description: 'Ethordle NFT - ' + solution,
+         image: imageUrl,
+         attributes: {
+            secondsRequired: secondsRequired,
+            guesses: guessResults
+         }
       };
 
       const metadataUrl = await pinJsonToIpfs(metadata);

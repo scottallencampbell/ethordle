@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { fulfillWithTimeLimit } from '../services/async';
 import { useCrypto } from '../context/useCrypto';
 import { words } from '../data/words';
@@ -51,43 +52,55 @@ const introShownCookieName = 'intro-shown6';
 const startingTime = new Date().getTime();
 
 const Index = () => {
-   const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
+   const router = useRouter();
+
+   const { isBlockchainConnected, connectToBlockchain } = useCrypto();
    const { contract } = useCrypto();
    const { gameMode, setGameMode } = useCrypto();
    const { mintToken } = useCrypto();
-   
+
    const [grid, setGrid] = useState(startingGrid);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
    const [solution, setSolution] = useState('');
-   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' }); 
+   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
    const [guessResults, setGuessResults] = useState([]);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
    const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(false);
-   
+
+   useEffect(() => {
+      (async () => {
+
+         if (contract == null) { return; }
+         console.log('Solution does not exist?');
+         let uniqueSolution = await chooseSolution();
+         setSolution(uniqueSolution);
+      })();
+   }, [router]);
+
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
       return () => { document.removeEventListener('keydown', handleKeyDown); }
    });
 
    useEffect(() => {
-      (async () => {   
+      (async () => {
          setTimeout(() => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
-         if (isBlockchainConnected) { return; }         
+         if (isBlockchainConnected) { return; }
          const isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
-         
+
          if (isConnected) {
-            setGameMode(Entities.GameMode.Blockchain);              
+            setGameMode(Entities.GameMode.Blockchain);
          } else {
             setIsGameModePopupOpen(true);
-         }  
-        })();
+         }
+      })();
    }, []);
 
    useEffect(() => {
@@ -110,9 +123,9 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         
-         if (gameMode == Entities.GameMode.Unknown) { 
-            return; 
+
+         if (gameMode == Entities.GameMode.Unknown) {
+            return;
          }
 
          if (solution != '') {
@@ -120,14 +133,14 @@ const Index = () => {
          }
 
          let uniqueSolution = await chooseSolution();
-         setSolution(uniqueSolution);            
-         
+         setSolution(uniqueSolution);
+
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
                Cookies.set(introShownCookieName, 'true', { expires: 7 })
                setIsIntroductionPopupOpen(true);
             }, 100);
-         }      
+         }
       })();
    }, [gameMode]);
 
@@ -258,7 +271,7 @@ const Index = () => {
 
          if (guess == solution) {
             await showSummary(Entities.GameStatus.Won);
-           
+
             if (gameMode == Entities.GameMode.Blockchain) {
                await mintToken(solution, newGuessResults, secondsRequired);
             }
@@ -302,14 +315,14 @@ const Index = () => {
       Cookies.set(statisticsCookieName, JSON.stringify(newStatistics), { expires: 365 });
       setStatistics(newStatistics);
       setGameStatus(newGameStatus);
-      
+
       setTimeout(() => {
          setIsSummaryPopupOpen(true);
       }, 1500);
 
       setTimeout(() => {
          document.getElementById('summary').classList.add('flippable');
-         document.getElementById('distribution').classList.remove('closed');         
+         document.getElementById('distribution').classList.remove('closed');
       }, 1800);
    }
 
@@ -331,7 +344,7 @@ const Index = () => {
             <title>{configSettings.appName}</title>
             <link rel='icon' href='/favicon.ico'></link>
          </Head>
-         <StatusBar></StatusBar>      
+         <StatusBar></StatusBar>
          <div className='main'>
             <Title title={configSettings.appName}></Title>
             <Grid grid={grid}></Grid>
@@ -340,18 +353,18 @@ const Index = () => {
          <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>
          <Summary statistics={statistics} isSummaryPopupOpen={isSummaryPopupOpen} setIsSummaryPopupOpen={setIsSummaryPopupOpen}></Summary>
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
-         
+
          <br></br>
          <div>Solution: {solution}</div>
          <br></br>
-         { grid.map((row, i) => 
-            <div>Grid[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>     
+         {grid.map((row, i) =>
+            <div>Grid[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>
          )}
          <br></br>
-         { keyboard.map((row, i) => 
-            <div>Keyboard[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>     
-         )}      
-         <br></br>  
+         {keyboard.map((row, i) =>
+            <div>Keyboard[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>
+         )}
+         <br></br>
       </>
    )
 }

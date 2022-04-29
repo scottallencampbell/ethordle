@@ -30,7 +30,7 @@
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
   width: 400px;
-  height: 590px;
+  height: 610px;
   background: no-repeat;
   background-size: contain;
   display: inline-block;
@@ -282,6 +282,24 @@
 
 #token-list .token .price.price-length-10 {
   font-size: 21px;
+}
+
+#token-list .token .last-transaction strong:nth-child(2) {
+  margin-bottom: 5px !important;
+}
+
+#token-list .token .last-transaction strong:nth-child(3) {
+  margin-bottom: 15px !important;
+}
+
+
+#token-list .token .last-transaction img {
+  height: 24px;
+  width: auto;
+  float: left;
+  position: relative;
+  top: 0px;
+  margin-right: 8px;
 }
 
 #token-list button {

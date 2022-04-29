@@ -16,14 +16,18 @@ interface IStaticGridRow {
     return (
        <div key={word}> {
             [...word].map((letter, i) => (
-            <div className='tile-container' key={`title-${i}`} >
-                <div className={`tile sequence${i} ${statusCodes.get(statusMap[i])}`}>
-                    <div className='inner'>
-                        <div className='front face'>{letter}</div>
-                        <div className='back face'>{letter}</div>
+            letter != ' ' ?
+                <div className='tile-container' key={`title-${i}`} >
+                    <div className={`tile sequence${i} ${statusCodes.get(statusMap[i])}`}>
+                        <div className='inner'>
+                            <div className='front face'>{letter}</div>
+                            <div className='back face'>{letter}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+                : 
+                <div className='tile-container space' key={`title-${i}`} >                   
+                </div>
             ))
        }            
        </div>

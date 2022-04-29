@@ -94,7 +94,8 @@ export const Token = ({ token, index }: IToken) => {
                <div className='last-transaction'>
                   <p>Last transaction (UTC)</p>
                   <strong>{token.lastTransactionTimestamp}</strong>
-               </div>               
+                  <strong><img className='ethereum-icon' src='/ethereum-icon.png'></img> {token.lastPrice}</strong>
+               </div>                         
                <div className='for-sale-status'>
                   {(token.owner == account ) ?
                   <Toggle id={`toggle-${token.id}}`} isOn={token.isForSale} handleToggle={handleToggle} onText='For sale' offText='Not for sale' />

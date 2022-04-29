@@ -201,6 +201,11 @@ input[type=number] {
   vertical-align: middle;
 }
 
+.tile-container.space {
+  width: 30px !important;
+  min-width: 30px !important;
+}
+
 .tile {
   width: 70px;
   height: 70px;
@@ -401,7 +406,6 @@ input[type=number] {
 .flippable.title .tile.sequence14 .inner {
   transition-delay: 1.4s;
 }
-
 
 #summary.flippable .tile .inner {
   transition-delay: .1s !important;

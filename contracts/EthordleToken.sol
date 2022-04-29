@@ -11,6 +11,7 @@ using Strings for uint256;
         uint256 id;        
         address owner;
         uint256 price;
+        uint256 lastPrice;
         string url;
         string solution;
         bool isForSale;
@@ -161,7 +162,7 @@ using Strings for uint256;
 
         uint256 newPrice =_getEscalatedPrice(msg.value);
 
-        Token memory token = Token(_currentTokenId, to, newPrice, tokenURI_, solution_, false, block.timestamp, 1);
+        Token memory token = Token(_currentTokenId, to, newPrice, _initialPrice, tokenURI_, solution_, false, block.timestamp, 1);
        
         _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
@@ -185,8 +186,10 @@ using Strings for uint256;
         require(!token.isForSale, 'Token is already marked for sale');
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
         
+        uint256 divisor = 10**15;
+    
         token.isForSale = true;
-        token.price = price;
+        token.price =  (price / divisor) * divisor;  // todo need safe
 
         _tokens[tokenId] = token; 
 
@@ -241,6 +244,7 @@ using Strings for uint256;
         uint256 newPrice = _getEscalatedPrice(msg.value);
 
         token.owner = to;
+        token.lastPrice = token.price;
         token.price = newPrice;
         token.isForSale = false;
         token.lastTransactionTimestamp = block.timestamp;

@@ -15,7 +15,7 @@ export const StatusBar = ({} : IStatusBar) => {
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
 
    useEffect(() => {
-      if (account != '' && tokens) {
+      if (account != '' && tokens != null) {
          setTimeout(() => {
             document.getElementById('logo').classList.add('flippable');
          }, 1000);         

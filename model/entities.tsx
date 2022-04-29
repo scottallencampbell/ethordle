@@ -27,6 +27,7 @@ export class Token {
    public id: number;
    public owner: string;
    public price: number;
+   public lastPrice: number;
    public url: string;
    public solution: string;
    public isForSale: boolean;
