@@ -35,20 +35,20 @@ const statusToSymbolMap = new Map([
 
 const wordDictionary = Object.assign({}, ...words.map((x) => ({ [x]: x })));
 
-const startingKeyboard: Entities.KeyboardLetter[][] = letters.map((row, i) => {
-   return row.map((letter, j) => {
-      return { value: letter, status: Entities.TileStatus.None, rowIndex: i, keyIndex: j };
+const startingKeyboard: Entities.KeyboardLetter[][] = letters.map((row) => {
+   return row.map((letter) => {
+      return { value: letter, status: Entities.TileStatus.None };
    });
 });
 
-const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses)).map((row, i) => {
-   return Array.apply(null, Array(wordLength)).map((tile, j) => {
-      return { value: '', status: Entities.TileStatus.None, rowIndex: i, tileIndex: j };
+const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses)).map((row) => {
+   return Array.apply(null, Array(wordLength)).map((tile) => {
+      return { value: '', status: Entities.TileStatus.None };
    });
 })
 
 const statisticsCookieName = 'statistics';
-const introShownCookieName = 'intro-shown6';
+const introShownCookieName = 'intro-shown';
 const startingTime = new Date().getTime();
 
 const Index = () => {

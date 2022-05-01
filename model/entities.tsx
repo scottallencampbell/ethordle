@@ -1,15 +1,11 @@
 export type GridTile = {
    value: string,
-   status: TileStatus,
-   rowIndex: number,
-   tileIndex: number
+   status: TileStatus
 }
 
 export type KeyboardLetter = {
    value: string,
    status: TileStatus,
-   rowIndex: number,
-   keyIndex: number,
    sequence?: number
 }
 

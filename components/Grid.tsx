@@ -18,7 +18,7 @@ export const Grid = ({ grid } : IGrid) => {
             <div className='row' key={`grid-${i}`}> {
                row.map((tile, j) => (
                   <div className='tile-container' key={`grid-${i}-${j}`}>
-                     <div className={`tile sequence${tile.tileIndex} ${tile.status}`}>
+                     <div className={`tile sequence${j} ${tile.status}`}>
                         <div className='inner'>
                            <div className='front face'>{tile.value}</div>
                            <div className='back face'>{tile.value}</div>
