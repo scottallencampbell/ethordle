@@ -38,7 +38,7 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
          { tokens.length == 0 && !isMarketplace ?        
             <div id='no-tokens' className='vertically-centered hidden-on-load'>
                <img src='./crying-emoji.png'></img>
-               <p>We're sorry, this account currently owns no tokens.</p>
+               <p>We&apos;re sorry, this account currently owns no tokens.</p>
                <p>Why not play a <Link href='/'>new game</Link> in order to mint a token?</p>
             </div> 
             :

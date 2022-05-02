@@ -342,18 +342,6 @@ const Index = () => {
          <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>
          <Summary statistics={statistics} isSummaryPopupOpen={isSummaryPopupOpen} setIsSummaryPopupOpen={setIsSummaryPopupOpen}></Summary>
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
-
-         <br></br>
-         <div>Solution: {solution}</div>
-         <br></br>
-         {grid.map((row, i) =>
-            <div>Grid[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>
-         )}
-         <br></br>
-         {keyboard.map((row, i) =>
-            <div>Keyboard[{i}]: {JSON.stringify(row.map((item) => item.status.replace('none', '')))}</div>
-         )}
-         <br></br>
       </>
    )
 }
