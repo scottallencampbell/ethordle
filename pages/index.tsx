@@ -73,9 +73,7 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-
          if (contract == null) { return; }
-         console.log('Solution does not exist?');
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
       })();
@@ -100,6 +98,8 @@ const Index = () => {
          } else {
             setIsGameModePopupOpen(true);
          }
+
+         setKeyboard(() => letters.map((row) => { return row.map((letter) => { return { value: letter, status: Entities.TileStatus.None }; }); }));
       })();
    }, []);
 
@@ -110,16 +110,6 @@ const Index = () => {
          }
       })();
    }, [isBlockchainConnected]);
-
-   useEffect(() => {
-      console.log('Grid updated to:');
-      console.log(grid);
-   }, [grid]);
-
-   useEffect(() => {
-      console.log('Keyboard updated to:');
-      console.log(keyboard);
-   }, [keyboard]);
 
    useEffect(() => {
       (async () => {
@@ -168,8 +158,7 @@ const Index = () => {
 
       for (let i = 0; i < maxAttempts; i++) {
          let solution = solutions[Math.floor(Math.random() * solutions.length)];
-         console.log(`${i}: ${solution}`);
-
+         
          if (gameMode == Entities.GameMode.Disconnected) {
             return solution;
          } else {

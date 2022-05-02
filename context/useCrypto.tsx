@@ -145,7 +145,6 @@ export function CryptoProvider({ children }) {
             lastTransactionTimestamp: new Date(token[7] * 1000).toISOString().slice(0, 19).replace('T', ' '), 
             transactionCount: token[8] });
             
-         console.log(newToken);
          const metadataFile = metadataFiles[i];
       
          if (!metadataFile.imageUrl || metadataFile.imageUrl == '') {         
@@ -202,9 +201,9 @@ export function CryptoProvider({ children }) {
    }
    
    const preventTokenSale = async (id: number) => { 
-      console.log('starting');  
+      console.log('starting');  // todo
       await contract.methods.preventSale(account, id).send({ from: account });  
-      console.log('ending');
+      console.log('ending'); 
       getTokens();    
       console.log('and got tokens');  
    }

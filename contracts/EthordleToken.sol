@@ -2,11 +2,12 @@
 pragma solidity >=0.4.22 <0.9.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract EthordleToken is ERC721, Ownable {
-    
-using Strings for uint256;
-    
+    using Strings for uint256;
+    using SafeMath for uint256;
+
     struct Token {
         uint256 id;        
         address owner;
@@ -29,6 +30,8 @@ using Strings for uint256;
     uint256 private _priceEscalationRate;
     uint256 private _currentTokenId;
     string private _baseURIextended;
+
+    uint256 roundingDivisor = 10**15;
 
     event TokenMinted (
         string solution,
@@ -186,10 +189,8 @@ using Strings for uint256;
         require(!token.isForSale, 'Token is already marked for sale');
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
         
-        uint256 divisor = 10**15;
-    
+        token.price = price.div(roundingDivisor).mul(roundingDivisor); // round to nearest 1/1000 eth
         token.isForSale = true;
-        token.price =  (price / divisor) * divisor;  // todo need safe
 
         _tokens[tokenId] = token; 
 
@@ -254,14 +255,13 @@ using Strings for uint256;
     }
   
     function _getRoyalty(uint256 value) private view returns (uint256) {
-        return value * _royaltyRate / 10000 ;  // todo need safe multiply    
+        return value.mul(_royaltyRate).div(10000);
     }
 
     function _getEscalatedPrice(uint256 value) private view returns (uint256) {
-        uint256 divisor = 10**15;
-        uint256 newPrice = value * _priceEscalationRate / 10000 ;  // todo need safe multiply    
-        
-        return (newPrice / divisor) * divisor;  // round off new price to nearest 1E15
+        uint256 newPrice = value.mul(_priceEscalationRate).div(10000);
+
+        return newPrice.div(roundingDivisor).mul(roundingDivisor);  // round off new price to nearest 1/1000 eth
     }
   
     // todo how to prevent base _transfer from being called directly
