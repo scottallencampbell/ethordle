@@ -108,12 +108,14 @@ export function CryptoProvider({ children }) {
          const initialTokenPrice_ = Number(Web3.utils.fromWei(await contract.methods.initialPrice().call(), 'ether'));
          const royaltyRate_ = ((await contract.methods.royaltyRate().call()) / 100);
          const priceEscalationRate_ = ((await contract.methods.priceEscalationRate().call()) / 100);
-         
+         const owner_ = await contract.methods.owner().call();
+
          setContract(contract);
          setInitialTokenPrice(initialTokenPrice_);
          setRoyaltyRate(royaltyRate_);
          setPriceEscalationRate(priceEscalationRate_);
-         setIsContractOwner(accounts[0] === configSettings.ownerAccount);
+         setIsContractOwner(accounts[0] === owner_);
+         console.log(owner_);
          return true;
       } else {
          window.alert('Smart contract not deployed to a detected network.')
