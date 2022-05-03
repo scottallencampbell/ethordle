@@ -328,7 +328,6 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         );
     });
 
-
     it('rejects insufficient value sent', async function () {
         await expectRevert(
             this.contract.mint(winner, solution, tokenURI, { from: owner, value: initialPrice.sub(new BN('1000')) }), 
@@ -398,6 +397,65 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
         const newExpectedTransfereeBalance = new BN(transfereeBalance).sub(expectedPrice).sub(gas);
         expect(newTransfereeBalance.toString()).to.equal(newExpectedTransfereeBalance.toString());        
+    });
+
+    it('allows direct transfers by owner', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+       
+        const ownerBalance = await web3.eth.getBalance(owner);
+        const winnerBalance = await web3.eth.getBalance(winner);
+        const transfereeBalance = await web3.eth.getBalance(transferee);
+        
+        const token = await this.contract.tokenById(0);
+        const expectedPrice = initialPrice.mul(new BN('11000')).div(new BN('10000'));
+        expect(token.price.toString()).to.equal(expectedPrice.toString());
+        expect(token.lastPrice.toString()).to.equal(initialPrice.toString());  
+        expect(token.isForSale).to.equal(false);
+        expect(token.transactionCount.toString()).to.equal('1');
+        expect(token.owner).to.equal(winner);
+
+        const receipt = await this.contract.transfer(0, transferee, { from: owner });
+        const gas = await getTransactionCost(receipt);
+ 
+        const newToken = await this.contract.tokenById(0);
+        const newExpectedPrice = expectedPrice;
+        expect(newToken.price.toString()).to.equal(newExpectedPrice.toString());
+        expect(newToken.lastPrice.toString()).to.equal(initialPrice.toString());  
+        expect(newToken.isForSale).to.equal(false);
+        expect(newToken.transactionCount.toString()).to.equal('2');        
+        expect(newToken.owner).to.equal(transferee);
+
+        const newOwnerBalance = await web3.eth.getBalance(owner);
+        const newWinnerBalance = await web3.eth.getBalance(winner);
+        const newTransfereeBalance = await web3.eth.getBalance(transferee);
+        const expectedRoyalty = expectedPrice.mul(new BN('500')).div(new BN('10000'));
+        
+        const newExpectedOwnerBalance = new BN(ownerBalance).sub(gas);
+        expect(newOwnerBalance.toString()).to.equal(newExpectedOwnerBalance.toString());
+              
+        const newExpectedWinnerBalance = new BN(winnerBalance);
+        expect(newWinnerBalance.toString()).to.equal(newExpectedWinnerBalance.toString());
+
+        const newExpectedTransfereeBalance = new BN(transfereeBalance);
+        expect(newTransfereeBalance.toString()).to.equal(newExpectedTransfereeBalance.toString());        
+    });
+
+    it('rejects direct transfers by non-owner', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        
+        await expectRevert(
+            this.contract.transfer(0, transferee, { from: winner }),
+                'Ownable: caller is not the owner'
+        );        
+    });
+
+    it('rejects direct transfers to current owner', async function () {
+        await this.contract.mint(winner, solution, tokenURI, { from: winner, value: initialPrice });
+        
+        await expectRevert(
+            this.contract.transfer(0, winner, { from: owner }),
+                'Buyer already owns token'
+        );        
     });
 
     it('rounds high-precision values down during one-off transaction', async function () {
@@ -520,5 +578,4 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
                 'Token is already marked for sale'
         );    
     }); 
-
 });
