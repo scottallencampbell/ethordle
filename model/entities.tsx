@@ -30,7 +30,7 @@ export class Token {
    public lastTransactionTimestamp: string;
    public transactionCount: number;
    // loaded from metadata
-   public imageUrl: string;
+   public image: string;
    public guesses: string[];
    public secondsRequired: number;
 

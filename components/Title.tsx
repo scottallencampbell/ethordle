@@ -14,7 +14,7 @@ export const Title = ({ title } : ITitle) => {
 
    return (
    <div id='title' className='title'>
-      <StaticGridRow word={title} statusMap={'XXXXXXXXXXX'}></StaticGridRow>   
+      <StaticGridRow word={title} statusMap={'XXXXXXXXXXXXXXXXXXXXXX'}></StaticGridRow>   
    </div>
    )
 }

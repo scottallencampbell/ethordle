@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
 import { fulfillWithTimeLimit } from '../services/async';
 import { useCrypto } from '../context/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
 import configSettings from '../config.json';
+import Head from 'next/head';
+import { NoGasAvailable } from '../components/NoGasAvailable';
 
 const Marketplace = () => {
    const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
@@ -54,10 +55,9 @@ const Marketplace = () => {
    }, [tokens, isBlockchainConnected]);
 
    return (
-      <>
+      <>        
          <Head>
             <title>{configSettings.appName}</title>
-            <link rel='icon' href='/favicon.ico'></link>            
          </Head>
          <StatusBar></StatusBar>
          <TokenList isMarketplace={true} title='Marketplace' account={account} tokens={tokensToRender}></TokenList>         

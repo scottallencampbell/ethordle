@@ -13,6 +13,7 @@ import { Title } from '../components/Title';
 import { Summary } from '../components/Summary';
 import { ModeChooser } from '../components/ModeChooser';
 import { StatusBar } from '../components/StatusBar';
+import { NoGasAvailable } from '../components/NoGasAvailable';
 import getSomething from '../pages/api/load-nfts';  // todo
 
 import * as Entities from '../model/entities';
@@ -50,6 +51,7 @@ const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses))
 const statisticsCookieName = 'statistics';
 const introShownCookieName = 'intro-shown';
 const startingTime = new Date().getTime();
+let nullBoolean : boolean | null;
 
 const Index = () => {
    const router = useRouter();
@@ -67,13 +69,15 @@ const Index = () => {
    const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
    const [guessResults, setGuessResults] = useState([]);
-   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
-   const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
-   const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(false);
+   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(nullBoolean);
+   const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(nullBoolean);
+   const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(nullBoolean);
+   const [isNoGasAvailablePopupOpen, setIsNoGasAvailablePopupOpen] = useState(nullBoolean);
 
    useEffect(() => {
       (async () => {
          if (contract == null) { return; }
+
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
       })();
@@ -91,14 +95,30 @@ const Index = () => {
          }, 1000);
 
          if (isBlockchainConnected) { return; }
-         const isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
 
-         if (isConnected) {
-            setGameMode(Entities.GameMode.Blockchain);
-         } else {
-            setIsGameModePopupOpen(true);
+         let isConnected = false;
+         let isGasAvailable = true;
+
+         try {
+            isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
+         } catch (ex) {
+            if (ex.toString().includes('did it run Out of Gas')) {              
+               isConnected = true;
+               isGasAvailable = false;
+            }
+            else {
+               isConnected = false;
+            }
          }
-
+         
+         if (isConnected && isGasAvailable) {
+            setGameMode(Entities.GameMode.Blockchain);
+         } else if (isConnected) {
+            setIsNoGasAvailablePopupOpen(true);            
+         } else {
+            setIsGameModePopupOpen(true);                   
+         }
+         // todo not sure why this is necessary
          setKeyboard(() => letters.map((row) => { return row.map((letter) => { return { value: letter, status: Entities.TileStatus.None }; }); }));
       })();
    }, []);
@@ -113,14 +133,16 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-
-         if (gameMode == Entities.GameMode.Unknown) {
-            return;
+         if (isNoGasAvailablePopupOpen === false) {
+            setGameMode(Entities.GameMode.Disconnected);
          }
+      })();
+   }, [isNoGasAvailablePopupOpen]);
 
-         if (solution != '') {
-            return;
-         }
+   useEffect(() => {
+      (async () => {         
+         if (gameMode == Entities.GameMode.Unknown) { return; }
+         if (solution != '') { return; }
 
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
@@ -331,7 +353,6 @@ const Index = () => {
       <>
          <Head>
             <title>{configSettings.appName}</title>
-            <link rel='icon' href='/favicon.ico'></link>
          </Head>
          <StatusBar></StatusBar>
          <div className='main'>
@@ -342,6 +363,7 @@ const Index = () => {
          <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>
          <Summary statistics={statistics} isSummaryPopupOpen={isSummaryPopupOpen} setIsSummaryPopupOpen={setIsSummaryPopupOpen}></Summary>
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
+         <NoGasAvailable isNoGasAvailablePopupOpen={isNoGasAvailablePopupOpen} setIsNoGasAvailablePopupOpen={setIsNoGasAvailablePopupOpen}></NoGasAvailable>
       </>
    )
 }

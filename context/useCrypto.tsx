@@ -1,12 +1,13 @@
 import { createContext, Dispatch, SetStateAction, useContext, useState, useEffect } from 'react'
 import Web3 from 'web3';
-import { Contract } from 'web3-eth-contract';
 import TokenContract from '../abis/EthordleToken.json';
+import { Contract } from 'web3-eth-contract';
 import { downloadFile } from '../services/fileSystem';
 import { useLocalStorage } from '../services/localStorage';
 import { pinFileToIpfs, pinJsonToIpfs } from '../services/fileSystem';
 
 import * as Entities from '../model/entities';
+import configSettings from '../config.json';
 
 interface ContextInterface {
    isBlockchainConnected: boolean,
@@ -16,9 +17,8 @@ interface ContextInterface {
    gameMode: Entities.GameMode,
    setGameMode: Dispatch<SetStateAction<Entities.GameMode>>,
    account: string,
-   setAccount: Dispatch<SetStateAction<string>>,
+   isContractOwner: boolean,
    contract: Contract,
-   setContract: Dispatch<SetStateAction<Contract>>,
    connectToBlockchain: () => Promise<boolean>,
    mintToken: (solution: string, guessResults: string[], secondsRequired: number) => Promise<void>,
    buyToken: (id: number, price: number) => Promise<void>,
@@ -35,6 +35,7 @@ export const CryptoContext = createContext({} as ContextInterface);
 export function CryptoProvider({ children }) {
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
+   const [isContractOwner, setIsContractOwner] = useState(false);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
    const [isBlockchainConnected, setIsBlockchainConnected] = useState(false); 
@@ -43,13 +44,13 @@ export function CryptoProvider({ children }) {
    const [royaltyRate, setRoyaltyRate] = useState(0);
    
    useEffect(() => {
-      (async () => {                 
+      (async () => {                         
          if (contract != null && account != '') {
             await getTokens();
          }
       })();
    }, [account, contract]);
-   
+
    const connectToBlockchain = async (): Promise<boolean> => {
       if (!await loadWeb3()) {
          setIsBlockchainConnected(false);
@@ -62,6 +63,7 @@ export function CryptoProvider({ children }) {
       }
 
       setIsBlockchainConnected(true);
+      
       return true;
    }
 
@@ -105,11 +107,12 @@ export function CryptoProvider({ children }) {
          const initialTokenPrice_ = Number(Web3.utils.fromWei(await contract.methods.initialPrice().call(), 'ether'));
          const royaltyRate_ = ((await contract.methods.royaltyRate().call()) / 100);
          const priceEscalationRate_ = ((await contract.methods.priceEscalationRate().call()) / 100);
-            
+         
          setContract(contract);
          setInitialTokenPrice(initialTokenPrice_);
          setRoyaltyRate(royaltyRate_);
          setPriceEscalationRate(priceEscalationRate_);
+         setIsContractOwner(accounts[0] === configSettings.ownerAccount);
 
          return true;
       } else {
@@ -117,10 +120,8 @@ export function CryptoProvider({ children }) {
          return false;
       }
    }
-        
-   const getTokens = async (): Promise<Entities.Token[]> => {      
-      console.log('reloading tokens to cache'); // todo remove
 
+   const getTokens = async (): Promise<Entities.Token[]> => {      
       const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
       let newTokens: Entities.Token[] = [];
       
@@ -147,18 +148,18 @@ export function CryptoProvider({ children }) {
             
          const metadataFile = metadataFiles[i];
       
-         if (!metadataFile.imageUrl || metadataFile.imageUrl == '') {         
+         if (!metadataFile.image|| metadataFile.image == '') {         
             // let's assume that the metadata file hasn't been fully written to IPFS yet
-            newToken.imageUrl = '';
+            newToken.image = '';
             newToken.guesses = [];
             newToken.secondsRequired = 0; 
             console.log('Unable to load metadata from ' + token.url);
          } else {        
-            newToken.imageUrl = metadataFile.image;
+            newToken.image = metadataFile.image;
             newToken.guesses = metadataFile.attributes.guesses;
             newToken.secondsRequired = metadataFile.attributes.secondsRequired; 
          }
-
+         
          newTokens.push(newToken);  
       } 
 
@@ -169,12 +170,12 @@ export function CryptoProvider({ children }) {
    }
 
    const mintToken = async (solution: string, guessResults: string[], secondsRequired: number) => {
-      const imageUrl = await pinFileToIpfs(`/solutions/${solution}.png`);  
+      const image = await pinFileToIpfs(`/solutions/${solution}.png`);  
      
       const metadata: any = {
          name: solution,
          description: 'Ethordle NFT - ' + solution,
-         image: imageUrl,
+         image: image,
          attributes: {
             secondsRequired: secondsRequired,
             guesses: guessResults
@@ -209,7 +210,24 @@ export function CryptoProvider({ children }) {
    }
 
    return (
-      <CryptoContext.Provider value={{ isBlockchainConnected, initialTokenPrice, priceEscalationRate, royaltyRate, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens }}>{children}</CryptoContext.Provider>
+      <CryptoContext.Provider value={{ 
+         isBlockchainConnected, 
+         initialTokenPrice, 
+         priceEscalationRate, 
+         royaltyRate, 
+         gameMode, 
+         setGameMode, 
+         account, 
+         isContractOwner,
+         contract, 
+         connectToBlockchain,
+         mintToken, 
+         buyToken, 
+         allowTokenSale, 
+         preventTokenSale, 
+         tokens, 
+         getTokens
+       }}>{children}</CryptoContext.Provider>
    )
 }
 
@@ -217,13 +235,14 @@ export const useCrypto = (): ContextInterface => {
    const { isBlockchainConnected } = useContext(CryptoContext);
    const { initialTokenPrice, priceEscalationRate, royaltyRate } = useContext(CryptoContext);
    const { gameMode, setGameMode } = useContext(CryptoContext);
-   const { account, setAccount } = useContext(CryptoContext);
-   const { contract, setContract } = useContext(CryptoContext);
+   const { account } = useContext(CryptoContext);
+   const { contract } = useContext(CryptoContext);
    const { connectToBlockchain } = useContext(CryptoContext);
    const { mintToken, buyToken } = useContext(CryptoContext);
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
+   const { isContractOwner } = useContext(CryptoContext);
    
-   return { isBlockchainConnected, initialTokenPrice, priceEscalationRate, royaltyRate, gameMode, setGameMode, account, setAccount, contract, setContract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens };
+   return { isBlockchainConnected, initialTokenPrice, priceEscalationRate, royaltyRate, gameMode, setGameMode, account, isContractOwner, contract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens };
 }
 

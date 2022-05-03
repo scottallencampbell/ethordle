@@ -316,8 +316,6 @@
   color: #ffffff !important;
   font-size: 18px;
   margin-right: 10px;
-  xposition: relative;
-  xtop: 4px;
 }
 
 #token-list .buy-token span {
@@ -395,6 +393,23 @@
   display: block;
 }
 
+#token-list .transfer {
+  background-color: #f38c38;
+  color: #ffffff;
+  position: absolute;
+  left: 115px;
+  top: 15px;
+}
+
+#token-list .transfer:hover {
+  background-color: #ffffff;
+  color: #f38c38;
+}
+
+#token-list .transfer:hover span {
+  color: #f38c38 !important;
+}
+
 #no-tokens a {
   font-weight: bold;
   text-decoration: none;
@@ -466,4 +481,18 @@
 
 #price-chooser strong {
   color: #43ABDC;
+}
+
+#transfer-token .address {
+  color: #555555;
+  text-align: center;
+  font-size: 60px;
+  width: 230px;
+  margin: 24px 0 40px 0;
+  font-weight: bold;
+  border-radius: 5px;
+  border: solid 1px #999999 !important;
+  outline: none;
+  padding: 10px 10px 10px 10px;
+  -webkit-appearance: none;
 }
