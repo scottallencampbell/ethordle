@@ -63,6 +63,16 @@ contract EthordleToken is ERC721, Ownable {
         _priceEscalationRate = priceEscalationRate_;
     }
     
+    function _validateTokenId(uint256 tokenId) internal view returns (Token memory) {
+        require(_exists(tokenId), 'TokenId does not exist');
+        
+        Token memory token = _tokens[tokenId];    
+        
+        require(token.owner != address(0x0), 'Token object does not exist');
+
+        return token;
+    }
+
     function setInitialPrice(uint256 initialPrice_) external onlyOwner() {
         _initialPrice = initialPrice_;
     }
@@ -91,12 +101,8 @@ contract EthordleToken is ERC721, Ownable {
         return _currentTokenId;
     }
 
-    function tokenById(uint256 tokenId) external view returns(Token memory) {
-        require(_exists(tokenId), 'TokenId does not exist');  
-
-        Token memory token = _tokens[tokenId];
-        require(_exists(tokenId), 'Token does not exist');   
-
+    function tokenById(uint256 tokenId) external view returns(Token memory) {        
+        Token memory token = _validateTokenId(tokenId);
         return token;
     }
 
@@ -142,9 +148,9 @@ contract EthordleToken is ERC721, Ownable {
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), 'TokenId does not exist');
+        Token memory token = _validateTokenId(tokenId);
 
-        return _tokens[tokenId].url;
+        return token.url;
     }
 
     function mint(
@@ -176,16 +182,15 @@ contract EthordleToken is ERC721, Ownable {
     }
 
     function allowSale(
-        address from,
         uint256 tokenId,
+        address from,
         uint256 price
     ) external {    
-        require(_exists(tokenId), 'TokenId does not exist');   
+        Token memory token = _validateTokenId(tokenId);
+        
         require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
         require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');         
         
-        Token memory token = _tokens[tokenId];
-        require(_exists(token.id), 'Token does not exist');  
         require(!token.isForSale, 'Token is already marked for sale');
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
         
@@ -198,15 +203,14 @@ contract EthordleToken is ERC721, Ownable {
     }
 
     function preventSale(
-        address from,
-        uint256 tokenId
+        uint256 tokenId,
+        address from        
     ) external {   
-        require(_exists(tokenId), 'TokenId does not exist');   
+        Token memory token = _validateTokenId(tokenId);
+
         require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
         require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');    
         
-        Token memory token = _tokens[tokenId];
-        require(_exists(token.id), 'Token does not exist');  
         require(token.isForSale, 'Token is already prevented from being sold'); 
         
         token.isForSale = false;
@@ -217,13 +221,11 @@ contract EthordleToken is ERC721, Ownable {
     }
 
     function buy(
-        address to,
-        uint256 tokenId
+        uint256 tokenId,
+        address to   
     ) external payable {        
-        require(_exists(tokenId), 'TokenId does not exist');   
-
-        Token memory token = _tokens[tokenId];
-        require(_exists(token.id), 'Token does not exist');        
+        Token memory token = _validateTokenId(tokenId);
+        
         require(msg.value >= token.price, 'Insufficient ether sent with this transaction');
         require(token.isForSale, 'Token is not for sale');
         require(token.owner != to, 'Buyer already owns token'); 
@@ -253,7 +255,31 @@ contract EthordleToken is ERC721, Ownable {
 
         _tokens[tokenId] = token; 
     }
+    
+    function transfer(
+        uint256 tokenId,
+        address to
+    ) external payable onlyOwner {        
+        Token memory token = _validateTokenId(tokenId);
+        
+        require(token.owner != to, 'Buyer already owns token'); 
+       
+        string memory solution_ = token.solution;
+        string memory tokenURI_ = token.url;
   
+        _transfer(token.owner, to, tokenId);
+
+        _solutionOwners[solution_] = to;
+        _tokenURIOwners[tokenURI_] = to;
+
+        token.owner = to;
+        token.isForSale = false;
+        token.lastTransactionTimestamp = block.timestamp;
+        token.transactionCount++;       
+
+        _tokens[tokenId] = token; 
+    }
+
     function _getRoyalty(uint256 value) private view returns (uint256) {
         return value.mul(_royaltyRate).div(10000);
     }
@@ -270,16 +296,14 @@ contract EthordleToken is ERC721, Ownable {
         address /*from*/,
         address /*to*/,
         uint256 /*tokenId*/
-    ) public view override {
-        require(_msgSender() == _owner, 'Method may only be called by the owner');
+    ) public view override onlyOwner {
     }
 
     function safeTransferFrom(
         address /*from*/,
         address /*to*/,
         uint256 /*tokenId*/
-    ) public view override {
-        require(_msgSender() == _owner, 'Method may only be called by the owner');
+    ) public view override onlyOwner {
     }
 
     function safeTransferFrom(
@@ -287,7 +311,6 @@ contract EthordleToken is ERC721, Ownable {
         address /*to*/,
         uint256 /*tokenId*/,
         bytes memory /*_data*/
-    ) public view override {
-        require(_msgSender() == _owner, 'Method may only be called by the owner');
+    ) public view override onlyOwner {
     }
 }

@@ -5,16 +5,16 @@ import { useCrypto } from '../context/useCrypto';
 import * as Entities from '../model/entities';
 
 interface IPriceChooser {
+   token: Entities.Token,
    isPriceChooserOpen: boolean,
    setIsPriceChooserOpen: React.Dispatch<React.SetStateAction<boolean>>,
-   token: Entities.Token,
    newPrice: number,
    setNewPrice: React.Dispatch<React.SetStateAction<number>>,
    handleSetTokenForSale: Function,
    solution: string
 }
 
-export const PriceChooser = ({ isPriceChooserOpen, setIsPriceChooserOpen, token, newPrice, setNewPrice, handleSetTokenForSale, solution }: IPriceChooser) => {
+export const PriceChooser = ({ token, isPriceChooserOpen, setIsPriceChooserOpen, newPrice, setNewPrice, handleSetTokenForSale, solution }: IPriceChooser) => {
    const maxPrice = 999.999;
    const maxDecimals = 3;
    const [errorDetected, setErrorDetected] = useState('');

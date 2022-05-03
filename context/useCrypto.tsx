@@ -21,9 +21,10 @@ interface ContextInterface {
    contract: Contract,
    connectToBlockchain: () => Promise<boolean>,
    mintToken: (solution: string, guessResults: string[], secondsRequired: number) => Promise<void>,
-   buyToken: (id: number, price: number) => Promise<void>,
-   allowTokenSale: (id: number, price: number) => Promise<void>,
-   preventTokenSale: (id: number) => Promise<void>,
+   buyToken: (token: Entities.Token, price: number) => Promise<void>,
+   transferToken: (token: Entities.Token, toAddress: string) => Promise<void>,
+   allowTokenSale: (token: Entities.Token, price: number) => Promise<void>,
+   preventTokenSale: (token: Entities.Token) => Promise<void>,
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>,
 }
@@ -113,7 +114,6 @@ export function CryptoProvider({ children }) {
          setRoyaltyRate(royaltyRate_);
          setPriceEscalationRate(priceEscalationRate_);
          setIsContractOwner(accounts[0] === configSettings.ownerAccount);
-
          return true;
       } else {
          window.alert('Smart contract not deployed to a detected network.')
@@ -189,21 +189,26 @@ export function CryptoProvider({ children }) {
       await getTokens();
    }
   
-   const buyToken = async (id: number, price: number) => {    
+   const buyToken = async (token: Entities.Token, price: number) => {    
       var wei = Web3.utils.toWei(price.toString(), 'ether');
-      await contract.methods.buy(account, id).send({ from: account, value: wei });        
+      await contract.methods.buy(token.id, account).send({ from: account, value: wei });        
       getTokens();
    }
 
-   const allowTokenSale = async (id: number, price: number) => {   
+   const transferToken = async (token: Entities.Token, toAddress: string) => {    
+      await contract.methods.transfer(token.id, toAddress).send({ from: account });        
+      getTokens();
+   }
+
+   const allowTokenSale = async (token: Entities.Token, price: number) => {   
       var wei = Web3.utils.toWei(price.toString(), 'ether');
-      await contract.methods.allowSale(account, id, wei).send({ from: account });       
+      await contract.methods.allowSale(token.id, account, wei).send({ from: account });       
       getTokens();       
    }
    
-   const preventTokenSale = async (id: number) => { 
+   const preventTokenSale = async (token: Entities.Token) => { 
       console.log('starting');  // todo
-      await contract.methods.preventSale(account, id).send({ from: account });  
+      await contract.methods.preventSale(token.id, account).send({ from: account });  
       console.log('ending'); 
       getTokens();    
       console.log('and got tokens');  
@@ -223,6 +228,7 @@ export function CryptoProvider({ children }) {
          connectToBlockchain,
          mintToken, 
          buyToken, 
+         transferToken,
          allowTokenSale, 
          preventTokenSale, 
          tokens, 
@@ -238,11 +244,29 @@ export const useCrypto = (): ContextInterface => {
    const { account } = useContext(CryptoContext);
    const { contract } = useContext(CryptoContext);
    const { connectToBlockchain } = useContext(CryptoContext);
-   const { mintToken, buyToken } = useContext(CryptoContext);
+   const { mintToken, buyToken, transferToken } = useContext(CryptoContext);
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
    const { isContractOwner } = useContext(CryptoContext);
    
-   return { isBlockchainConnected, initialTokenPrice, priceEscalationRate, royaltyRate, gameMode, setGameMode, account, isContractOwner, contract, connectToBlockchain, mintToken, buyToken, allowTokenSale, preventTokenSale, tokens, getTokens };
+   return { 
+      isBlockchainConnected, 
+      initialTokenPrice, 
+      priceEscalationRate, 
+      royaltyRate, 
+      gameMode, 
+      setGameMode, 
+      account, 
+      isContractOwner, 
+      contract, 
+      connectToBlockchain, 
+      mintToken, 
+      buyToken, 
+      transferToken,
+      allowTokenSale, 
+      preventTokenSale, 
+      tokens, 
+      getTokens 
+   };
 }
 

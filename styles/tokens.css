@@ -294,12 +294,12 @@
 
 
 #token-list .token .last-transaction img {
-  height: 24px;
+  height: 17px;
   width: auto;
   float: left;
   position: relative;
-  top: 0px;
-  margin-right: 8px;
+  top: 2px;
+  margin-right: 5px;
 }
 
 #token-list button {
@@ -430,15 +430,18 @@
   }
 }
 
-#price-chooser .buttons {
+#price-chooser .buttons,
+#transfer-token .buttons {
   text-align: center;
 }
 
-#price-chooser button {
+#price-chooser button,
+#transfer-token button {
   margin: 10px;
 }
 
-#price-chooser #offer-for-sale.material-button {
+#price-chooser #offer-for-sale.material-button,
+#transfer-token #transfer.material-button {
   background-color: #43ABDC;
   color: #ffffff;
 }
@@ -458,7 +461,8 @@
 }
 
 #price-chooser.too-high .price,
-#price-chooser.too-low .price {
+#price-chooser.too-low .price,
+#transfer-token.invalid-address input {
   color: #aa0000;
   background-color: #ffeeee;
   border-color: #aa0000 !important;
@@ -479,20 +483,21 @@
   font-weight: bold;
 }
 
-#price-chooser strong {
+#price-chooser strong,
+#transfer-token strong {
   color: #43ABDC;
 }
 
 #transfer-token .address {
   color: #555555;
   text-align: center;
-  font-size: 60px;
-  width: 230px;
-  margin: 24px 0 40px 0;
+  font-size: 21.5px;
+  width: 100%;
+  margin: 10px 0 20px 0;
   font-weight: bold;
   border-radius: 5px;
   border: solid 1px #999999 !important;
   outline: none;
-  padding: 10px 10px 10px 10px;
+  padding: 10px 0px 10px 0px;
   -webkit-appearance: none;
 }

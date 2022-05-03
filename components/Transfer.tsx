@@ -1,26 +1,31 @@
 import React, { useRef, useState } from 'react';
 import Popup from 'reactjs-popup';
-import { useCrypto } from '../context/useCrypto';
 
 import * as Entities from '../model/entities';
 
 interface ITransfer {
+   token: Entities.Token,
+   toAddress: string,
+   setToAddress: React.Dispatch<React.SetStateAction<string>>,  
    isTransferPopupOpen: boolean,
    setIsTransferPopupOpen: React.Dispatch<React.SetStateAction<boolean>>,
-   token: Entities.Token,
    handleTransferToken: Function
 }
 
-export const Transfer = ({ isTransferPopupOpen, setIsTransferPopupOpen, token, handleTransferToken }: ITransfer) => {
-   const [toAddress, setToAddress] = useState('');
+export const Transfer = ({ token, toAddress, setToAddress, isTransferPopupOpen, setIsTransferPopupOpen, handleTransferToken }: ITransfer) => {
    const [errorDetected, setErrorDetected] = useState('');
    
    const handleTransferButtonClick = () => {
-      handleTransferToken();
+      if (toAddress.length != 42) {
+         setErrorDetected('invalid-address');
+      } else {
+         handleTransferToken();
+      }
    }
 
-   const handleAddressChange = () => {
-      
+   const handleAddressChange = (event) => {
+      setToAddress(event.target.value);
+      setErrorDetected('');
    }
 
    return (
@@ -30,7 +35,7 @@ export const Transfer = ({ isTransferPopupOpen, setIsTransferPopupOpen, token, h
                <div className='popup-title'>Transfer <strong>{token.solution}</strong> to Another Account</div>
                <a className='close' onClick={() => setIsTransferPopupOpen(false)}>&times;</a>
                <div className='content'>
-                  <p>Enter the ethereum address below to transfer this token to.</p>
+                  <p>Enter the transferee's ethereum address in the textbox below:</p>
                   <div className='center'>
                      <input type='text' className='address' onChange={handleAddressChange} value={toAddress}></input>
                   </div>

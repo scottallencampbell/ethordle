@@ -11,11 +11,12 @@ interface IToken {
 }
 
 export const Token = ({ token, index }: IToken) => {
-   const { buyToken } = useCrypto();
+   const { buyToken, transferToken } = useCrypto();
    const { allowTokenSale, preventTokenSale } = useCrypto();
    const { account, isContractOwner } = useCrypto();
 
    const [newPrice, setNewPrice] = useState(token.price);
+   const [toAddress, setToAddress] = useState('');
    const [isForSale, setIsForSale] = useState(token.isForSale);
    const [isPriceChooserOpen, setIsPriceChooserOpen] = useState(false);
    const [isTransferPopupOpen, setIsTransferPopupOpen] = useState(false);
@@ -26,33 +27,33 @@ export const Token = ({ token, index }: IToken) => {
          setNewPrice(token.price);
          setIsPriceChooserOpen(true);
       } else {
-         await preventTokenSale(token.id);
          setStatus('transacting');
+      await preventTokenSale(token);
          setIsForSale(false);
       }
    }
 
    const handleSetTokenForSale = async () => {
       setIsPriceChooserOpen(false);
-      await allowTokenSale(token.id, newPrice);
       setStatus('transacting');
+      await allowTokenSale(token, newPrice);
       setIsForSale(true);
    }
 
    const handleBuyToken = async () => {
-      await buyToken(token.id, token.price);
       setStatus('transacting');
+      await buyToken(token, token.price);      
    }
 
    const handleTransferToken = async () => {
-      await buyToken(token.id, token.price);
-
+      setIsTransferPopupOpen(false);
+      setStatus('transacting');
+      await transferToken(token, toAddress);
+      setIsForSale(false);
    }
 
    useEffect(() => {
-
       setStatus(`${token.isForSale ? 'for-sale' : 'not-for-sale'}${token.owner == account ? '-by-this-owner' : ''}`);
-
    }, [account, token]);
 
    return (
@@ -64,7 +65,7 @@ export const Token = ({ token, index }: IToken) => {
          <img src={token.image == '' ? '/metadata-not-available.png' : token.image} key={`token-image-${index}`}></img>
          {isContractOwner ?
             <div>
-               <Transfer isTransferPopupOpen={isTransferPopupOpen} setIsTransferPopupOpen={setIsTransferPopupOpen} token={token} handleTransferToken={handleTransferToken} ></Transfer>
+               <Transfer token={token} toAddress={toAddress} setToAddress={setToAddress} isTransferPopupOpen={isTransferPopupOpen} setIsTransferPopupOpen={setIsTransferPopupOpen} handleTransferToken={handleTransferToken} ></Transfer>
                <button className='material-button transfer' role='button' onClick={() => setIsTransferPopupOpen(true)}><span className='material-icons md-18'>&#xe5c8;</span>Transfer</button>
             </div>
             : <></>}
@@ -80,7 +81,6 @@ export const Token = ({ token, index }: IToken) => {
                <div className='solution'>
                   <p>Solution</p>
                   <strong>{token.solution}</strong>
-                  <strong>{isContractOwner ? 'true' : 'false'}</strong>
                </div>
                <div className='guess-result'>
                   <p>Guesses</p>
