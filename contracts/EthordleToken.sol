@@ -33,13 +33,6 @@ contract EthordleToken is ERC721, Ownable {
 
     uint256 roundingDivisor = 10**15;
 
-    event TokenMinted (
-        string solution,
-        address payable account,
-        uint256 tokenId,
-        string metadataURI
-    );
-
     event TokenSaleAllowed (
         string solution,
         address account,
@@ -177,8 +170,6 @@ contract EthordleToken is ERC721, Ownable {
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
         _currentTokenId++;        
-        
-        emit TokenMinted(solution_, to, _currentTokenId, tokenURI_);
     }
 
     function allowSale(
