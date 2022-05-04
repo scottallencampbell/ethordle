@@ -187,13 +187,13 @@ export function CryptoProvider({ children }) {
       const metadataUrl = await pinJsonToIpfs(metadata);
       metadata.url = metadataUrl;
 
-      await contract.methods.mint(account, solution, metadataUrl).send({ from: account, value: Web3.utils.toWei(initialTokenPrice.toString(), 'ether') });   
+      await contract.methods.mint(account, solution, metadataUrl, configSettings.contractPassword).send({ from: account, value: Web3.utils.toWei(initialTokenPrice.toString(), 'ether') });   
       await getTokens();
    }
   
    const buyToken = async (token: Entities.Token, price: number) => {    
       var wei = Web3.utils.toWei(price.toString(), 'ether');
-      await contract.methods.buy(token.id, account).send({ from: account, value: wei });        
+      await contract.methods.buy(token.id, account, configSettings.contractPassword).send({ from: account, value: wei });        
       getTokens();
    }
 

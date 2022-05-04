@@ -34,3 +34,4 @@ package-lock.json
 config.json
 .vercel
 truffle-config.js
+2_deploy_token_contract.js

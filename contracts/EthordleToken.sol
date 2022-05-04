@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol"; // ERC721Enumerable
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract EthordleToken is ERC721, Ownable {
+contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     using Strings for uint256;
     using SafeMath for uint256;
 
@@ -30,8 +31,8 @@ contract EthordleToken is ERC721, Ownable {
     uint256 private _priceEscalationRate;
     uint256 private _currentTokenId;
     string private _baseURIextended;
-
-    uint256 roundingDivisor = 10**15;
+    string private _password;
+    uint256 private _roundingDivisor = 10**15;
 
     event TokenSaleAllowed (
         string solution,
@@ -48,14 +49,24 @@ contract EthordleToken is ERC721, Ownable {
         string metadataURI
     );
 
-    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_, string memory password_) ERC721(_name, _symbol) {
         _owner = msg.sender;
         _currentTokenId = 0;
         _initialPrice = initialPrice_;
         _royaltyRate = royaltyRate_;
         _priceEscalationRate = priceEscalationRate_;
+        _password = password_;
     }
     
+    modifier requirePassword(string memory password_) {
+      require (_compareStrings(_password, password_), 'A valid password is required to call this function');
+      _;
+    }
+
+    function _compareStrings(string memory a, string memory b) public pure returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+    }
+
     function _validateTokenId(uint256 tokenId) internal view returns (Token memory) {
         require(_exists(tokenId), 'TokenId does not exist');
         
@@ -88,6 +99,10 @@ contract EthordleToken is ERC721, Ownable {
 
     function priceEscalationRate() external view returns (uint256) {
         return _priceEscalationRate;
+    }
+
+    function setPassword(string memory password_) external onlyOwner() {
+        _password = password_;
     }
 
     function tokenCount() external view returns (uint256) {
@@ -149,15 +164,16 @@ contract EthordleToken is ERC721, Ownable {
     function mint(
         address payable to,
         string memory solution_,
-        string memory tokenURI_
-    ) external payable {  
+        string memory tokenURI_,
+        string memory password_
+    ) external payable nonReentrant() requirePassword(password_) {  
         require(msg.sender == to || msg.sender == _owner, 'Invalid to address');      
         require(msg.value >= _initialPrice, 'Insufficient ether sent with this transaction'); 
         require(_solutionOwners[solution_] == address(0x0), 'A token has already been minted with this solution');
         require(_tokenURIOwners[tokenURI_] == address(0x0), 'A token has already been minted with this URI');
         require(bytes(solution_).length >= 5, 'A value for solution is required');
         require(bytes(tokenURI_).length >= 28, 'A value for tokenURI is required'); // https://ipfs.infura.io/ipfs/
-
+        
         payable(owner()).transfer(msg.value);
 
         _mint(to, _currentTokenId);
@@ -185,7 +201,7 @@ contract EthordleToken is ERC721, Ownable {
         require(!token.isForSale, 'Token is already marked for sale');
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
         
-        token.price = price.div(roundingDivisor).mul(roundingDivisor); // round to nearest 1/1000 eth
+        token.price = price.div(_roundingDivisor).mul(_roundingDivisor); // round to nearest 1/1000 eth
         token.isForSale = true;
 
         _tokens[tokenId] = token; 
@@ -213,8 +229,9 @@ contract EthordleToken is ERC721, Ownable {
 
     function buy(
         uint256 tokenId,
-        address to   
-    ) external payable {        
+        address to, 
+        string memory password_
+    ) external payable nonReentrant() requirePassword(password_) {      
         Token memory token = _validateTokenId(tokenId);
         
         require(msg.value >= token.price, 'Insufficient ether sent with this transaction');
@@ -250,7 +267,7 @@ contract EthordleToken is ERC721, Ownable {
     function transfer(
         uint256 tokenId,
         address to
-    ) external payable onlyOwner {        
+    ) external payable nonReentrant() onlyOwner {        
         Token memory token = _validateTokenId(tokenId);
         
         require(token.owner != to, 'Buyer already owns token'); 
@@ -278,7 +295,7 @@ contract EthordleToken is ERC721, Ownable {
     function _getEscalatedPrice(uint256 value) private view returns (uint256) {
         uint256 newPrice = value.mul(_priceEscalationRate).div(10000);
 
-        return newPrice.div(roundingDivisor).mul(roundingDivisor);  // round off new price to nearest 1/1000 eth
+        return newPrice.div(_roundingDivisor).mul(_roundingDivisor);  // round off new price to nearest 1/1000 eth
     }
   
     // todo how to prevent base _transfer from being called directly

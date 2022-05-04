@@ -1,9 +1,10 @@
 const EthordleToken = artifacts.require('EthordleToken');
 
 module.exports = function (deployer) {
-  let initialPrice = '10000000000000000';   // 0.01 ETH
-  let royaltyRate = '500';  
-  let priceEscalationRate = '11000';
+  const initialPrice = '10000000000000000';   // 0.01 ETH
+  const royaltyRate = '500';  
+  const priceEscalationRate = '11000';
+  const password = '6f59cd20cec44b199378da22815dcd9a';
   
-  deployer.deploy(EthordleToken, 'Ethordle Token', 'ETHORDLE', initialPrice, royaltyRate, priceEscalationRate);
+  deployer.deploy(EthordleToken, 'Ethordle Token', 'ETHORDLE', initialPrice, royaltyRate, priceEscalationRate, password);
 };
