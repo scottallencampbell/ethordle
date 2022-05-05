@@ -79,6 +79,7 @@ const Index = () => {
          if (contract == null) { return; }
 
          let uniqueSolution = await chooseSolution();
+         
          setSolution(uniqueSolution);
       })();
    }, [router]);
@@ -146,7 +147,7 @@ const Index = () => {
 
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
-
+         console.log(uniqueSolution);
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
                Cookies.set(introShownCookieName, 'true', { expires: 7 })
@@ -197,6 +198,8 @@ const Index = () => {
    }
 
    const enterLetter = (letter) => {
+      if (isGameModePopupOpen || isIntroductionPopupOpen || isNoGasAvailablePopupOpen) { return; }
+
       const newGrid = JSON.parse(JSON.stringify(grid));
       let thisTile = newGrid[currentRowIndex][currentTileIndex];
 
@@ -208,6 +211,8 @@ const Index = () => {
    }
 
    const deleteLetter = () => {
+      if (isGameModePopupOpen || isIntroductionPopupOpen || isNoGasAvailablePopupOpen) { return; }
+
       const newGrid = JSON.parse(JSON.stringify(grid));
       let thisTile = newGrid[currentRowIndex][currentTileIndex - 1];
 

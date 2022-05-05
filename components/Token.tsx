@@ -11,7 +11,7 @@ interface IToken {
 }
 
 export const Token = ({ token, index }: IToken) => {
-   const { buyToken, transferToken } = useCrypto();
+   const { buyToken, transferToken, getTokens } = useCrypto();
    const { allowTokenSale, preventTokenSale } = useCrypto();
    const { account, isContractOwner } = useCrypto();
 
@@ -20,45 +20,58 @@ export const Token = ({ token, index }: IToken) => {
    const [isForSale, setIsForSale] = useState(token.isForSale);
    const [isPriceChooserOpen, setIsPriceChooserOpen] = useState(false);
    const [isTransferPopupOpen, setIsTransferPopupOpen] = useState(false);
-   const [status, setStatus] = useState('');
+   const [status, setStatus] = useState(token.marketplaceStatus);
 
    const handleToggle = async () => {
-      if (!token.isForSale) {
+      if (!isForSale) {
          setNewPrice(token.price);
          setIsPriceChooserOpen(true);
-      } else {
-         setStatus('transacting');
-      await preventTokenSale(token);
-         setIsForSale(false);
+      } else {             
+         preventTokenSale(token, () => setStatus(Entities.TokenStatus.Transacting), () => resetIsForSaleStatus(false));                  
       }
    }
 
    const handleSetTokenForSale = async () => {
       setIsPriceChooserOpen(false);
-      setStatus('transacting');
-      await allowTokenSale(token, newPrice);
-      setIsForSale(true);
+      allowTokenSale(token, newPrice, () => setStatus(Entities.TokenStatus.Transacting), () => resetIsForSaleStatus(true));         
    }
 
    const handleBuyToken = async () => {
-      setStatus('transacting');
-      await buyToken(token, token.price);      
+      buyToken(token, token.price, () => setStatus(Entities.TokenStatus.Transacting), () => resetIsForSaleStatus(false));         
    }
 
    const handleTransferToken = async () => {
       setIsTransferPopupOpen(false);
-      setStatus('transacting');
-      await transferToken(token, toAddress);
-      setIsForSale(false);
+      transferToken(token, toAddress, () => setStatus(Entities.TokenStatus.Transacting), () => resetIsForSaleStatus(false));         
    }
 
+   const resetIsForSaleStatus = (newIsForSale: boolean) => {
+      setIsForSale(newIsForSale);
+
+      if (account == token.owner) 
+         setStatus(newIsForSale ? Entities.TokenStatus.ForSaleByThisAccount : Entities.TokenStatus.NotForSaleByThisAccount);
+      else
+         setStatus(newIsForSale ? Entities.TokenStatus.ForSale : Entities.TokenStatus.NotForSale);
+   }
+
+   /* todo remove
+   const updateStatus = (token: Entities.Token, status: Entities.TokenStatus) => { 
+      if (override != null) {
+         setStatus(override);
+      }
+      else {
+         setStatus(token.marketplaceStatus);
+      }
+   }
+   
    useEffect(() => {
-      setStatus(`${token.isForSale ? 'for-sale' : 'not-for-sale'}${token.owner == account ? '-by-this-owner' : ''}`);
+      setStatus(token);
    }, [account, token]);
+   */
 
    return (
       <div className={`token ${token.image == '' ? 'no-metadata' : ''} ${status}`} key={`token-${index}`}>
-         {(token.owner == account && !token.isForSale) ?
+         {(token.owner == account && !isForSale) ?
             <PriceChooser token={token} newPrice={newPrice} setNewPrice={setNewPrice} isPriceChooserOpen={isPriceChooserOpen} setIsPriceChooserOpen={setIsPriceChooserOpen} handleSetTokenForSale={handleSetTokenForSale} solution={token.solution}></PriceChooser>
             : <></>
          }
@@ -112,15 +125,15 @@ export const Token = ({ token, index }: IToken) => {
                </div>
                <div className='for-sale-status'>
                   {(token.owner == account) ?
-                     <Toggle id={`toggle-${token.id}}`} isOn={token.isForSale} handleToggle={handleToggle} onText='For sale' offText='Not for sale' />
+                     <Toggle id={`toggle-${token.id}`} isOn={isForSale} handleToggle={handleToggle} onText='For sale' offText='Not for sale' disabled={status == Entities.TokenStatus.Transacting} />
                      :
                      <></>
                   }
                </div>
                <div className='buy'>
                   <button className='material-button status-transacting pinwheel' disabled role='button'><span></span>Working...</button>
-                  <button className='material-button status-for-sale-by-this-owner' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>For sale</button>
-                  <button className='material-button status-not-for-sale-by-this-owner' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for sale</button>
+                  <button className='material-button status-for-sale-by-this-account' disabled role='button'><span className='material-icons md-18'>&#xef76;</span>For sale</button>
+                  <button className='material-button status-not-for-sale-by-this-account' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for sale</button>
                   <button className='material-button status-for-sale' role='button' onClick={handleBuyToken}><span className='material-icons md-18'>&#xe854;</span>Purchase</button>
                   <button className='material-button status-not-for-sale' disabled role='button'><span className='material-icons md-18'>&#xe897;</span>Not for Sale</button>
                </div>

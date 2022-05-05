@@ -33,10 +33,21 @@ export class Token {
    public image: string;
    public guesses: string[];
    public secondsRequired: number;
+   // Calculated
+   public marketplaceStatus: TokenStatus
 
    public constructor(init?:Partial<Token>) {
       Object.assign(this, init);
    }
+}
+
+export enum TokenStatus {
+   Unknown = 'unknown',
+   ForSale = 'for-sale',
+   NotForSale = 'not-for-sale',
+   ForSaleByThisAccount = 'for-sale-by-this-account',
+   NotForSaleByThisAccount = 'not-for-sale-by-this-account',
+   Transacting = 'transacting'
 }
 
 export enum GameMode {
@@ -46,9 +57,9 @@ export enum GameMode {
 }
 
 export enum GameStatus {
-   Started,
-   Won,
-   Lost
+   Started = 'started',
+   Won = 'won',
+   Lost = 'lost'
 }
 
 export enum TileStatus {

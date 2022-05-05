@@ -342,7 +342,7 @@
   cursor: default;
 }
 
-#token-list .status-not-for-sale-by-this-owner {
+#token-list .status-not-for-sale-by-this-account {
   padding-left: 0;
   padding-right: 0;
   background-color: #bbbbbb;
@@ -350,7 +350,7 @@
   cursor: default;
 }
 
-#token-list .status-for-sale-by-this-owner {
+#token-list .status-for-sale-by-this-account {
   background-color: #6aaa64;
   color: #ffffff;
   cursor: default;
@@ -364,23 +364,27 @@
 }
 
 #token-list .buy button { 
-  display: none;
+  display: inline-flex;
+  opacity: 0;  
+  transition: all .15s linear;
 }
 
-#token-list .token.not-for-sale-by-this-owner .buy button.status-not-for-sale-by-this-owner,
-#token-list .token.transacting .buy button.status-transacting,
-#token-list .token.for-sale .buy button.status-for-sale,
+#token-list .token.not-for-sale-by-this-account .buy button.status-not-for-sale-by-this-account,
+#token-list .token.for-sale-by-this-account .buy button.status-for-sale-by-this-account,
 #token-list .token.not-for-sale .buy button.status-not-for-sale,
-#token-list .token.for-sale-by-this-owner .buy button.status-for-sale-by-this-owner { 
-  display: inline-flex;
+#token-list .token.for-sale .buy button.status-for-sale,
+#token-list .token.transacting .buy button.status-transacting { 
+  opacity: 1;
+  z-index: 100;
 }
 
 #token-list .for-sale-status {
-  display: none;
+  display: block;
+  opacity: 0;
 }
 
 #token-list.is-not-marketplace .for-sale-status {
-  display: block;
+  opacity: 1;
 }
 
 #token-list .buy {

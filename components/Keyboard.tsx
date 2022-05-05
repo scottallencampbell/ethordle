@@ -23,7 +23,7 @@ export const Keyboard = ({ keyboard, handleKeyDown } : IKeyboard) => {
    }
 
    return (
-      <div className='keyboard hidden-on-load'> {
+      <div id='keyboard' className='hidden-on-load'> {
          keyboard.map((row, i) => (
             <div className='keyboard-row' key={`keyboard-${i}`}> {
                row.map((key, j) => (

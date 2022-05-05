@@ -13,7 +13,7 @@ const statusCodes = new Map([
 
 export const Grid = ({ grid } : IGrid) => {
    return (
-      <div className='grid flippable hidden-on-load'> {
+      <div id='grid' className='flippable hidden-on-load'> {
          grid.map((row, i) => (
             <div className='row' key={`grid-${i}`}> {
                row.map((tile, j) => (

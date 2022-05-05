@@ -5,13 +5,14 @@ interface IToggle {
     isOn: boolean,
     handleToggle: Function,
     offText: string,
-    onText: string
+    onText: string,
+    disabled: boolean
  }
 
-export const Toggle = ({ id, isOn, handleToggle, offText, onText }) => {
+export const Toggle = ({ id, isOn, handleToggle, offText, onText, disabled }) => {
     return (
       <>
-        <input className='toggle-checkbox' id={id} type='checkbox' checked={isOn} onChange={handleToggle} />
+        <input className='toggle-checkbox' id={id} type='checkbox' disabled={disabled} checked={isOn} onChange={handleToggle} />        
         <label className={`toggle-label ${isOn ? 'is-on' : ''} `} htmlFor={id}>
           <p>{onText}</p><p>{offText}</p>
           <span className='toggle-button' />

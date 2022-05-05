@@ -66,7 +66,7 @@ input[type=number] {
 .top-bar #logo {
   margin-top: 21px;
   margin-left: 21px;
-  zoom: 50%;
+  zoom: 52%;
   -moz-transform: scale(.5);
   width: 80px;
   float: left;
@@ -128,7 +128,7 @@ input[type=number] {
   opacity: 1;
 }
 
-.grid {
+#grid {
   margin: 0 auto;
 }
 
@@ -520,14 +520,16 @@ input[type=number] {
 #summary .face.front {
   background-color: #ffffff;
   color: #ffffff !important;
+  display: none;
 }
 
-#summary .title .back {
-  color: #000000 !important;
+#summary .face.back {
+  color: #ffffff !important;
 }
 
-.keyboard {
+#keyboard {
   margin-top: 50px;
+  padding-bottom: 50px;
 }
 
 @media (max-width: 700px) {

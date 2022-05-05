@@ -21,10 +21,10 @@ interface ContextInterface {
    contract: Contract,
    connectToBlockchain: () => Promise<boolean>,
    mintToken: (solution: string, guessResults: string[], secondsRequired: number) => Promise<void>,
-   buyToken: (token: Entities.Token, price: number) => Promise<void>,
-   transferToken: (token: Entities.Token, toAddress: string) => Promise<void>,
-   allowTokenSale: (token: Entities.Token, price: number) => Promise<void>,
-   preventTokenSale: (token: Entities.Token) => Promise<void>,
+   buyToken: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
+   transferToken: (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => Promise<void>,
+   allowTokenSale: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
+   preventTokenSale: (token: Entities.Token, onStarted: Function, onFinished: Function)=> Promise<void>,
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>,
 }
@@ -39,13 +39,13 @@ export function CryptoProvider({ children }) {
    const [isContractOwner, setIsContractOwner] = useState(false);
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
-   const [isBlockchainConnected, setIsBlockchainConnected] = useState(false); 
+   const [isBlockchainConnected, setIsBlockchainConnected] = useState(false);
    const [initialTokenPrice, setInitialTokenPrice] = useState(0);
    const [priceEscalationRate, setPriceEscalationRate] = useState(0);
    const [royaltyRate, setRoyaltyRate] = useState(0);
-   
+
    useEffect(() => {
-      (async () => {                         
+      (async () => {
          if (contract != null && account != '') {
             await getTokens();
          }
@@ -64,7 +64,7 @@ export function CryptoProvider({ children }) {
       }
 
       setIsBlockchainConnected(true);
-      
+
       return true;
    }
 
@@ -72,8 +72,8 @@ export function CryptoProvider({ children }) {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
          window.ethereum.on('accountsChanged', () => loadBlockchainData());
-         window.ethereum.on('chainChanged', () => connectToBlockchain()); 
-            
+         window.ethereum.on('chainChanged', () => connectToBlockchain());
+
          try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             return true;
@@ -104,7 +104,7 @@ export function CryptoProvider({ children }) {
          const contractAddress = tokenNetworkData.address;
          const abi = TokenContract.abi;
          const contract = await new web3.eth.Contract(abi, contractAddress);
-         
+
          const initialTokenPrice_ = Number(Web3.utils.fromWei(await contract.methods.initialPrice().call(), 'ether'));
          const royaltyRate_ = ((await contract.methods.royaltyRate().call()) / 100);
          const priceEscalationRate_ = ((await contract.methods.priceEscalationRate().call()) / 100);
@@ -115,7 +115,7 @@ export function CryptoProvider({ children }) {
          setRoyaltyRate(royaltyRate_);
          setPriceEscalationRate(priceEscalationRate_);
          setIsContractOwner(accounts[0] === owner_);
-         console.log(owner_);
+         
          return true;
       } else {
          window.alert('Smart contract not deployed to a detected network.')
@@ -123,47 +123,54 @@ export function CryptoProvider({ children }) {
       }
    }
 
-   const getTokens = async (): Promise<Entities.Token[]> => {      
+   const getTokens = async (): Promise<Entities.Token[]> => {
       const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
       let newTokens: Entities.Token[] = [];
       
       const urls = contractTokens.map((token) => token.url);
       const metadataFiles = await Promise.all(
          urls.map(url => downloadFile(url, 2000)
-           .then(r => String.fromCharCode.apply(null, new Uint8Array(r)))
-           .then(data => JSON.parse(data))
-           .catch(error => ({ error, url }))
+            .then(r => String.fromCharCode.apply(null, new Uint8Array(r)))
+            .then(data => JSON.parse(data))
+            .catch(error => ({ error, url }))
          )
-       );
-    
-      for (const [i, token] of contractTokens.entries()) {         
-         let newToken = new Entities.Token({ 
-            id: token[0], 
-            owner: token[1], 
-            price: Number(Web3.utils.fromWei(token[2], 'ether')), 
-            lastPrice: Number(Web3.utils.fromWei(token[3], 'ether')), 
-            url: token[4], 
-            solution: token[5], 
-            isForSale: token[6], 
-            lastTransactionTimestamp: new Date(token[7] * 1000).toISOString().slice(0, 19).replace('T', ' '), 
-            transactionCount: token[8] });
-            
+      );
+
+      for (const [i, token] of contractTokens.entries()) {
+         let newToken = new Entities.Token({
+            id: token[0],
+            owner: token[1],
+            price: Number(Web3.utils.fromWei(token[2], 'ether')),
+            lastPrice: Number(Web3.utils.fromWei(token[3], 'ether')),
+            url: token[4],
+            solution: token[5],
+            isForSale: token[6],
+            lastTransactionTimestamp: new Date(token[7] * 1000).toISOString().slice(0, 19).replace('T', ' '),
+            transactionCount: token[8]
+         });
+
          const metadataFile = metadataFiles[i];
-      
-         if (!metadataFile.image|| metadataFile.image == '') {         
+
+         if (!metadataFile.image || metadataFile.image == '') {
             // let's assume that the metadata file hasn't been fully written to IPFS yet
             newToken.image = '';
             newToken.guesses = [];
-            newToken.secondsRequired = 0; 
-            console.log('Unable to load metadata from ' + token.url);
-         } else {        
+            newToken.secondsRequired = 0;
+            console.log(`Unable to load metadata from ${token.url}`);
+         } else {
             newToken.image = metadataFile.image;
             newToken.guesses = metadataFile.attributes.guesses;
-            newToken.secondsRequired = metadataFile.attributes.secondsRequired; 
+            newToken.secondsRequired = metadataFile.attributes.secondsRequired;
          }
+         if (account == token.owner) { 
+            newToken.marketplaceStatus = token.isForSale ? Entities.TokenStatus.ForSaleByThisAccount : Entities.TokenStatus.NotForSaleByThisAccount;
+         } else {
+            newToken.marketplaceStatus = token.isForSale ? Entities.TokenStatus.ForSale : Entities.TokenStatus.NotForSale;
+         }
+
          
-         newTokens.push(newToken);  
-      } 
+         newTokens.push(newToken);
+      }
 
       newTokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
       setTokens(newTokens, 60);
@@ -172,11 +179,11 @@ export function CryptoProvider({ children }) {
    }
 
    const mintToken = async (solution: string, guessResults: string[], secondsRequired: number) => {
-      const image = await pinFileToIpfs(`/solutions/${solution}.png`);  
-     
+      const image = await pinFileToIpfs(`/solutions/${solution}.png`);
+
       const metadata: any = {
          name: solution,
-         description: 'Ethordle NFT - ' + solution,
+         description: `Ethordle NFT - ${solution}`,
          image: image,
          attributes: {
             secondsRequired: secondsRequired,
@@ -187,55 +194,87 @@ export function CryptoProvider({ children }) {
       const metadataUrl = await pinJsonToIpfs(metadata);
       metadata.url = metadataUrl;
 
-      await contract.methods.mint(account, solution, metadataUrl, configSettings.contractPassword).send({ from: account, value: Web3.utils.toWei(initialTokenPrice.toString(), 'ether') });   
+      await contract.methods.mint(account, solution, metadataUrl, configSettings.contractPassword).send({ from: account, value: Web3.utils.toWei(initialTokenPrice.toString(), 'ether') });
       await getTokens();
    }
-  
-   const buyToken = async (token: Entities.Token, price: number) => {    
-      var wei = Web3.utils.toWei(price.toString(), 'ether');
-      await contract.methods.buy(token.id, account, configSettings.contractPassword).send({ from: account, value: wei });        
-      getTokens();
+
+   const callContractMethod = async (func: Function, token: Entities.Token, onStarted: Function, onCompleted: Function) => {
+      func()
+      .on('transactionHash', (hash) => {
+         onStarted(Entities.TokenStatus.Transacting);
+      })
+      .on('confirmation', (confirmationNumber, receipt) => {
+         if (confirmationNumber === 1) {
+            onCompleted();               
+         }
+      })
+      .on('error', (error) => {
+         console.log(error);
+      })
+      .then((receipt) => {                        
+      });
    }
 
-   const transferToken = async (token: Entities.Token, toAddress: string) => {    
-      await contract.methods.transfer(token.id, toAddress).send({ from: account });        
-      getTokens();
+   const buyToken = async (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => {
+      var wei = Web3.utils.toWei(price.toString(), 'ether');
+
+      await callContractMethod(() => 
+         contract.methods.buy(token.id, account, configSettings.contractPassword).send({ from: account, value: wei }),
+         token,
+         onStarted,
+         onFinished
+      );
    }
 
-   const allowTokenSale = async (token: Entities.Token, price: number) => {   
-      var wei = Web3.utils.toWei(price.toString(), 'ether');
-      await contract.methods.allowSale(token.id, account, wei).send({ from: account });       
-      getTokens();       
+   const transferToken = async (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => {      
+      await callContractMethod(() => 
+         contract.methods.transfer(token.id, toAddress).send({ from: account }),
+         token,
+         onStarted,
+         onFinished
+      );
    }
-   
-   const preventTokenSale = async (token: Entities.Token) => { 
-      console.log('starting');  // todo
-      await contract.methods.preventSale(token.id, account).send({ from: account });  
-      console.log('ending'); 
-      getTokens();    
-      console.log('and got tokens');  
+
+   const allowTokenSale = async (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => {
+      var wei = Web3.utils.toWei(price.toString(), 'ether');
+
+      await callContractMethod(() => 
+         contract.methods.allowSale(token.id, account, wei).send({ from: account }),
+         token,
+         onStarted,
+         onFinished
+      );
+   }
+
+   const preventTokenSale = async (token: Entities.Token, onStarted: Function, onFinished: Function) => {
+      await callContractMethod(() => 
+         contract.methods.preventSale(token.id, account).send({ from: account }),
+         token,
+         onStarted,
+         onFinished
+      );
    }
 
    return (
-      <CryptoContext.Provider value={{ 
-         isBlockchainConnected, 
-         initialTokenPrice, 
-         priceEscalationRate, 
-         royaltyRate, 
-         gameMode, 
-         setGameMode, 
-         account, 
+      <CryptoContext.Provider value={{
+         isBlockchainConnected,
+         initialTokenPrice,
+         priceEscalationRate,
+         royaltyRate,
+         gameMode,
+         setGameMode,
+         account,
          isContractOwner,
-         contract, 
+         contract,
          connectToBlockchain,
-         mintToken, 
-         buyToken, 
+         mintToken,
+         buyToken,
          transferToken,
-         allowTokenSale, 
-         preventTokenSale, 
-         tokens, 
+         allowTokenSale,
+         preventTokenSale,
+         tokens,
          getTokens
-       }}>{children}</CryptoContext.Provider>
+      }}>{children}</CryptoContext.Provider>
    )
 }
 
@@ -250,25 +289,25 @@ export const useCrypto = (): ContextInterface => {
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens } = useContext(CryptoContext);
    const { isContractOwner } = useContext(CryptoContext);
-   
-   return { 
-      isBlockchainConnected, 
-      initialTokenPrice, 
-      priceEscalationRate, 
-      royaltyRate, 
-      gameMode, 
-      setGameMode, 
-      account, 
-      isContractOwner, 
-      contract, 
-      connectToBlockchain, 
-      mintToken, 
-      buyToken, 
+
+   return {
+      isBlockchainConnected,
+      initialTokenPrice,
+      priceEscalationRate,
+      royaltyRate,
+      gameMode,
+      setGameMode,
+      account,
+      isContractOwner,
+      contract,
+      connectToBlockchain,
+      mintToken,
+      buyToken,
       transferToken,
-      allowTokenSale, 
-      preventTokenSale, 
-      tokens, 
-      getTokens 
+      allowTokenSale,
+      preventTokenSale,
+      tokens,
+      getTokens
    };
 }
 
