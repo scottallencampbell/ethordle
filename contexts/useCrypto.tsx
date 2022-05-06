@@ -27,6 +27,7 @@ interface ContextInterface {
    preventTokenSale: (token: Entities.Token, onStarted: Function, onFinished: Function)=> Promise<void>,
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>,
+   updateToken: (token: Entities.Token) => Promise<Entities.Token[]>
 }
 
 declare let window: any;
@@ -151,7 +152,7 @@ export function CryptoProvider({ children }) {
 
          const metadataFile = metadataFiles[i];
 
-         if (!metadataFile.image || metadataFile.image == '') {
+         if (!metadataFile.image || metadataFile.image === '') {
             // let's assume that the metadata file hasn't been fully written to IPFS yet
             newToken.image = '';
             newToken.guesses = [];
@@ -162,18 +163,33 @@ export function CryptoProvider({ children }) {
             newToken.guesses = metadataFile.attributes.guesses;
             newToken.secondsRequired = metadataFile.attributes.secondsRequired;
          }
-         if (account == token.owner) { 
+         if (account === token.owner) { 
             newToken.marketplaceStatus = token.isForSale ? Entities.TokenStatus.ForSaleByThisAccount : Entities.TokenStatus.NotForSaleByThisAccount;
          } else {
             newToken.marketplaceStatus = token.isForSale ? Entities.TokenStatus.ForSale : Entities.TokenStatus.NotForSale;
          }
 
-         
          newTokens.push(newToken);
       }
 
       newTokens.sort(function (a, b) { return b.price - a.price || a.solution.localeCompare(b.solution) });
-      setTokens(newTokens, 60);
+      setTokens(newTokens, configSettings.tokenCacheTimeout);
+      
+      return newTokens;
+   }
+
+   const updateToken = async (token: Entities.Token): Promise<Entities.Token[]> => {
+      let newTokens = [...tokens];      
+      const index = newTokens.findIndex(object => { return object.id === token.id; });
+
+      console.log('updateToken index: ' + index + ', status: ' + token.marketplaceStatus);
+
+      if (index === -1) {
+         return tokens;
+      }
+
+      newTokens[index] = token;
+      setTokens(newTokens, configSettings.tokenCacheTimeout);
       
       return newTokens;
    }
@@ -198,14 +214,16 @@ export function CryptoProvider({ children }) {
       await getTokens();
    }
 
-   const callContractMethod = async (func: Function, token: Entities.Token, onStarted: Function, onCompleted: Function) => {
+   const callContractMethod = async (func: Function, token: Entities.Token, onStarted: Function, onFinished: Function) => {
       func()
       .on('transactionHash', (hash) => {
+         token.marketplaceStatus = Entities.TokenStatus.Transacting;
+         updateToken(token);
          onStarted(Entities.TokenStatus.Transacting);
       })
       .on('confirmation', (confirmationNumber, receipt) => {
          if (confirmationNumber === 1) {
-            onCompleted();               
+            onFinished();               
          }
       })
       .on('error', (error) => {
@@ -273,7 +291,8 @@ export function CryptoProvider({ children }) {
          allowTokenSale,
          preventTokenSale,
          tokens,
-         getTokens
+         getTokens,
+         updateToken
       }}>{children}</CryptoContext.Provider>
    )
 }
@@ -287,7 +306,7 @@ export const useCrypto = (): ContextInterface => {
    const { connectToBlockchain } = useContext(CryptoContext);
    const { mintToken, buyToken, transferToken } = useContext(CryptoContext);
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
-   const { tokens, getTokens } = useContext(CryptoContext);
+   const { tokens, getTokens, updateToken } = useContext(CryptoContext);
    const { isContractOwner } = useContext(CryptoContext);
 
    return {
@@ -307,7 +326,8 @@ export const useCrypto = (): ContextInterface => {
       allowTokenSale,
       preventTokenSale,
       tokens,
-      getTokens
+      getTokens,
+      updateToken
    };
 }
 

@@ -36,7 +36,7 @@ const Tokens = () => {
             return;
          }            
 
-         if (tokens == null) {            
+         if (tokens === null) {            
             await getTokens();
             fadeElementsIn();
          } else {
@@ -48,9 +48,9 @@ const Tokens = () => {
 
    useEffect(() => {
       (async () => {   
-         if (!isBlockchainConnected || tokens == null) { return; }
+         if (!isBlockchainConnected || tokens === null) { return; }
          
-         const myTokens = tokens.filter((token) => token.owner == account);
+         const myTokens = tokens.filter((token) => token.owner === account);
          setTokensToRender(myTokens);
         })();
    }, [tokens, isBlockchainConnected]);

@@ -14,7 +14,6 @@ import { Summary } from '../components/Summary';
 import { ModeChooser } from '../components/ModeChooser';
 import { StatusBar } from '../components/StatusBar';
 import { NoGasAvailable } from '../components/NoGasAvailable';
-import getSomething from '../pages/api/load-nfts';  // todo
 
 import * as Entities from '../models/entities';
 import configSettings from '../config.json';
@@ -76,7 +75,7 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         if (contract == null) { return; }
+         if (contract === null) { return; }
 
          let uniqueSolution = await chooseSolution();
          
@@ -142,7 +141,7 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {         
-         if (gameMode == Entities.GameMode.Unknown) { return; }
+         if (gameMode === Entities.GameMode.Unknown) { return; }
          if (solution != '') { return; }
 
          let uniqueSolution = await chooseSolution();
@@ -150,7 +149,7 @@ const Index = () => {
          console.log(uniqueSolution);
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
-               Cookies.set(introShownCookieName, 'true', { expires: 7 })
+               Cookies.set(introShownCookieName, 'true', { expires: 7, sameSite: 'None', secure: true })
                setIsIntroductionPopupOpen(true);
             }, 100);
          }
@@ -158,7 +157,7 @@ const Index = () => {
    }, [gameMode]);
 
    const handleKeyDown = (e) => {
-      if (gameStatus == Entities.GameStatus.Won || gameStatus == Entities.GameStatus.Lost) {
+      if (gameStatus === Entities.GameStatus.Won || gameStatus === Entities.GameStatus.Lost) {
          return;
       }
 
@@ -166,11 +165,11 @@ const Index = () => {
          if (currentTileIndex >= wordLength) { return; }
          enterLetter(String.fromCharCode(e.keyCode));
       }
-      else if (e.keyCode == 8) {
-         if (currentTileIndex == 0) { return; }
+      else if (e.keyCode === 8) {
+         if (currentTileIndex === 0) { return; }
          deleteLetter();
       }
-      else if (e.keyCode == 13) {
+      else if (e.keyCode === 13) {
          if (currentTileIndex < wordLength) { return; }
          enterWord();
       }
@@ -182,7 +181,7 @@ const Index = () => {
       for (let i = 0; i < maxAttempts; i++) {
          let solution = solutions[Math.floor(Math.random() * solutions.length)];
          
-         if (gameMode == Entities.GameMode.Disconnected) {
+         if (gameMode === Entities.GameMode.Disconnected) {
             return solution;
          } else {
             const isWordUnique = await contract.methods.isSolutionUnique(solution).call();
@@ -240,16 +239,16 @@ const Index = () => {
       }
       else {
          for (const [i, tile] of row.entries()) {
-            if (tile.value == solution.charAt(i)) {
+            if (tile.value === solution.charAt(i)) {
                tile.status = Entities.TileStatus.Correct;
             }
          }
 
          for (const [i, tile] of row.entries()) {
-            if (tile.status == Entities.TileStatus.Correct) { continue; }
+            if (tile.status === Entities.TileStatus.Correct) { continue; }
 
-            let matchesSoFar = row.filter(item => item.value == tile.value && (item.status == Entities.TileStatus.Correct || item.status == Entities.TileStatus.IncorrectPosition)).length;
-            let matchesInSolution = solution.split('').filter(x => x == tile.value).length;
+            let matchesSoFar = row.filter(item => item.value === tile.value && (item.status === Entities.TileStatus.Correct || item.status === Entities.TileStatus.IncorrectPosition)).length;
+            let matchesInSolution = solution.split('').filter(x => x === tile.value).length;
 
             tile.status = matchesInSolution > matchesSoFar ? Entities.TileStatus.IncorrectPosition : Entities.TileStatus.Incorrect;
          }
@@ -285,10 +284,10 @@ const Index = () => {
          setKeyboard(newKeyboard);
          setGuessResults(newGuessResults);
 
-         if (guess == solution) {
+         if (guess === solution) {
             await showSummary(Entities.GameStatus.Won);
 
-            if (gameMode == Entities.GameMode.Blockchain) {
+            if (gameMode === Entities.GameMode.Blockchain) {
                await mintToken(solution, newGuessResults, secondsRequired);
             }
          }
@@ -310,7 +309,7 @@ const Index = () => {
       newStatistics.gamesPlayed++;
       newStatistics.solution = solution;
 
-      if (newGameStatus == Entities.GameStatus.Won) {
+      if (newGameStatus === Entities.GameStatus.Won) {
          newStatistics.gamesWon++;
          newStatistics.streak++;
          newStatistics.guesses[currentRowIndex]++;
@@ -328,7 +327,7 @@ const Index = () => {
          newStatistics.streak = 0;
       }
 
-      Cookies.set(statisticsCookieName, JSON.stringify(newStatistics), { expires: 365 });
+      Cookies.set(statisticsCookieName, JSON.stringify(newStatistics), { expires: 365, sameSite: 'None', secure: true });
       setStatistics(newStatistics);
       setGameStatus(newGameStatus);
 
@@ -346,9 +345,9 @@ const Index = () => {
       let keyboardLetter;
 
       for (const row of keyboard) {
-         keyboardLetter = row.filter(x => x.value == letter);
+         keyboardLetter = row.filter(x => x.value === letter);
 
-         if (keyboardLetter.length == 1) {
+         if (keyboardLetter.length === 1) {
             return keyboardLetter[0];
          }
       }

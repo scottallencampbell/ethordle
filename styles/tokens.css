@@ -159,7 +159,7 @@
   color: #43ABDC;
 }
 
-#token-list .title {
+#token-list #title {
   text-transform: uppercase;
   font-weight: bold;
   font-size: 20px;

@@ -36,7 +36,7 @@ const Marketplace = () => {
             return;
          }            
         
-         if (tokens == null) {            
+         if (tokens === null) {            
             await getTokens();
             fadeElementsIn();
          }
@@ -48,7 +48,7 @@ const Marketplace = () => {
 
    useEffect(() => {
       (async () => {            
-         if (!isBlockchainConnected || tokens == null) { return; }
+         if (!isBlockchainConnected || tokens === null) { return; }
       
          setTokensToRender(tokens);
         })();

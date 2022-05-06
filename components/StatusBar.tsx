@@ -13,36 +13,36 @@ export const StatusBar = ({} : IStatusBar) => {
    const { isBlockchainConnected } = useCrypto();
 
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
+   const [path, setPath] = useState('');
 
    useEffect(() => {
-      if (account != '' && tokens != null) {
-         setTimeout(() => {
-            document.getElementById('logo').classList.add('flippable');
-         }, 1000);         
-      }
+      setTimeout(() => {
+         document.getElementById('logo').classList.add('flippable');
+      }, 1000);         
+      
+      setPath(window.location.href);
 
    }, [isBlockchainConnected]);
 
    return (
       <>
-      { isBlockchainConnected ? 
-      <>
-         <div className='top-bar'>         
+         <div id='top-bar'>         
             <div id='logo'>
                <StaticGridRow word='E' statusMap='X'></StaticGridRow>               
             </div>
+            { isBlockchainConnected ?   
+            <>
             <div className='menu-items'>   
-               { !window.location.href.endsWith('/') ? <Link href='/'>New game</Link> : <a onClick={() => window.location.href='/'}>New game</a> }
+               { path != '/' ? <Link href='/'>New game</Link> : <a onClick={() => window.location.href='/'}>New game</a> }
                <Link href='/tokens'>My tokens</Link>        
-               <Link href='/marketplace'>Marketplace</Link>                               
+               <Link href='/marketplace'>Marketplace</Link>                  
                <a onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
             </div>
             <div className='account'><a onClick={() => window.open(`https://etherscan.io/address/${account}`)}>{account}</a></div>
+            </>           
+            : <></> }
          </div>   
-         <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>
-      </>
-      : <></> 
-      }
+         <Introduction isIntroductionPopupOpen={isIntroductionPopupOpen} setIsIntroductionPopupOpen={setIsIntroductionPopupOpen}></Introduction>      
       </>
    )
 }

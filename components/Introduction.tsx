@@ -30,7 +30,7 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
                   <p>Welcome to Ethordle, the NFT-enabled version of the popular Wordle game.</p>
                   <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess. The color of the tiles will change to show how close your guess was to the solution.</p>
                   <hr></hr>
-                  <div className='examples'>
+                  <div id='examples'>
                      <StaticGridRow word={'CHOMP'} statusMap={'X    '}></StaticGridRow>
                      <p>The letter <b>C</b> is in the solution and is in the correct location.</p>
                      <StaticGridRow word={'BLURT'} statusMap={' O   '}></StaticGridRow>

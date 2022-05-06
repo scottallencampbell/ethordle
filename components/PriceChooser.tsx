@@ -25,7 +25,7 @@ export const PriceChooser = ({ token, isPriceChooserOpen, setIsPriceChooserOpen,
       if (Math.floor(value.valueOf()) === value.valueOf()) return 0;
       const tokens = value.toString().split('.');
 
-      if (tokens.length == 0 || !tokens[1]) { return 0; }
+      if (tokens.length === 0 || !tokens[1]) { return 0; }
       return tokens[1].length;
    }
 

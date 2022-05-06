@@ -35,7 +35,7 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
    return (    
       <>
          <Title title={title}></Title>
-         { tokens.length == 0 && !isMarketplace ?        
+         { tokens.length === 0 && !isMarketplace ?        
             <div id='no-tokens' className='vertically-centered hidden-on-load'>
                <img src='./crying-emoji.png'></img>
                <p>We&apos;re sorry, this account currently owns no tokens.</p>

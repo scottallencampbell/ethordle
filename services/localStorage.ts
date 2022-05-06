@@ -16,7 +16,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         const item = window.localStorage.getItem(key);
         const expiry = window.localStorage.getItem(expiryKey);
         
-        if (expiry == null || new Date() > new Date(expiry)) {
+        if (expiry === null || new Date() > new Date(expiry)) {
             window.localStorage.removeItem(key);
             window.localStorage.removeItem(expiryKey);
         }
@@ -37,7 +37,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         const valueToStore = value instanceof Function ? value(storedValue) : value;
         const expiry = new Date(new Date().getTime() + seconds * 1000);
 
-        if (valueToStore == null) {
+        if (valueToStore === null) {
             window.localStorage.removeItem(key);
             window.localStorage.removeItem(expiryKey);
         }
