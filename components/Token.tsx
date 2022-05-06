@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Toggle } from './Toggle';
 import { PriceChooser } from '../components/PriceChooser';
-import * as Entities from '../model/entities';
-import { useCrypto } from '../context/useCrypto';
+import * as Entities from '../models/entities';
+import { useCrypto } from '../contexts/useCrypto';
 import { Transfer } from './Transfer';
 
 interface IToken {

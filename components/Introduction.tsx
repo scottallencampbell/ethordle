@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Popup from 'reactjs-popup';
-import { useCrypto } from '../context/useCrypto';
+import { useCrypto } from '../contexts/useCrypto';
 import { StaticGridRow } from './StaticGridRow'
 
 interface IIntroduction {   

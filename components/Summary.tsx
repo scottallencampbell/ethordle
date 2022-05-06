@@ -1,4 +1,4 @@
-import * as Entities from '../model/entities';
+import * as Entities from '../models/entities';
 
 import Popup from 'reactjs-popup';
 import { StaticGridRow } from './StaticGridRow';

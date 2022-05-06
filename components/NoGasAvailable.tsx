@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import Popup from 'reactjs-popup';
-import { useCrypto } from '../context/useCrypto';
+import { useCrypto } from '../contexts/useCrypto';
 
 interface INoGasAvailable {   
    isNoGasAvailablePopupOpen: boolean,

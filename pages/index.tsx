@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { fulfillWithTimeLimit } from '../services/async';
-import { useCrypto } from '../context/useCrypto';
+import { useCrypto } from '../contexts/useCrypto';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
 import { Grid } from '../components/Grid';
@@ -16,7 +16,7 @@ import { StatusBar } from '../components/StatusBar';
 import { NoGasAvailable } from '../components/NoGasAvailable';
 import getSomething from '../pages/api/load-nfts';  // todo
 
-import * as Entities from '../model/entities';
+import * as Entities from '../models/entities';
 import configSettings from '../config.json';
 
 words.push(...solutions);

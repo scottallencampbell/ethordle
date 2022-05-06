@@ -3,7 +3,7 @@ import '../styles/tokens.css';
 import '../styles/toggle.css';
 import '../styles/button.css';
 
-import { CryptoProvider } from '../context/useCrypto';
+import { CryptoProvider } from '../contexts/useCrypto';
 
 function Ethordle({ Component, pageProps }) {
    return (

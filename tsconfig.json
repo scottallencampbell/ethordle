@@ -20,7 +20,7 @@
    "exclude": ["node_modules"],
    "typeRoots" : [
       "./node_modules/@types",
-      "./model/entities.tsx"
+      "./models/entities.tsx"
     ]
 }
 

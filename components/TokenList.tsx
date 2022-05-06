@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { ModeChooser } from './ModeChooser';
 import { Title } from './Title';
 import { Token } from './Token';
-import * as Entities from '../model/entities';
-import { useCrypto } from '../context/useCrypto';
+import * as Entities from '../models/entities';
+import { useCrypto } from '../contexts/useCrypto';
 import Link from 'next/link';
 
 interface ITokenList {

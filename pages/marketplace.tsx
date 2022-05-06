@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fulfillWithTimeLimit } from '../services/async';
-import { useCrypto } from '../context/useCrypto';
+import { useCrypto } from '../contexts/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 

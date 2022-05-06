@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import Popup from 'reactjs-popup';
-import * as Entities from '../model/entities';
+import * as Entities from '../models/entities';
 
 interface IModeChooser {   
    setGameMode: React.Dispatch<React.SetStateAction<Entities.GameMode>>,

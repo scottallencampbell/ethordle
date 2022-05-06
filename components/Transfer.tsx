@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import Popup from 'reactjs-popup';
 
-import * as Entities from '../model/entities';
+import * as Entities from '../models/entities';
 
 interface ITransfer {
    token: Entities.Token,
@@ -35,7 +35,7 @@ export const Transfer = ({ token, toAddress, setToAddress, isTransferPopupOpen, 
                <div className='popup-title'>Transfer <strong>{token.solution}</strong> to Another Account</div>
                <a className='close' onClick={() => setIsTransferPopupOpen(false)}>&times;</a>
                <div className='content'>
-                  <p>Enter the transferee's ethereum address in the textbox below:</p>
+                  <p>Enter the transferee&apos;s ethereum address in the textbox below:</p>
                   <div className='center'>
                      <input type='text' className='address' onChange={handleAddressChange} value={toAddress}></input>
                   </div>

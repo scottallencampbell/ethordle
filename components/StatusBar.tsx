@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useCrypto } from '../context/useCrypto';
+import { useCrypto } from '../contexts/useCrypto';
 import Link from 'next/link';
 import { Introduction } from './Introduction';
 import { StaticGridRow } from './StaticGridRow';

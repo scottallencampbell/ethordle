@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import Popup from 'reactjs-popup';
-import { useCrypto } from '../context/useCrypto';
+import { useCrypto } from '../contexts/useCrypto';
 
-import * as Entities from '../model/entities';
+import * as Entities from '../models/entities';
 
 interface IPriceChooser {
    token: Entities.Token,
