@@ -498,7 +498,7 @@ input[type=number] {
 
 @media (max-width: 700px) {
   #title {
-    margin-bottom: 30px;
+    margin-bottom: 0px;
   }
 }
 

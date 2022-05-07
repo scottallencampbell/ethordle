@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { Introduction } from './Introduction';
 import { StaticGridRow } from './StaticGridRow';
 
+import * as Entities from '../models/entities';
 interface IStatusBar {  
 }
 
 export const StatusBar = ({} : IStatusBar) => {
-   const { tokens } = useCrypto(); 
    const { account } = useCrypto();
-   const { isBlockchainConnected } = useCrypto();
+   const { gameMode } = useCrypto();
 
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
    const [path, setPath] = useState('');
@@ -22,7 +22,7 @@ export const StatusBar = ({} : IStatusBar) => {
       
       setPath(window.location.href);
 
-   }, [isBlockchainConnected]);
+   }, [gameMode]);
 
    return (
       <>
@@ -30,12 +30,16 @@ export const StatusBar = ({} : IStatusBar) => {
             <div id='logo'>
                <StaticGridRow word='E' statusMap='X'></StaticGridRow>               
             </div>
-            { isBlockchainConnected ?   
+            { gameMode != Entities.GameMode.Unknown ?   
             <>
-            <div className='menu-items'>   
-               { path != '/' ? <Link href='/'>New game</Link> : <a onClick={() => window.location.href='/'}>New game</a> }
-               <Link href='/tokens'>My tokens</Link>        
-               <Link href='/marketplace'>Marketplace</Link>                  
+            <div className='menu-items'>  
+               { path.endsWith('/') ? <a onClick={() => window.location.href='/'}>New game</a> : <Link href='/'>New game</Link> }
+               { gameMode == Entities.GameMode.Blockchain ?
+               <>
+                  <Link href='/tokens'>My tokens</Link>        
+                  <Link href='/marketplace'>Marketplace</Link> 
+               </> : <></>                 
+               }
                <a onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
             </div>
             <div className='account'><a onClick={() => window.open(`https://etherscan.io/address/${account}`)}>{account}</a></div>

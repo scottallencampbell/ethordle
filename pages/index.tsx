@@ -74,6 +74,11 @@ const Index = () => {
    const [isNoGasAvailablePopupOpen, setIsNoGasAvailablePopupOpen] = useState(nullBoolean);
 
    useEffect(() => {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => { document.removeEventListener('keydown', handleKeyDown); }
+   });
+
+   useEffect(() => {
       (async () => {
          if (contract === null) { return; }
 
@@ -82,11 +87,6 @@ const Index = () => {
          setSolution(uniqueSolution);
       })();
    }, [router]);
-
-   useEffect(() => {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => { document.removeEventListener('keydown', handleKeyDown); }
-   });
 
    useEffect(() => {
       (async () => {
