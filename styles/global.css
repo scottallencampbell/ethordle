@@ -59,10 +59,15 @@ input[type=number] {
 #top-bar .account {
   color: #ffffff;
   float: right;
-  margin-top: 21px;
   margin-right: 21px;
   font-weight: bold;
   font-size: 15px;
+}
+
+@media (max-width: 700px) {
+  #top-bar .hide-on-small {
+    display: none;
+  }
 }
 
 #top-bar #logo {
@@ -84,7 +89,6 @@ input[type=number] {
   font-weight: bold;
   float: left;
   font-size: 15px;
-  margin-top: 21px;
   margin-left: 30px;
 }
 
@@ -106,6 +110,12 @@ input[type=number] {
   margin-right: 30px;
 }
 
+@media (max-width: 700px) {
+  #top-bar .menu-items a {
+    margin-right: 20px;
+  }
+}
+
 #top-bar a:visited {
   color: #ffffff !important;
 }
@@ -115,7 +125,6 @@ input[type=number] {
 }
 
 .main {
-  width: 700px;
   margin-left: auto;
   margin-right: auto;
   outline: none;
@@ -123,7 +132,6 @@ input[type=number] {
 
 @media (max-width: 700px) {
   .main {
-    width: 480px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -210,6 +218,44 @@ input[type=number] {
     width: 70px;
     height: 70px;
   }
+}
+
+#title {
+  font-weight: bold;
+  font-size: 45px;
+  zoom: 74%;
+  -moz-transform: scale(.74);
+}
+
+#title span {
+  width: 20px;
+  display: inline-block;
+}
+
+@media (max-width: 700px) {
+  #title {
+    margin-bottom: 0px;
+  }
+}
+
+#title .tile .face {
+  background-color: #ffffff !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 40px;
+}
+
+#title .tile-container {
+  width: 48px;
+  min-width: 48px;
+}
+
+#title>div {
+  display: inline-block;
+}
+
+#title .tile {
+  width: 45px;
 }
 
 .tile-container {
@@ -486,42 +532,6 @@ input[type=number] {
   color: #000000 !important;
 }
 
-#title {
-  font-weight: bold;
-  font-size: 45px;
-}
-
-#title span {
-  width: 20px;
-  display: inline-block;
-}
-
-@media (max-width: 700px) {
-  #title {
-    margin-bottom: 0px;
-  }
-}
-
-#title .tile .face {
-  background-color: #ffffff !important;
-  border: none !important;
-  color: #ffffff !important;
-  font-size: 40px;
-}
-
-#title .tile-container {
-  width: 48px;
-  min-width: 48px;
-}
-
-#title>div {
-  display: inline-block;
-}
-
-#title .tile {
-  width: 45px;
-}
-
 .tile.error .front {
   background-color: #ffffff;
   border-color: #bb0000;
@@ -589,11 +599,11 @@ input[type=number] {
 @media (max-width: 700px) {
   .keyboard-letter {
     line-height: 65px;
-    min-width: 35px;
+    min-width: 30px;
     height: 65px;
     margin: 4px;
     font-size: 16px;
-    padding: 0 10px 0 10px;
+    padding: 0 5px 0 5px;
   }
 }
 

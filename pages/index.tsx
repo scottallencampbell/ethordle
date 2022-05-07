@@ -80,16 +80,6 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         if (contract === null) { return; }
-
-         let uniqueSolution = await chooseSolution();
-         
-         setSolution(uniqueSolution);
-      })();
-   }, [router]);
-
-   useEffect(() => {
-      (async () => {
          setTimeout(() => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
@@ -118,10 +108,21 @@ const Index = () => {
          } else {
             setIsGameModePopupOpen(true);                   
          }
-         // todo not sure why this is necessary
+
+         // todo not sure why this is necessary, without it though the keyboard state is preserved, somehow
          setKeyboard(() => letters.map((row) => { return row.map((letter) => { return { value: letter, status: Entities.TileStatus.None }; }); }));
       })();
    }, []);
+   
+   useEffect(() => {
+      (async () => {
+         if (contract === null) { return; }
+
+         let uniqueSolution = await chooseSolution();
+         
+         setSolution(uniqueSolution);
+      })();
+   }, [router]);
 
    useEffect(() => {
       (async () => {
@@ -142,7 +143,7 @@ const Index = () => {
    useEffect(() => {
       (async () => {         
          if (gameMode === Entities.GameMode.Unknown) { return; }
-         if (solution != '') { return; }
+         if (solution !== '') { return; }
 
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);

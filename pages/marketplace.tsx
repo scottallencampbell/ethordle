@@ -6,7 +6,6 @@ import { StatusBar } from '../components/StatusBar';
 
 import configSettings from '../config.json';
 import Head from 'next/head';
-import { NoGasAvailable } from '../components/NoGasAvailable';
 
 const Marketplace = () => {
    const { isBlockchainConnected, connectToBlockchain } = useCrypto();  

@@ -47,7 +47,7 @@ export function CryptoProvider({ children }) {
 
    useEffect(() => {
       (async () => {
-         if (contract != null && account != '') {
+         if (contract !== null && account !== '') {
             await getTokens();
          }
       })();

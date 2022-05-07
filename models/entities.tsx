@@ -51,9 +51,9 @@ export enum TokenStatus {
 }
 
 export enum GameMode {
-   Unknown,
-   Blockchain,
-   Disconnected
+   Unknown = 'Unknown',
+   Blockchain = 'Blockchain',
+   Disconnected = 'Disconnected'
 }
 
 export enum GameStatus {

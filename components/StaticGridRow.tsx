@@ -16,7 +16,7 @@ interface IStaticGridRow {
     return (
        <div key={word}> {
             [...word].map((letter, i) => (
-            letter != ' ' ?
+            letter !== ' ' ?
                 <div className='tile-container' key={`title-${i}`} >
                     <div className={`tile sequence${i} ${statusCodes.get(statusMap[i])}`}>
                         <div className='inner'>

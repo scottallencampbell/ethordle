@@ -1,6 +1,6 @@
 #token-list {
   margin-bottom: 30px;
-  width: 1300px;
+  max-width: 1300px;
   margin-left: auto;
   margin-right: auto;
   outline: none;
@@ -8,15 +8,10 @@
   clear: both;
 }
 
-@media (max-width: 1350px) {
-  #token-list {
-    width: 1000px;
-  }
-}
-
-@media (max-width: 1000px) {
-  #token-list {
-    width: 500px;
+@media (max-width: 500px) {
+  #token-list .token {
+    zoom: 80%;
+    -moz-transform: scale(.8);
   }
 }
 

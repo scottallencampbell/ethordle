@@ -16,7 +16,7 @@ export const Transfer = ({ token, toAddress, setToAddress, isTransferPopupOpen, 
    const [errorDetected, setErrorDetected] = useState('');
    
    const handleTransferButtonClick = () => {
-      if (toAddress.length != 42) {
+      if (toAddress.length !== 42) {
          setErrorDetected('invalid-address');
       } else {
          handleTransferToken();

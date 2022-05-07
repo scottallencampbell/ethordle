@@ -30,19 +30,20 @@ export const StatusBar = ({} : IStatusBar) => {
             <div id='logo'>
                <StaticGridRow word='E' statusMap='X'></StaticGridRow>               
             </div>
-            { gameMode != Entities.GameMode.Unknown ?   
+            <div>{gameMode}</div>
+            { gameMode !== Entities.GameMode.Unknown ?   
             <>
             <div className='menu-items'>  
                { path.endsWith('/') ? <a onClick={() => window.location.href='/'}>New game</a> : <Link href='/'>New game</Link> }
-               { gameMode == Entities.GameMode.Blockchain ?
+               { gameMode === Entities.GameMode.Blockchain ?
                <>
                   <Link href='/tokens'>My tokens</Link>        
                   <Link href='/marketplace'>Marketplace</Link> 
                </> : <></>                 
                }
-               <a onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
-            </div>
-            <div className='account'><a onClick={() => window.open(`https://etherscan.io/address/${account}`)}>{account}</a></div>
+               <a className={`about ${gameMode === Entities.GameMode.Blockchain ? 'hide-on-small' : ''} `} onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
+            </div>            
+            <div className='account hide-on-small'><a onClick={() => window.open(`https://etherscan.io/address/${account}`)}>{account}</a></div>
             </>           
             : <></> }
          </div>   
