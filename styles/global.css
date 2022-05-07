@@ -927,9 +927,9 @@ body {
   }
 
   .keyboard-letter {
-    line-height: 65px;
+    line-height: 55px;
     min-width: 33px;
-    height: 65px;
+    height: 55px;
     margin: 4px;
     font-size: 16px;
     padding: 0 10px 0 10px;
@@ -937,19 +937,38 @@ body {
   }
 
   .statistics>div {
-    width: 90px;
+    width: 70px;
   }
 
   .statistics p {
     display: block;
-    font-size: 35px;
+    font-size: 30px;
     font-weight: bold;
     margin: 0;
     height: 35px;
     width: 100%;
   }
+  
+  .statistics label {
+    font-size: 11px;
+  }
 
   .distribution {
     width: 100%;
+  }
+
+  #intro {
+    -moz-transform: scale(.7);
+    zoom: 70%;
+  }
+  
+  #intro #examples {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  #intro #examples > div {
+    -moz-transform: scale(.5);
+    zoom: 50%;
   }
 }

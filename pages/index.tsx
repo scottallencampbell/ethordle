@@ -105,6 +105,7 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
+         setIsIntroductionPopupOpen(true);
          if (gameMode !== Entities.GameMode.Unknown) {
             setIsGameModePopupOpen(false);
          }

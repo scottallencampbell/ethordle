@@ -52,37 +52,24 @@ export function CryptoProvider({ children }) {
    }, [account, contract]);
 
    const validateBlockchain = async (): Promise<Entities.BlockchainStatus> => {
-      let isConnected = false;
-      let isGasAvailable = true;
-
-      try {
-         isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
-      } catch (ex) {
-         if (ex.toString().includes('did it run Out of Gas')) {              
-            isConnected = true;
-            isGasAvailable = false;
-         }
-         else {
-            isConnected = false;
-         }
-      }
-      
       let status = Entities.BlockchainStatus.Unknown;
 
-      if (isConnected && isGasAvailable) {
-         status = Entities.BlockchainStatus.Connected;
-      } else if (isConnected) {
-         status = Entities.BlockchainStatus.NoGas;
-      } else {
-         status = Entities.BlockchainStatus.NotConnected;        
+      try {
+         status = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);         
+      } catch (ex) {
+         if (ex.toString().includes('did it run Out of Gas')) {              
+            status = Entities.BlockchainStatus.NoGas;
+         }
+         else {
+            status = Entities.BlockchainStatus.NotConnected;
+         }
       }
-
+    
       setBlockchainStatus(status);
       return status;
    }
 
-   const connectToBlockchain = async (): Promise<Entities.BlockchainStatus> => {
-      
+   const connectToBlockchain = async (): Promise<Entities.BlockchainStatus> => {      
       if (!await loadWeb3()) {
          return Entities.BlockchainStatus.NoEthereum;
       }
@@ -97,8 +84,8 @@ export function CryptoProvider({ children }) {
    const loadWeb3 = async (): Promise<boolean> => {
       if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
-         window.ethereum.on('accountsChanged', () => loadBlockchainData());
-         window.ethereum.on('chainChanged', () => connectToBlockchain());
+         window.ethereum.on('accountsChanged', () => validateBlockchain());
+         window.ethereum.on('chainChanged', () => validateBlockchain());
 
          try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
