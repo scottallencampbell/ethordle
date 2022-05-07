@@ -264,7 +264,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _tokens[tokenId] = token; 
     }
     
-    function transfer(
+    function transferAsContractOwner(
         uint256 tokenId,
         address to
     ) external payable nonReentrant() onlyOwner {        

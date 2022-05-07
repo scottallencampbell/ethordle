@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { fulfillWithTimeLimit } from '../services/async';
+import Head from 'next/head';
 import { useCrypto } from '../contexts/useCrypto';
 import { TokenList } from '../components/TokenList';
 import { StatusBar } from '../components/StatusBar';
 
+import * as Entities from '../models/entities';
 import configSettings from '../config.json';
-import Head from 'next/head';
 
 const Tokens = () => {
-   const { isBlockchainConnected, connectToBlockchain } = useCrypto();  
+   const { blockchainStatus, validateBlockchain } = useCrypto();
    const { account } = useCrypto();
    const { tokens, getTokens } = useCrypto();
    
@@ -23,36 +23,42 @@ const Tokens = () => {
 
    useEffect(() => {
       (async () => {   
-         if (isBlockchainConnected) { return; }         
-         const isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);         
-        })();
+         const status = await validateBlockchain();
+
+         switch (status) { 
+            case Entities.BlockchainStatus.NoGas:                      
+            case Entities.BlockchainStatus.NotConnected:
+               setIsGameModePopupOpen(true);
+               break;
+         }       
+      })();
    }, []);
 
    useEffect(() => {
       (async () => {            
-         if (!isBlockchainConnected) {
+         if (blockchainStatus != Entities.BlockchainStatus.Connected) {
             setIsGameModePopupOpen(true);
             return;
          }            
-
-         if (tokens === null) {            
+        
+         if (tokens == null) {            
             await getTokens();
             fadeElementsIn();
-         } else {
+         }
+         else {
             fadeElementsIn();
          }
-
         })();
-   }, [isBlockchainConnected, tokens]);
+   }, [blockchainStatus]);
 
    useEffect(() => {
-      (async () => {   
-         if (!isBlockchainConnected || tokens === null) { return; }
-         
+      (async () => {            
+         if (blockchainStatus != Entities.BlockchainStatus.Connected || tokens == null) { return; }
+      
          const myTokens = tokens.filter((token) => token.owner === account);
          setTokensToRender(myTokens);
         })();
-   }, [tokens, isBlockchainConnected]);
+   }, [tokens, blockchainStatus]);
 
    return (
       <>  

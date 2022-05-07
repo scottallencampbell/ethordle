@@ -71,3 +71,11 @@ export enum TileStatus {
    Entered = 'entered',
    EnteredNoAnimation = 'entered-no-animation'
 }
+
+export enum BlockchainStatus {
+   Unknown = 'unknown',
+   Connected = 'connected',
+   NotConnected = 'not-connected',
+   NoEthereum = 'no-ethereum',
+   NoGas = 'no-gas'
+}

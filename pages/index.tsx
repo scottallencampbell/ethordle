@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { fulfillWithTimeLimit } from '../services/async';
 import { useCrypto } from '../contexts/useCrypto';
 import { words } from '../data/words';
 import { solutions } from '../data/solutions';
@@ -55,12 +54,12 @@ let nullBoolean : boolean | null;
 const Index = () => {
    const router = useRouter();
 
-   const { isBlockchainConnected, connectToBlockchain } = useCrypto();
+   const { blockchainStatus, validateBlockchain } = useCrypto();
    const { contract } = useCrypto();
-   const { gameMode, setGameMode } = useCrypto();
    const { mintToken } = useCrypto();
 
    const [grid, setGrid] = useState(startingGrid);
+   const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [keyboard, setKeyboard] = useState(startingKeyboard);
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
@@ -84,53 +83,33 @@ const Index = () => {
             document.querySelectorAll('.hidden-on-load').forEach(e => { e.classList.add('visible-after-load') });
          }, 1000);
 
-         if (isBlockchainConnected) { return; }
+         const status = await validateBlockchain();
 
-         let isConnected = false;
-         let isGasAvailable = true;
-
-         try {
-            isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
-         } catch (ex) {
-            if (ex.toString().includes('did it run Out of Gas')) {              
-               isConnected = true;
-               isGasAvailable = false;
-            }
-            else {
-               isConnected = false;
-            }
+         switch (status) { 
+            case Entities.BlockchainStatus.NoGas:         
+               setIsNoGasAvailablePopupOpen(true);
+               break;
+            case Entities.BlockchainStatus.NotConnected:
+               setIsGameModePopupOpen(true);
+               break;
          }
-         
-         if (isConnected && isGasAvailable) {
-            setGameMode(Entities.GameMode.Blockchain);
-         } else if (isConnected) {
-            setIsNoGasAvailablePopupOpen(true);            
-         } else {
-            setIsGameModePopupOpen(true);                   
-         }
-
          // todo not sure why this is necessary, without it though the keyboard state is preserved, somehow
          setKeyboard(() => letters.map((row) => { return row.map((letter) => { return { value: letter, status: Entities.TileStatus.None }; }); }));
       })();
    }, []);
    
    useEffect(() => {
-      (async () => {
-         if (contract === null) { return; }
-
-         let uniqueSolution = await chooseSolution();
-         
-         setSolution(uniqueSolution);
+      (async () => {         
       })();
    }, [router]);
 
    useEffect(() => {
       (async () => {
-         if (isBlockchainConnected) {
+         if (gameMode !== Entities.GameMode.Unknown) {
             setIsGameModePopupOpen(false);
          }
       })();
-   }, [isBlockchainConnected]);
+   }, [gameMode]);
 
    useEffect(() => {
       (async () => {
@@ -142,12 +121,12 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {         
-         if (gameMode === Entities.GameMode.Unknown) { return; }
+         if (blockchainStatus === Entities.BlockchainStatus.Unknown) { return; }
          if (solution !== '') { return; }
 
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
-         console.log(uniqueSolution);
+        
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
                Cookies.set(introShownCookieName, 'true', { expires: 7, sameSite: 'None', secure: true })
@@ -155,7 +134,7 @@ const Index = () => {
             }, 100);
          }
       })();
-   }, [gameMode]);
+   }, [blockchainStatus]);
 
    const handleKeyDown = (e) => {
       if (gameStatus === Entities.GameStatus.Won || gameStatus === Entities.GameStatus.Lost) {
@@ -182,7 +161,7 @@ const Index = () => {
       for (let i = 0; i < maxAttempts; i++) {
          let solution = solutions[Math.floor(Math.random() * solutions.length)];
          
-         if (gameMode === Entities.GameMode.Disconnected) {
+         if (blockchainStatus !== Entities.BlockchainStatus.Connected) {
             return solution;
          } else {
             const isWordUnique = await contract.methods.isSolutionUnique(solution).call();
@@ -288,7 +267,7 @@ const Index = () => {
          if (guess === solution) {
             await showSummary(Entities.GameStatus.Won);
 
-            if (gameMode === Entities.GameMode.Blockchain) {
+            if (blockchainStatus === Entities.BlockchainStatus.Connected) {
                await mintToken(solution, newGuessResults, secondsRequired);
             }
          }

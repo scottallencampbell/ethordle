@@ -62,12 +62,7 @@ input[type=number] {
   margin-right: 21px;
   font-weight: bold;
   font-size: 15px;
-}
-
-@media (max-width: 700px) {
-  #top-bar .hide-on-small {
-    display: none;
-  }
+  margin-top: 20px;
 }
 
 #top-bar #logo {
@@ -76,7 +71,7 @@ input[type=number] {
   zoom: 52%;
   -moz-transform: scale(.52);
   width: 80px;
-  float: left;  
+  float: left;
   transform-origin: top left;
 }
 
@@ -90,6 +85,7 @@ input[type=number] {
   float: left;
   font-size: 15px;
   margin-left: 30px;
+  margin-top: 20px;
 }
 
 @-moz-document url-prefix() {
@@ -98,22 +94,17 @@ input[type=number] {
   }
 }
 
-#top-bar a {
+#top-bar .menu-items a {
   color: #ffffff !important;
   margin-right: 0;
   text-decoration: none;
   cursor: pointer;
   transition: color .15s linear;
+  margin-top: 20px;
 }
 
 #top-bar .menu-items a {
   margin-right: 30px;
-}
-
-@media (max-width: 700px) {
-  #top-bar .menu-items a {
-    margin-right: 20px;
-  }
 }
 
 #top-bar a:visited {
@@ -128,13 +119,6 @@ input[type=number] {
   margin-left: auto;
   margin-right: auto;
   outline: none;
-}
-
-@media (max-width: 700px) {
-  .main {
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
 
 .force-vertical-scrollbar {
@@ -223,19 +207,11 @@ input[type=number] {
 #title {
   font-weight: bold;
   font-size: 45px;
-  zoom: 74%;
-  -moz-transform: scale(.74);
 }
 
 #title span {
   width: 20px;
   display: inline-block;
-}
-
-@media (max-width: 700px) {
-  #title {
-    margin-bottom: 0px;
-  }
 }
 
 #title .tile .face {
@@ -562,12 +538,6 @@ input[type=number] {
   padding-bottom: 50px;
 }
 
-@media (max-width: 700px) {
-  .keyboard {
-    margin-top: 30px;
-  }
-}
-
 .keyboard-letter {
   border-radius: 2px;
   display: inline-block;
@@ -580,31 +550,12 @@ input[type=number] {
   font-weight: bold;
   padding: 0 13px 0 13px;
   -webkit-touch-callout: none;
-  /* iOS Safari */
   -webkit-user-select: none;
-  /* Safari */
   -khtml-user-select: none;
-  /* Konqueror HTML */
   -moz-user-select: none;
-  /* Old versions of Firefox */
   -ms-user-select: none;
-  /* Internet Explorer/Edge */
   user-select: none;
-  /* Non-prefixed version, currently
-                                supported by Chrome, Edge, Opera and Firefox */
-  transition: background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-@media (max-width: 700px) {
-  .keyboard-letter {
-    line-height: 65px;
-    min-width: 30px;
-    height: 65px;
-    margin: 4px;
-    font-size: 16px;
-    padding: 0 5px 0 5px;
-  }
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .keyboard-letter.clicked {
@@ -764,21 +715,6 @@ body {
   margin-bottom: 20px;
 }
 
-@media (max-width: 700px) {
-  .statistics>div {
-    width: 90px;
-  }
-}
-
-.statistics p {
-  display: block;
-  font-size: 35px;
-  font-weight: bold;
-  margin: 0;
-  height: 35px;
-  width: 100%;
-}
-
 .statistics label {
   display: block;
   font-size: 12px;
@@ -805,12 +741,6 @@ body {
   padding-left: 45px;
   opacity: 1;
   transition: opacity .2s linear;
-}
-
-@media (max-width: 700px) {
-  .distribution {
-    width: 100%;
-  }
 }
 
 .distribution.closed {
@@ -934,5 +864,92 @@ body {
 
   100% {
     transform: rotate(1800deg);
+  }
+}
+
+
+@media (max-width: 700px) {
+  #top-bar {
+    margin-bottom: 15px;
+  }
+
+  #top-bar .hide-on-small {
+    display: none;
+  }
+
+  #title {
+    margin-bottom: 0px;
+  }
+
+  #title.very-long .tile-container {
+    width: 33px;
+    min-width: 33px;
+  }
+
+  #title.very-long .tile {
+    width: 33px;
+  }
+  
+  #title .tile-container {
+    width: 40px;
+    min-width: 40px;
+    height: 50px;
+    min-height: 50px !important;
+  }
+
+  #title .tile-container.space {
+    width: 20px !important;
+    min-width: 20px !important;
+  }
+
+  #title .tile {
+    width: 36px;
+    height: 50px;
+  }
+
+  #keyboard {
+    margin-top: 30px;
+  }
+
+  #grid {
+    -moz-transform: scale(.9);
+    zoom: 90%;
+  }
+
+  #top-bar .menu-items a {
+    margin-right: 20px;
+    margin-top: 0;
+  }
+
+  .main {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .keyboard-letter {
+    line-height: 65px;
+    min-width: 33px;
+    height: 65px;
+    margin: 4px;
+    font-size: 16px;
+    padding: 0 10px 0 10px;
+    margin: 2px;
+  }
+
+  .statistics>div {
+    width: 90px;
+  }
+
+  .statistics p {
+    display: block;
+    font-size: 35px;
+    font-weight: bold;
+    margin: 0;
+    height: 35px;
+    width: 100%;
+  }
+
+  .distribution {
+    width: 100%;
   }
 }

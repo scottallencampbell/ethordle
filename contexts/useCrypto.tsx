@@ -8,21 +8,20 @@ import { pinFileToIpfs, pinJsonToIpfs } from '../services/fileSystem';
 
 import * as Entities from '../models/entities';
 import configSettings from '../config.json';
+import { fulfillWithTimeLimit } from '../services/async';
 
 interface ContextInterface {
-   isBlockchainConnected: boolean,
+   blockchainStatus: Entities.BlockchainStatus,
    initialTokenPrice: number,
    priceEscalationRate: number,
    royaltyRate: number,
-   gameMode: Entities.GameMode,
-   setGameMode: Dispatch<SetStateAction<Entities.GameMode>>,
    account: string,
    isContractOwner: boolean,
    contract: Contract,
-   connectToBlockchain: () => Promise<boolean>,
+   validateBlockchain: () => Promise<Entities.BlockchainStatus>,   
    mintToken: (solution: string, guessResults: string[], secondsRequired: number) => Promise<void>,
    buyToken: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
-   transferToken: (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => Promise<void>,
+   transferTokenAsContractOwner: (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => Promise<void>,
    allowTokenSale: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
    preventTokenSale: (token: Entities.Token, onStarted: Function, onFinished: Function)=> Promise<void>,
    tokens: Entities.Token[],
@@ -35,38 +34,64 @@ declare let window: any;
 export const CryptoContext = createContext({} as ContextInterface);
 
 export function CryptoProvider({ children }) {
+   const [blockchainStatus, setBlockchainStatus] = useState(Entities.BlockchainStatus.Unknown);
    const [account, setAccount] = useState('');
    const [contract, setContract] = useState(null);
    const [isContractOwner, setIsContractOwner] = useState(false);
-   const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
-   const [isBlockchainConnected, setIsBlockchainConnected] = useState(false);
    const [initialTokenPrice, setInitialTokenPrice] = useState(0);
    const [priceEscalationRate, setPriceEscalationRate] = useState(0);
    const [royaltyRate, setRoyaltyRate] = useState(0);
 
    useEffect(() => {
-      (async () => {
-         if (contract !== null && account !== '') {
+      (async () => {      
+         if (contract != null && account !== '') {
             await getTokens();
          }
       })();
    }, [account, contract]);
 
-   const connectToBlockchain = async (): Promise<boolean> => {
+   const validateBlockchain = async (): Promise<Entities.BlockchainStatus> => {
+      let isConnected = false;
+      let isGasAvailable = true;
+
+      try {
+         isConnected = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);
+      } catch (ex) {
+         if (ex.toString().includes('did it run Out of Gas')) {              
+            isConnected = true;
+            isGasAvailable = false;
+         }
+         else {
+            isConnected = false;
+         }
+      }
+      
+      let status = Entities.BlockchainStatus.Unknown;
+
+      if (isConnected && isGasAvailable) {
+         status = Entities.BlockchainStatus.Connected;
+      } else if (isConnected) {
+         status = Entities.BlockchainStatus.NoGas;
+      } else {
+         status = Entities.BlockchainStatus.NotConnected;        
+      }
+
+      setBlockchainStatus(status);
+      return status;
+   }
+
+   const connectToBlockchain = async (): Promise<Entities.BlockchainStatus> => {
+      
       if (!await loadWeb3()) {
-         setIsBlockchainConnected(false);
-         return false;
+         return Entities.BlockchainStatus.NoEthereum;
       }
 
       if (!await loadBlockchainData()) {
-         setIsBlockchainConnected(false);
-         return false;
+         return Entities.BlockchainStatus.NotConnected;
       }
 
-      setIsBlockchainConnected(true);
-
-      return true;
+      return Entities.BlockchainStatus.Connected;
    }
 
    const loadWeb3 = async (): Promise<boolean> => {
@@ -182,8 +207,6 @@ export function CryptoProvider({ children }) {
       let newTokens = [...tokens];      
       const index = newTokens.findIndex(object => { return object.id === token.id; });
 
-      console.log('updateToken index: ' + index + ', status: ' + token.marketplaceStatus);
-
       if (index === -1) {
          return tokens;
       }
@@ -244,9 +267,9 @@ export function CryptoProvider({ children }) {
       );
    }
 
-   const transferToken = async (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => {      
+   const transferTokenAsContractOwner = async (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => {      
       await callContractMethod(() => 
-         contract.methods.transfer(token.id, toAddress).send({ from: account }),
+         contract.methods.transferAsContractOwner(token.id, toAddress).send({ from: account }),
          token,
          onStarted,
          onFinished
@@ -275,19 +298,17 @@ export function CryptoProvider({ children }) {
 
    return (
       <CryptoContext.Provider value={{
-         isBlockchainConnected,
+         blockchainStatus,
          initialTokenPrice,
          priceEscalationRate,
          royaltyRate,
-         gameMode,
-         setGameMode,
          account,
          isContractOwner,
          contract,
-         connectToBlockchain,
+         validateBlockchain,
          mintToken,
          buyToken,
-         transferToken,
+         transferTokenAsContractOwner,
          allowTokenSale,
          preventTokenSale,
          tokens,
@@ -298,31 +319,28 @@ export function CryptoProvider({ children }) {
 }
 
 export const useCrypto = (): ContextInterface => {
-   const { isBlockchainConnected } = useContext(CryptoContext);
+   const { blockchainStatus } = useContext(CryptoContext);
    const { initialTokenPrice, priceEscalationRate, royaltyRate } = useContext(CryptoContext);
-   const { gameMode, setGameMode } = useContext(CryptoContext);
    const { account } = useContext(CryptoContext);
    const { contract } = useContext(CryptoContext);
-   const { connectToBlockchain } = useContext(CryptoContext);
-   const { mintToken, buyToken, transferToken } = useContext(CryptoContext);
+   const { validateBlockchain } = useContext(CryptoContext);
+   const { mintToken, buyToken, transferTokenAsContractOwner } = useContext(CryptoContext);
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens, updateToken } = useContext(CryptoContext);
    const { isContractOwner } = useContext(CryptoContext);
 
    return {
-      isBlockchainConnected,
+      blockchainStatus,
       initialTokenPrice,
       priceEscalationRate,
       royaltyRate,
-      gameMode,
-      setGameMode,
       account,
       isContractOwner,
       contract,
-      connectToBlockchain,
+      validateBlockchain,
       mintToken,
       buyToken,
-      transferToken,
+      transferTokenAsContractOwner,
       allowTokenSale,
       preventTokenSale,
       tokens,

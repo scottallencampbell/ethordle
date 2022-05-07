@@ -10,7 +10,7 @@ interface IStatusBar {
 
 export const StatusBar = ({} : IStatusBar) => {
    const { account } = useCrypto();
-   const { gameMode } = useCrypto();
+   const { blockchainStatus } = useCrypto();
 
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
    const [path, setPath] = useState('');
@@ -22,7 +22,7 @@ export const StatusBar = ({} : IStatusBar) => {
       
       setPath(window.location.href);
 
-   }, [gameMode]);
+   }, [blockchainStatus]);
 
    return (
       <>
@@ -30,18 +30,17 @@ export const StatusBar = ({} : IStatusBar) => {
             <div id='logo'>
                <StaticGridRow word='E' statusMap='X'></StaticGridRow>               
             </div>
-            <div>{gameMode}</div>
-            { gameMode !== Entities.GameMode.Unknown ?   
+            { blockchainStatus !== Entities.BlockchainStatus.Unknown ?   
             <>
             <div className='menu-items'>  
                { path.endsWith('/') ? <a onClick={() => window.location.href='/'}>New game</a> : <Link href='/'>New game</Link> }
-               { gameMode === Entities.GameMode.Blockchain ?
+               { blockchainStatus === Entities.BlockchainStatus.Connected ?
                <>
                   <Link href='/tokens'>My tokens</Link>        
                   <Link href='/marketplace'>Marketplace</Link> 
                </> : <></>                 
                }
-               <a className={`about ${gameMode === Entities.GameMode.Blockchain ? 'hide-on-small' : ''} `} onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
+               <a className={`about ${blockchainStatus === Entities.BlockchainStatus.Connected ? 'hide-on-small' : ''} `} onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
             </div>            
             <div className='account hide-on-small'><a onClick={() => window.open(`https://etherscan.io/address/${account}`)}>{account}</a></div>
             </>           

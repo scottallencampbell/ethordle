@@ -11,7 +11,7 @@ interface IToken {
 }
 
 export const Token = ({ token, index }: IToken) => {
-   const { buyToken, transferToken, updateToken, getTokens } = useCrypto();
+   const { buyToken, transferTokenAsContractOwner, updateToken, getTokens } = useCrypto();
    const { allowTokenSale, preventTokenSale } = useCrypto();
    const { account, isContractOwner } = useCrypto();
 
@@ -36,7 +36,7 @@ export const Token = ({ token, index }: IToken) => {
 
    const handleTransferToken = async () => {
       setIsTransferPopupOpen(false);
-      transferToken(token, toAddress, () => setTransactingStatus(), () => getTokens());         
+      transferTokenAsContractOwner(token, toAddress, () => setTransactingStatus(), () => getTokens());         
    }
    
    const handleBuyToken = async () => {

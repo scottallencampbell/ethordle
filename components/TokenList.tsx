@@ -15,7 +15,8 @@ interface ITokenList {
 
 export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList) => {
 
-   const { gameMode, setGameMode } = useCrypto();
+   const { blockchainStatus, validateBlockchain } = useCrypto();
+   const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
 
    useEffect(() => {

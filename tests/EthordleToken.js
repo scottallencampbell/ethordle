@@ -445,7 +445,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(token.transactionCount.toString()).to.equal('1');
         expect(token.owner).to.equal(winner);
 
-        const receipt = await this.contract.transfer(0, transferee, { from: owner });
+        const receipt = await this.contract.transferAsContractOwner(0, transferee, { from: owner });
         const gas = await getTransactionCost(receipt);
  
         const newToken = await this.contract.tokenById(0);
@@ -475,7 +475,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         
         await expectRevert(
-            this.contract.transfer(0, transferee, { from: winner }),
+            this.contract.transferAsContractOwner(0, transferee, { from: winner }),
                 'Ownable: caller is not the owner'
         );        
     });
@@ -484,7 +484,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         
         await expectRevert(
-            this.contract.transfer(0, winner, { from: owner }),
+            this.contract.transferAsContractOwner(0, winner, { from: owner }),
                 'Buyer already owns token'
         );        
     });
