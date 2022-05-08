@@ -13,6 +13,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
     const name = 'Ethordle Token';
     const symbol = 'EthordleToken';
     const initialPrice = web3.utils.toWei(new BN(1), 'ether'); 
+    const minimumPrice = initialPrice;
     const royaltyRate = '500';
     const priceEscalationRate = '11000';
     const solution = 'STARE';
@@ -40,7 +41,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
     }
 
     beforeEach(async function () {
-        this.contract = await EthordleToken.new(name, symbol, initialPrice, royaltyRate, priceEscalationRate, password, { from: owner });
+        this.contract = await EthordleToken.new(name, symbol, initialPrice, minimumPrice, royaltyRate, priceEscalationRate, password, { from: owner });
     });
 
     it('has metadata', async function () {
@@ -95,6 +96,11 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
 
         await expectRevert(
             this.contract.setPassword(newPassword, { from: winner}),
+            'caller is not the owner'
+        );
+
+        await expectRevert(
+            this.contract.setMinimumPrice(web3.utils.toWei(new BN(2), 'ether'), { from: winner }),
             'caller is not the owner'
         );
     });
@@ -275,8 +281,45 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(allTokens.length).to.equal(5);
     });
 
-    it('rejects incorrect password', async function () {       
-               
+    it('rejects price lower than minimum', async function () {       
+        await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
+        const token = await this.contract.tokenById(0);
+        
+        await this.contract.allowSale(0, winner, token.price, { from: winner });
+        await this.contract.buy(0, transferee, password, { from: transferee, value: token.price });
+        
+        await this.contract.setMinimumPrice(web3.utils.toWei(new BN(3), 'ether'), { from: owner });
+        const minimumPrice = await this.contract.minimumPrice();
+        expect(minimumPrice.toString()).is.a.bignumber.that.equals(web3.utils.toWei(new BN(3), 'ether'));
+       
+        const otherToken = await this.contract.tokenById(0);
+      
+        await expectRevert(
+            this.contract.allowSale(0, transferee, web3.utils.toWei(new BN(2), 'ether'), { from: transferee }),
+                'Token cannot be priced less than the current minimum price'
+        );
+
+        await this.contract.allowSale(0, transferee, web3.utils.toWei(new BN(3), 'ether'), { from: transferee });
+        const newToken = await this.contract.tokenById(0);
+        expect(newToken.price.toString()).is.a.bignumber.that.equals(web3.utils.toWei(new BN(3), 'ether'));
+       
+        const newMinimumPrice = await this.contract.minimumPrice();
+        expect(minimumPrice.toString()).is.a.bignumber.that.equals(web3.utils.toWei(new BN(3), 'ether'));
+    });
+
+    it('allows zero-value initial price', async function () {                      
+        const newContract = await EthordleToken.new(name, symbol, 0, minimumPrice, royaltyRate, priceEscalationRate, password, { from: owner });
+
+        const initialPrice = await newContract.initialPrice();
+        expect(initialPrice.toString()).is.a.bignumber.that.equals(web3.utils.toWei(new BN(0), 'ether'));
+
+        await newContract.mint(winner, solution, tokenURI, password, { from: winner, value: 0 });
+        const newToken = await newContract.tokenById(0);
+        
+        expect(newToken.price.toString()).is.a.bignumber.that.equals(minimumPrice);
+    });
+
+    it('rejects incorrect password', async function () {                      
         await expectRevert(
             this.contract.mint(winner, solution, tokenURI, notThePassword, { from: winner, value: initialPrice }),
                 'A valid password is required to call this function'

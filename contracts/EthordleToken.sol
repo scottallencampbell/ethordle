@@ -27,6 +27,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
 
     address private _owner;
     uint256 private _initialPrice;
+    uint256 private _minimumPrice;
     uint256 private _royaltyRate;
     uint256 private _priceEscalationRate;
     uint256 private _currentTokenId;
@@ -49,10 +50,11 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         string metadataURI
     );
 
-    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_, string memory password_) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 minimumPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_, string memory password_) ERC721(_name, _symbol) {
         _owner = msg.sender;
         _currentTokenId = 0;
         _initialPrice = initialPrice_;
+        _minimumPrice = minimumPrice_;
         _royaltyRate = royaltyRate_;
         _priceEscalationRate = priceEscalationRate_;
         _password = password_;
@@ -77,12 +79,21 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         return token;
     }
 
+
     function setInitialPrice(uint256 initialPrice_) external onlyOwner() {
         _initialPrice = initialPrice_;
     }
-
+    
     function initialPrice() external view returns (uint256) {
         return _initialPrice;
+    }
+    
+    function setMinimumPrice(uint256 minimumPrice_) external onlyOwner() {
+        _minimumPrice = minimumPrice_;
+    }
+
+    function minimumPrice() external view returns (uint256) {
+        return _minimumPrice;
     }
 
     function setRoyaltyRate(uint256 royaltyRate_) external onlyOwner() {
@@ -195,11 +206,10 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     ) external {    
         Token memory token = _validateTokenId(tokenId);
         
-        require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
-        require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');         
-        
+        require((_msgSender() == from || _msgSender() == _owner) && _isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner'); 
         require(!token.isForSale, 'Token is already marked for sale');
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
+        require(price >= _minimumPrice, 'Token cannot be priced less than the current minimum price');
         
         token.price = price.div(_roundingDivisor).mul(_roundingDivisor); // round to nearest 1/1000 eth
         token.isForSale = true;
@@ -215,8 +225,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     ) external {   
         Token memory token = _validateTokenId(tokenId);
 
-        require(_msgSender() == from || _msgSender() == _owner, 'Sender must be token owner or contract owner'); 
-        require(_isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner');    
+        require((_msgSender() == from || _msgSender() == _owner) && _isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner'); 
         
         require(token.isForSale, 'Token is already prevented from being sold'); 
         
@@ -294,13 +303,17 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
 
     function _getEscalatedPrice(uint256 value) private view returns (uint256) {
         uint256 newPrice = value.mul(_priceEscalationRate).div(10000);
+        uint256 updatedPrice = newPrice.div(_roundingDivisor).mul(_roundingDivisor);  // round off new price to nearest 1/1000 eth
 
-        return newPrice.div(_roundingDivisor).mul(_roundingDivisor);  // round off new price to nearest 1/1000 eth
+        if (updatedPrice < _minimumPrice) {
+            return _minimumPrice;
+        }
+        else {
+            return updatedPrice;
+        }
     }
   
-    // todo how to prevent base _transfer from being called directly
-
-    function transferFrom(
+     function transferFrom(
         address /*from*/,
         address /*to*/,
         uint256 /*tokenId*/

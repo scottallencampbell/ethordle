@@ -85,11 +85,12 @@ const Index = () => {
 
          const status = await validateBlockchain();
 
-         switch (status) { 
+         switch (status) {             
             case Entities.BlockchainStatus.NoGas:         
                setIsNoGasAvailablePopupOpen(true);
                break;
             case Entities.BlockchainStatus.NotConnected:
+            case Entities.BlockchainStatus.NoEthereum:
                setIsGameModePopupOpen(true);
                break;
          }
@@ -105,7 +106,6 @@ const Index = () => {
 
    useEffect(() => {
       (async () => {
-         setIsIntroductionPopupOpen(true);
          if (gameMode !== Entities.GameMode.Unknown) {
             setIsGameModePopupOpen(false);
          }
