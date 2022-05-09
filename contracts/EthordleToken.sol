@@ -34,8 +34,10 @@ contract EthordleToken is
     mapping (uint256 => Token) public _tokens;
     mapping(uint256 => Sale) private tokenIdToSales;  // Map from token ID to their corresponding sale.
     mapping (string => address) private _solutionOwners;
-    mapping (string => address) private _tokenURIOwners;
-
+    mapping (string => address) private _tokenURIOwners;    
+    mapping(address => uint256[]) private saleTokenIdsBySeller;  // Sale Token Ids by Seller Addresses
+    
+    uint256[] public saleTokenIds;  // Save Sale Token Ids
     uint256 private _initialPrice;
     uint256 private _minimumPrice;
     uint256 private _royaltyRate;
@@ -44,9 +46,6 @@ contract EthordleToken is
     string private _baseURIextended;
     string private _password;
     uint256 private _roundingDivisor = 10**15;
-
-    uint256[] public saleTokenIds;  // Save Sale Token Ids
-    mapping(address => uint256[]) private saleTokenIdsBySeller;  // Sale Token Ids by Seller Addresses
     
     event Minted(
         uint256 tokenId,
@@ -76,25 +75,6 @@ contract EthordleToken is
         string metadataURI
     );
 
-    constructor(
-        string memory _name, 
-        string memory _symbol, 
-        uint256 initialPrice_, 
-        uint256 minimumPrice_, 
-        uint256 royaltyRate_, 
-        uint256 priceEscalationRate_, 
-        string memory password_
-    ) 
-        ERC721(_name, _symbol) 
-    {
-        _currentTokenId = 0;
-        _initialPrice = initialPrice_;
-        _minimumPrice = minimumPrice_;
-        _royaltyRate = royaltyRate_;
-        _priceEscalationRate = priceEscalationRate_;
-        _password = password_;
-    }
-    
     modifier onSale(uint256 tokenId) {
         require(tokenIdToSales[tokenId].price > 0, "Not On Sale");
         _;
@@ -131,7 +111,33 @@ contract EthordleToken is
       _;
     }
 
-    function _compareStrings(string memory a, string memory b) public pure returns (bool) {
+    constructor(
+        string memory _name, 
+        string memory _symbol, 
+        uint256 initialPrice_, 
+        uint256 minimumPrice_, 
+        uint256 royaltyRate_, 
+        uint256 priceEscalationRate_, 
+        string memory password_
+    ) 
+        ERC721(_name, _symbol) 
+    {
+        _currentTokenId = 0;
+        _initialPrice = initialPrice_;
+        _minimumPrice = minimumPrice_;
+        _royaltyRate = royaltyRate_;
+        _priceEscalationRate = priceEscalationRate_;
+        _password = password_;
+    }
+    
+    function _compareStrings(
+        string memory a, 
+        string memory b
+    ) 
+        public 
+        pure 
+        returns (bool) 
+    {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
@@ -149,7 +155,10 @@ contract EthordleToken is
         return token;
     }
 
-    function setInitialPrice(uint256 initialPrice_) external onlyOwner {
+    function setInitialPrice(uint256 initialPrice_) 
+        external 
+        onlyOwner 
+    {
         _initialPrice = initialPrice_;
     }
     
@@ -235,15 +244,27 @@ contract EthordleToken is
         return allTokens;
     }
     
-    function setBaseURI(string memory baseURI) external onlyOwner {
+    function setBaseURI(string memory baseURI) 
+        external 
+        onlyOwner 
+    {
         _baseURIextended = baseURI;
     }
     
-    function _baseURI() internal view virtual override returns (string memory) {
+    function _baseURI() 
+        internal 
+        view 
+        virtual 
+        override 
+        returns (string memory)
+    {
         return _baseURIextended;
     }
     
-    function isSolutionUnique(string memory solution_) public view returns (bool) {
+    function isSolutionUnique(string memory solution_) 
+        public 
+        view 
+        returns (bool) {
         return _solutionOwners[solution_] == address(0x0);
     }
 
@@ -283,14 +304,21 @@ contract EthordleToken is
 
         uint256 newPrice =_getEscalatedPrice(msg.value);
 
-        Token memory token = Token(newPrice, _initialPrice, tokenURI_, solution_, block.timestamp, 1);
+        Token memory token = Token(
+            newPrice, 
+            _initialPrice,
+            tokenURI_, 
+            solution_, 
+            block.timestamp, 
+            1
+        );
 
         _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to; 
-        _currentTokenId++; 
-
-        emit Minted(_currentTokenId, to);     
+       
+        emit Minted(_currentTokenId, to);  
+        _currentTokenId++;    
     }
 
     function createSale(
@@ -317,14 +345,28 @@ contract EthordleToken is
         saleTokenIds.push(_tokenId);
         saleTokenIdsBySeller[_sale.seller].push(_tokenId);
 
-        emit SaleCreated(msg.sender, uint256(_tokenId), uint256(_sale.price), token.solution, token.url);
+        emit SaleCreated(
+            msg.sender, 
+            uint256(_tokenId), 
+            uint256(_sale.price),
+            token.solution, 
+            token.url
+        );
     }
 
-    function cancelSale(uint256 _tokenId) external onSale(_tokenId) onlySeller(_tokenId) {
+    function cancelSale(uint256 _tokenId) 
+        external 
+        onSale(_tokenId) 
+        onlySeller(_tokenId) 
+    {
         _cancelSale(_tokenId);
     }
 
-    function cancelSaleWhenPaused(uint256 _tokenId) external whenPaused onlyOwner onSale(_tokenId)
+    function cancelSaleWhenPaused(uint256 _tokenId) 
+        external 
+        whenPaused 
+        onlyOwner 
+        onSale(_tokenId)
     {
         _cancelSale(_tokenId);
     }
@@ -335,7 +377,12 @@ contract EthordleToken is
 
         Token memory token = _validateTokenId(_tokenId);
         
-        emit SaleCanceled(token.solution, ownerOf(_tokenId), _tokenId, token.url);
+        emit SaleCanceled(
+            token.solution, 
+            ownerOf(_tokenId), 
+            _tokenId, 
+            token.url
+        );
     }
 
     function _removeSale(uint256 _tokenId) internal {
@@ -416,8 +463,8 @@ contract EthordleToken is
         _transfer(address(this), msg.sender, tokenId);
         _removeSale(tokenId);
 
-        _solutionOwners[solution_] = to;
-        _tokenURIOwners[tokenURI_] = to;
+        _solutionOwners[solution_] = msg.sender;
+        _tokenURIOwners[tokenURI_] = msg.sender;
 
         token.lastPrice = token.price;
         token.price = _getEscalatedPrice(msg.value);
@@ -426,7 +473,13 @@ contract EthordleToken is
 
         _tokens[tokenId] = token; 
 
-        emit SaleSuccessful(tokenId, sale.price, msg.sender, token.solution, token.url);
+        emit SaleSuccessful(
+            tokenId, 
+            sale.price, 
+            msg.sender, 
+            token.solution, 
+            token.url
+        );
     }
     
     function transferAsContractOwner(
