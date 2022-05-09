@@ -18,6 +18,8 @@ contract EthordleToken is
     using SafeMath for uint256;
 
     struct Token {
+        uint256 id;
+        address owner; // todo may go away
         uint256 price;
         uint256 lastPrice;
         string url;
@@ -26,18 +28,18 @@ contract EthordleToken is
         uint256 transactionCount;        
     }
 
-    struct Sale { // Represents an sale on an NFT        
-        address seller; // Current owner of NFT
-        uint256 price;  // Price (in wei) at beginning of sale
+    struct Sale { 
+        address seller; 
+        uint256 price;  
     }
 
     mapping (uint256 => Token) public _tokens;
-    mapping(uint256 => Sale) private tokenIdToSales;  // Map from token ID to their corresponding sale.
+    mapping (uint256 => Sale) private _tokenIdToSales;  // Map from token ID to their corresponding sale.
     mapping (string => address) private _solutionOwners;
     mapping (string => address) private _tokenURIOwners;    
-    mapping(address => uint256[]) private saleTokenIdsBySeller;  // Sale Token Ids by Seller Addresses
+    mapping (address => uint256[]) private _forSaleTokenIdsBySeller;  // Sale Token Ids by Seller Addresses
     
-    uint256[] public saleTokenIds;  // Save Sale Token Ids
+    uint256[] public _forSaleTokenIds;  // Save Sale Token Ids
     uint256 private _initialPrice;
     uint256 private _minimumPrice;
     uint256 private _royaltyRate;
@@ -76,31 +78,31 @@ contract EthordleToken is
     );
 
     modifier onSale(uint256 tokenId) {
-        require(tokenIdToSales[tokenId].price > 0, "Not On Sale");
+        require(_tokenIdToSales[tokenId].price > 0, "Token is not for sale");
         _;
     }
 
     modifier notOnSale(uint256 tokenId) {
-        require(tokenIdToSales[tokenId].price == 0, "Already On Sale");
+        require(_tokenIdToSales[tokenId].price == 0, "Token is already on sale");
         _;
     }
 
     modifier owningToken(uint256 _tokenId) {
-        require(ownerOf(_tokenId) == msg.sender, "Not owner of that token");
+        require(ownerOf(_tokenId) == msg.sender, "Caller is not the owner of this token");
         _;
     }
 
     modifier onlySeller(uint256 tokenId) {
         require(
-            tokenIdToSales[tokenId].seller == msg.sender,
-            "Caller is not seller"
+            _tokenIdToSales[tokenId].seller == msg.sender,
+            "Caller must be token owner or contract owner"
         );
         _;
     }
 
     modifier onlyBuyer(uint256 tokenId) {
         require(
-            tokenIdToSales[tokenId].seller != msg.sender,
+            _tokenIdToSales[tokenId].seller != msg.sender,
             "Caller is seller"
         );
         _;
@@ -207,12 +209,12 @@ contract EthordleToken is
         return token;
     }
 
-    function tokensOfOwner(address _from) 
+    function tokensOfOwner(address sender) 
         external 
         view 
         returns(Token[] memory) 
     {
-        uint256 ownerCount = balanceOf(_from);
+        uint256 ownerCount = balanceOf(sender);
         uint256 ownerIndex = 0;
         Token[] memory ownerTokens = new Token[](ownerCount);
 
@@ -220,11 +222,26 @@ contract EthordleToken is
             Token[] memory allTokens = this.tokens();
 
             for (uint256 i = 0; i < _currentTokenId; i++) {
-                if (ownerOf(i) == _from) {
+                if (ownerOf(i) == sender) {
                     ownerTokens[ownerIndex] = allTokens[i];
                     ownerIndex++;
                 }
             }
+        }
+
+        return ownerTokens;
+    }
+
+    function forSaleTokensOfOwner() 
+        external 
+        view 
+        returns(Token[] memory) 
+    {
+        uint256[] memory ownerTokenIds = _forSaleTokenIdsBySeller[msg.sender];
+        Token[] memory ownerTokens = new Token[](ownerTokenIds.length);
+
+        for (uint256 i = 0; i < ownerTokenIds.length; i++) {
+            ownerTokens[i] = _tokens[ownerTokenIds[i]];
         }
 
         return ownerTokens;
@@ -305,6 +322,8 @@ contract EthordleToken is
         uint256 newPrice =_getEscalatedPrice(msg.value);
 
         Token memory token = Token(
+            _currentTokenId,
+            to,
             newPrice, 
             _initialPrice,
             tokenURI_, 
@@ -341,9 +360,9 @@ contract EthordleToken is
 
         Sale memory _sale = Sale(msg.sender, newPrice);
 
-        tokenIdToSales[_tokenId] = _sale;
-        saleTokenIds.push(_tokenId);
-        saleTokenIdsBySeller[_sale.seller].push(_tokenId);
+        _tokenIdToSales[_tokenId] = _sale;
+        _forSaleTokenIds.push(_tokenId);
+        _forSaleTokenIdsBySeller[_sale.seller].push(_tokenId);
 
         emit SaleCreated(
             msg.sender, 
@@ -372,7 +391,7 @@ contract EthordleToken is
     }
 
     function _cancelSale(uint256 _tokenId) internal {
-        _transfer(address(this), tokenIdToSales[_tokenId].seller, _tokenId);
+        _transfer(address(this), _tokenIdToSales[_tokenId].seller, _tokenId);
         _removeSale(_tokenId);
 
         Token memory token = _validateTokenId(_tokenId);
@@ -387,30 +406,30 @@ contract EthordleToken is
 
     function _removeSale(uint256 _tokenId) internal {
         uint256 i;
-        uint256 length = saleTokenIds.length;
+        uint256 length = _forSaleTokenIds.length;
         
         for (i = 0; i < length; ++i) {
-            if (saleTokenIds[i] == _tokenId) {
+            if (_forSaleTokenIds[i] == _tokenId) {
                 break;
             }
         }
         
         require(i < length, 'No sale for this token');
 
-        saleTokenIds[i] = saleTokenIds[length - 1];
-        saleTokenIds.pop();
+        _forSaleTokenIds[i] = _forSaleTokenIds[length - 1];
+        _forSaleTokenIds.pop();
         
-        Sale storage sale = tokenIdToSales[_tokenId];
-        length = saleTokenIdsBySeller[sale.seller].length;
+        Sale storage sale = _tokenIdToSales[_tokenId];
+        length = _forSaleTokenIdsBySeller[sale.seller].length;
         
-        for (i = 0; saleTokenIdsBySeller[sale.seller][i] != _tokenId; ) {
+        for (i = 0; _forSaleTokenIdsBySeller[sale.seller][i] != _tokenId; ) {
             ++i;
         }
 
-        saleTokenIdsBySeller[sale.seller][i] = saleTokenIdsBySeller[sale.seller][length - 1];
-        saleTokenIdsBySeller[sale.seller].pop();
+        _forSaleTokenIdsBySeller[sale.seller][i] = _forSaleTokenIdsBySeller[sale.seller][length - 1];
+        _forSaleTokenIdsBySeller[sale.seller].pop();
         
-        delete tokenIdToSales[_tokenId];
+        delete _tokenIdToSales[_tokenId];
     }
     
     function getSaleTokens() 
@@ -418,7 +437,7 @@ contract EthordleToken is
         view 
         returns (uint256[] memory) 
     {
-        return saleTokenIds;
+        return _forSaleTokenIds;
     }
 
     function getSaleTokensBySeller(address seller) 
@@ -426,12 +445,11 @@ contract EthordleToken is
         view 
         returns (uint256[] memory) 
     {
-        return saleTokenIdsBySeller[seller];
+        return _forSaleTokenIdsBySeller[seller];
     }
 
     function buy(
         uint256 tokenId,
-        address to, 
         string memory password_
     ) 
         external 
@@ -445,7 +463,7 @@ contract EthordleToken is
     {      
         Token memory token = _validateTokenId(tokenId);
          // Get a reference to the sale struct
-        Sale storage sale = tokenIdToSales[tokenId];
+        Sale storage sale = _tokenIdToSales[tokenId];
         
         require(msg.value >= token.price, 'Insufficient ether sent with this transaction for token price');
        
@@ -455,7 +473,7 @@ contract EthordleToken is
         uint256 totalRoyalty = _getRoyalty(msg.value); 
         uint256 remainder = msg.value - totalRoyalty;
 
-        require(remainder >= sale.price, 'Insufficient ether sent with this transaction for sale price');
+/// todo todo        require(remainder >= sale.price, 'Insufficient ether sent with this transaction for sale price');
 
         payable(owner()).transfer(totalRoyalty);
         payable(sale.seller).transfer(remainder);
@@ -466,6 +484,7 @@ contract EthordleToken is
         _solutionOwners[solution_] = msg.sender;
         _tokenURIOwners[tokenURI_] = msg.sender;
 
+        token.owner = msg.sender;
         token.lastPrice = token.price;
         token.price = _getEscalatedPrice(msg.value);
         token.lastTransactionTimestamp = block.timestamp;
@@ -503,6 +522,7 @@ contract EthordleToken is
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
 
+        token.owner = to;
         token.lastTransactionTimestamp = block.timestamp;
         token.transactionCount++;       
 

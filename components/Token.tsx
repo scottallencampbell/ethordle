@@ -12,7 +12,7 @@ interface IToken {
 
 export const Token = ({ token, index }: IToken) => {
    const { buyToken, transferTokenAsContractOwner, updateToken, getTokens } = useCrypto();
-   const { allowTokenSale, preventTokenSale } = useCrypto();
+   const { createTokenSale, cancelTokenSale } = useCrypto();
    const { account, isContractOwner } = useCrypto();
 
    const [newPrice, setNewPrice] = useState(token.price);
@@ -25,13 +25,13 @@ export const Token = ({ token, index }: IToken) => {
          setNewPrice(token.price);
          setIsPriceChooserOpen(true);
       } else {             
-         preventTokenSale(token, () => setTransactingStatus(), () => resetStatus(false));                  
+         cancelTokenSale(token, () => setTransactingStatus(), () => resetStatus(false));                  
       }
    }
 
    const handleSetTokenForSale = async () => {
       setIsPriceChooserOpen(false);
-      allowTokenSale(token, newPrice, () => setTransactingStatus(), () => resetStatus(true));         
+      createTokenSale(token, newPrice, () => setTransactingStatus(), () => resetStatus(true));         
    }
 
    const handleTransferToken = async () => {

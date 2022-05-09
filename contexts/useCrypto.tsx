@@ -22,8 +22,8 @@ interface ContextInterface {
    mintToken: (solution: string, guessResults: string[], secondsRequired: number) => Promise<void>,
    buyToken: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
    transferTokenAsContractOwner: (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => Promise<void>,
-   allowTokenSale: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
-   preventTokenSale: (token: Entities.Token, onStarted: Function, onFinished: Function)=> Promise<void>,
+   createTokenSale: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
+   cancelTokenSale: (token: Entities.Token, onStarted: Function, onFinished: Function)=> Promise<void>,
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>,
    updateToken: (token: Entities.Token) => Promise<Entities.Token[]>
@@ -247,7 +247,7 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
 
       await callContractMethod(() => 
-         contract.methods.buy(token.id, account, configSettings.contractPassword).send({ from: account, value: wei }),
+         contract.methods.buy(token.id, configSettings.contractPassword).send({ from: account, value: wei }),
          token,
          onStarted,
          onFinished
@@ -263,20 +263,20 @@ export function CryptoProvider({ children }) {
       );
    }
 
-   const allowTokenSale = async (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => {
+   const createTokenSale = async (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
 
       await callContractMethod(() => 
-         contract.methods.allowSale(token.id, account, wei).send({ from: account }),
+         contract.methods.createSale(token.id, wei).send({ from: account }),
          token,
          onStarted,
          onFinished
       );
    }
 
-   const preventTokenSale = async (token: Entities.Token, onStarted: Function, onFinished: Function) => {
+   const cancelTokenSale = async (token: Entities.Token, onStarted: Function, onFinished: Function) => {
       await callContractMethod(() => 
-         contract.methods.preventSale(token.id, account).send({ from: account }),
+         contract.methods.cancelSale(token.id).send({ from: account }),
          token,
          onStarted,
          onFinished
@@ -296,8 +296,8 @@ export function CryptoProvider({ children }) {
          mintToken,
          buyToken,
          transferTokenAsContractOwner,
-         allowTokenSale,
-         preventTokenSale,
+         createTokenSale,
+         cancelTokenSale,
          tokens,
          getTokens,
          updateToken
@@ -312,7 +312,7 @@ export const useCrypto = (): ContextInterface => {
    const { contract } = useContext(CryptoContext);
    const { validateBlockchain } = useContext(CryptoContext);
    const { mintToken, buyToken, transferTokenAsContractOwner } = useContext(CryptoContext);
-   const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
+   const { createTokenSale, cancelTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens, updateToken } = useContext(CryptoContext);
    const { isContractOwner } = useContext(CryptoContext);
 
@@ -328,8 +328,8 @@ export const useCrypto = (): ContextInterface => {
       mintToken,
       buyToken,
       transferTokenAsContractOwner,
-      allowTokenSale,
-      preventTokenSale,
+      createTokenSale,
+      cancelTokenSale,
       tokens,
       getTokens,
       updateToken
