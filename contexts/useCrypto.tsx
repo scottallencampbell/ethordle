@@ -247,7 +247,7 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
 
       await callContractMethod(() => 
-         contract.methods.buy(token.id, account, configSettings.contractPassword).send({ from: account, value: wei }),
+         contract.methods.buy(token.id, configSettings.contractPassword).send({ from: account, value: wei }),
          token,
          onStarted,
          onFinished
@@ -267,7 +267,7 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
 
       await callContractMethod(() => 
-         contract.methods.allowSale(token.id, account, wei).send({ from: account }),
+         contract.methods.createSale(token.id, wei).send({ from: account }),
          token,
          onStarted,
          onFinished
@@ -276,7 +276,7 @@ export function CryptoProvider({ children }) {
 
    const preventTokenSale = async (token: Entities.Token, onStarted: Function, onFinished: Function) => {
       await callContractMethod(() => 
-         contract.methods.preventSale(token.id, account).send({ from: account }),
+         contract.methods.cancelSale(token.id).send({ from: account }),
          token,
          onStarted,
          onFinished

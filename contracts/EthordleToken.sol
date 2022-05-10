@@ -25,7 +25,6 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     mapping (string => address) private _solutionOwners;
     mapping (string => address) private _tokenURIOwners;
 
-    address private _owner;
     uint256 private _initialPrice;
     uint256 private _minimumPrice;
     uint256 private _royaltyRate;
@@ -35,23 +34,54 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     string private _password;
     uint256 private _roundingDivisor = 10**15;
 
-    event TokenSaleAllowed (
-        string solution,
-        address account,
+    event Minted (
         uint256 tokenId,
-        string metadataURI,
-        uint256 price
-    );
-
-    event TokenSalePrevented (
+        address owner,
+        uint256 price,
         string solution,
-        address account,
-        uint256 tokenId,
         string metadataURI
     );
 
-    constructor(string memory _name, string memory _symbol, uint256 initialPrice_, uint256 minimumPrice_, uint256 royaltyRate_, uint256 priceEscalationRate_, string memory password_) ERC721(_name, _symbol) {
-        _owner = msg.sender;
+    event SaleCreated (
+        uint256 tokenId,
+        address seller,
+        uint256 price,
+        string solution,
+        string metadataURI
+    );
+
+    event SaleCanceled (
+        uint256 tokenId,        
+        address seller,
+        string solution,
+        string metadataURI
+    );
+
+    event SaleSuccessful (
+        uint256 tokenId,        
+        address buyer,
+        address seller,
+        uint256 price,
+        string solution,
+        string metadataURI
+    );
+
+    event TransferSuccessful (
+        uint256 tokenId, 
+        address transferee, 
+        string solution, 
+        string metadataURI
+    );
+
+    constructor(
+        string memory _name, 
+        string memory _symbol, 
+        uint256 initialPrice_, 
+        uint256 minimumPrice_, 
+        uint256 royaltyRate_, 
+        uint256 priceEscalationRate_, 
+        string memory password_) 
+    ERC721(_name, _symbol) {
         _currentTokenId = 0;
         _initialPrice = initialPrice_;
         _minimumPrice = minimumPrice_;
@@ -74,13 +104,12 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         
         Token memory token = _tokens[tokenId];    
         
-        require(token.owner != address(0x0), 'Token object does not exist');
+        require(ownerOf(tokenId) != address(0x0), 'Token object does not exist');
 
         return token;
     }
 
-
-    function setInitialPrice(uint256 initialPrice_) external onlyOwner() {
+    function setInitialPrice(uint256 initialPrice_) external onlyOwner {
         _initialPrice = initialPrice_;
     }
     
@@ -88,7 +117,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         return _initialPrice;
     }
     
-    function setMinimumPrice(uint256 minimumPrice_) external onlyOwner() {
+    function setMinimumPrice(uint256 minimumPrice_) external onlyOwner {
         _minimumPrice = minimumPrice_;
     }
 
@@ -96,7 +125,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         return _minimumPrice;
     }
 
-    function setRoyaltyRate(uint256 royaltyRate_) external onlyOwner() {
+    function setRoyaltyRate(uint256 royaltyRate_) external onlyOwner {
         _royaltyRate = royaltyRate_;   
     }
 
@@ -104,7 +133,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         return _royaltyRate;
     }
 
-    function setPriceEscalationRate(uint256 priceEscalationRate_) external onlyOwner() {
+    function setPriceEscalationRate(uint256 priceEscalationRate_) external onlyOwner {
         _priceEscalationRate = priceEscalationRate_;
     }
 
@@ -112,7 +141,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         return _priceEscalationRate;
     }
 
-    function setPassword(string memory password_) external onlyOwner() {
+    function setPassword(string memory password_) external onlyOwner {
         _password = password_;
     }
 
@@ -134,7 +163,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
             Token[] memory allTokens = this.tokens();
             
             for (uint256 i = 0; i < _currentTokenId; i++) {
-                if (allTokens[i].owner == _from) {
+                if (ownerOf(allTokens[i].id) == _from) {
                     ownerTokens[ownerIndex] = allTokens[i];
                     ownerIndex++;
                 }
@@ -154,7 +183,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         return allTokens;
     }
     
-    function setBaseURI(string memory baseURI) external onlyOwner() {
+    function setBaseURI(string memory baseURI) external onlyOwner {
         _baseURIextended = baseURI;
     }
     
@@ -177,8 +206,8 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         string memory solution_,
         string memory tokenURI_,
         string memory password_
-    ) external payable nonReentrant() requirePassword(password_) {  
-        require(msg.sender == to || msg.sender == _owner, 'Invalid to address');      
+    ) external payable nonReentrant requirePassword(password_) {  
+        require(msg.sender == to || msg.sender == owner(), 'Invalid to address');      
         require(msg.value >= _initialPrice, 'Insufficient ether sent with this transaction'); 
         require(_solutionOwners[solution_] == address(0x0), 'A token has already been minted with this solution');
         require(_tokenURIOwners[tokenURI_] == address(0x0), 'A token has already been minted with this URI');
@@ -196,17 +225,15 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
-        _currentTokenId++;        
+        _currentTokenId++;   
+
+        emit Minted(_currentTokenId, to, newPrice, solution_, tokenURI_);     
     }
 
-    function allowSale(
-        uint256 tokenId,
-        address from,
-        uint256 price
-    ) external {    
+    function createSale(uint256 tokenId, uint256 price) external {    
         Token memory token = _validateTokenId(tokenId);
         
-        require((_msgSender() == from || _msgSender() == _owner) && _isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner'); 
+        require(msg.sender == owner() || _isApprovedOrOwner(msg.sender, tokenId), 'Sender must be token owner or contract owner'); 
         require(!token.isForSale, 'Token is already marked for sale');
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
         require(price >= _minimumPrice, 'Token cannot be priced less than the current minimum price');
@@ -216,16 +243,13 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
 
         _tokens[tokenId] = token; 
 
-        emit TokenSaleAllowed(token.solution, token.owner, tokenId, token.url, price);
+        emit SaleCreated(tokenId, msg.sender, price, token.solution, token.url);
     }
 
-    function preventSale(
-        uint256 tokenId,
-        address from        
-    ) external {   
+    function cancelSale(uint256 tokenId) external {   
         Token memory token = _validateTokenId(tokenId);
 
-        require((_msgSender() == from || _msgSender() == _owner) && _isApprovedOrOwner(_msgSender(), tokenId), 'Sender must be token owner or contract owner'); 
+        require(msg.sender == owner() || _isApprovedOrOwner(msg.sender, tokenId), 'Sender must be token owner or contract owner'); 
         
         require(token.isForSale, 'Token is already prevented from being sold'); 
         
@@ -233,19 +257,15 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         
         _tokens[tokenId] = token; 
 
-        emit TokenSalePrevented(token.solution, token.owner, tokenId, token.url);
+        emit SaleCanceled(tokenId, msg.sender, token.solution, token.url);
     }
 
-    function buy(
-        uint256 tokenId,
-        address to, 
-        string memory password_
-    ) external payable nonReentrant() requirePassword(password_) {      
+    function buy(uint256 tokenId, string memory password_) external payable nonReentrant requirePassword(password_) {      
         Token memory token = _validateTokenId(tokenId);
         
         require(msg.value >= token.price, 'Insufficient ether sent with this transaction');
         require(token.isForSale, 'Token is not for sale');
-        require(token.owner != to, 'Buyer already owns token'); 
+        require(token.owner != msg.sender, 'Buyer already owns token'); 
        
         string memory solution_ = token.solution;
         string memory tokenURI_ = token.url;
@@ -256,14 +276,15 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         payable(owner()).transfer(totalRoyalty);
         payable(address(token.owner)).transfer(remainder);
         
-        _transfer(token.owner, to, tokenId);
+        _transfer(token.owner, msg.sender, tokenId);
 
-        _solutionOwners[solution_] = to;
-        _tokenURIOwners[tokenURI_] = to;
+        _solutionOwners[solution_] = msg.sender;
+        _tokenURIOwners[tokenURI_] = msg.sender;
 
         uint256 newPrice = _getEscalatedPrice(msg.value);
+        address oldOwner = token.owner;
 
-        token.owner = to;
+        token.owner = msg.sender;
         token.lastPrice = token.price;
         token.price = newPrice;
         token.isForSale = false;
@@ -271,12 +292,11 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         token.transactionCount++;       
 
         _tokens[tokenId] = token; 
+
+        emit SaleSuccessful(tokenId, msg.sender, oldOwner, newPrice, token.solution, token.url);
     }
     
-    function transferAsContractOwner(
-        uint256 tokenId,
-        address to
-    ) external payable nonReentrant() onlyOwner {        
+    function transferAsContractOwner(uint256 tokenId, address to) external payable nonReentrant onlyOwner {        
         Token memory token = _validateTokenId(tokenId);
         
         require(token.owner != to, 'Buyer already owns token'); 
@@ -295,6 +315,8 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         token.transactionCount++;       
 
         _tokens[tokenId] = token; 
+
+        emit TransferSuccessful(tokenId, to, token.solution, token.url);
     }
 
     function _getRoyalty(uint256 value) private view returns (uint256) {
