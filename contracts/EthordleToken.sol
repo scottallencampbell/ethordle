@@ -265,7 +265,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         
         require(msg.value >= token.price, 'Insufficient ether sent with this transaction');
         require(token.isForSale, 'Token is not for sale');
-        require(token.owner != msg.sender, 'Buyer already owns token'); 
+        require(ownerOf(tokenId) != msg.sender, 'Buyer already owns token'); 
        
         string memory solution_ = token.solution;
         string memory tokenURI_ = token.url;
@@ -274,15 +274,15 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         uint256 remainder = msg.value - totalRoyalty;
 
         payable(owner()).transfer(totalRoyalty);
-        payable(address(token.owner)).transfer(remainder);
+        payable(address(ownerOf(tokenId))).transfer(remainder);
         
-        _transfer(token.owner, msg.sender, tokenId);
+        _transfer(ownerOf(tokenId), msg.sender, tokenId);
 
         _solutionOwners[solution_] = msg.sender;
         _tokenURIOwners[tokenURI_] = msg.sender;
 
         uint256 newPrice = _getEscalatedPrice(msg.value);
-        address oldOwner = token.owner;
+        address oldOwner = ownerOf(tokenId);
 
         token.owner = msg.sender;
         token.lastPrice = token.price;
@@ -299,12 +299,12 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     function transferAsContractOwner(uint256 tokenId, address to) external payable nonReentrant onlyOwner {        
         Token memory token = _validateTokenId(tokenId);
         
-        require(token.owner != to, 'Buyer already owns token'); 
+        require(ownerOf(tokenId) != to, 'Buyer already owns token'); 
        
         string memory solution_ = token.solution;
         string memory tokenURI_ = token.url;
   
-        _transfer(token.owner, to, tokenId);
+        _transfer(ownerOf(tokenId), to, tokenId);
 
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
