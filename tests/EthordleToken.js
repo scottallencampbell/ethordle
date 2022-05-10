@@ -5,10 +5,11 @@ const chai = require('chai');
 const BN = require('bn.js');
 const bnChai = require('bn-chai');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
+const truffleAssert = require('truffle-assertions');
 
 chai.use(bnChai(BN));
 
-contract('EthordleToken', function ([owner, winner, other, transferee]) {
+contract('EthordleToken', function ([owner, winner, other, transferee, otherRoyaltyReceiver]) {
 
     const name = 'Ethordle Token';
     const symbol = 'EthordleToken';
@@ -23,6 +24,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
     const password = 'c8acc750538447b28b60bf2177f5fb32';
     const newPassword = 'new-password';
     const notThePassword = 'not-the-password';
+    const zeroAddress = '0x0000000000000000000000000000000000000000';
 
     const getTransactionCost = async (receipt) => {
         const gasUsed = new BN(receipt.receipt.gasUsed);
@@ -103,6 +105,11 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
             this.contract.setMinimumPrice(web3.utils.toWei(new BN(2), 'ether'), { from: winner }),
             'caller is not the owner'
         );
+        
+        await expectRevert(
+            this.contract.setRoyaltyReceiver(otherRoyaltyReceiver, { from: winner }),
+            'caller is not the owner'
+        );
     });
  
     it('can set initial price', async function () {
@@ -126,12 +133,13 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect(newToken.price.toString()).to.equal(newExpectedPrice);        
         expect(newToken.lastPrice.toString()).to.equal(newInitialPrice.toString());        
     });
-
+    
     it('can set royalty rate', async function () {
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         await this.contract.createSale(0, initialPrice.mul(new BN('11000')).div(new BN('10000')), { from: winner });
       
         const ownerBalance = await web3.eth.getBalance(owner);
+        const otherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
         
         const token = await this.contract.tokenById(0);
         await this.contract.buy(0, password, { from: transferee, value: token.price });
@@ -140,9 +148,13 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         const newToken = await this.contract.tokenById(0);
         const expectedRoyalty = web3.utils.toWei('0.055', 'ether');        
         const newOwnerBalance = await web3.eth.getBalance(owner);
-        const newExpectedOwnerBalance = new BN(ownerBalance).add(new BN(expectedRoyalty));
+        const newExpectedOwnerBalance = new BN(ownerBalance).add(new BN(expectedRoyalty));        
         expect(newOwnerBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOwnerBalance);
-    
+
+        const newOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
+        const newExpectedOtherRoyaltyReceiverBalance = otherRoyaltyReceiverBalance;
+        expect(newOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOtherRoyaltyReceiverBalance);
+
         const receipt = await this.contract.setRoyaltyRate('2000', { from: owner });
         const gas = await getTransactionCost(receipt);
         expect((await this.contract.royaltyRate()).toString()).to.equal('2000');
@@ -150,11 +162,51 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         await this.contract.buy(0, password, { from: other, value: newToken.price });
         const finalExpectedRoyalty = web3.utils.toWei('0.242', 'ether');                
         const finalOwnerBalance = await web3.eth.getBalance(owner);
-        const finalExpectedOwnerBalance = new BN(ownerBalance).add(new BN(expectedRoyalty)).add(new BN(finalExpectedRoyalty).sub(new BN(gas)));
-
+        const finalExpectedOwnerBalance = new BN(ownerBalance).add(new BN(expectedRoyalty)).add(new BN(finalExpectedRoyalty).sub(new BN(gas)));        
         expect(finalOwnerBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOwnerBalance);         
+
+        const finalOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
+        const finalExpectedOtherRoyaltyReceiverBalance = otherRoyaltyReceiverBalance;
+        expect(finalOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOtherRoyaltyReceiverBalance);
     });
 
+    it('can change royalty receiver', async function () {
+        await this.contract.setRoyaltyReceiver(otherRoyaltyReceiver);
+        await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
+        await this.contract.createSale(0, initialPrice.mul(new BN('11000')).div(new BN('10000')), { from: winner });
+      
+        const ownerBalance = await web3.eth.getBalance(owner);
+        const otherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
+        
+        const token = await this.contract.tokenById(0);
+        await this.contract.buy(0, password, { from: transferee, value: token.price });
+        await this.contract.createSale(0, initialPrice.mul(new BN('11000')).mul(new BN('11000')).div(new BN('100000000')), { from: transferee });
+      
+        const newToken = await this.contract.tokenById(0);
+        const expectedRoyalty = web3.utils.toWei('0.055', 'ether');        
+        const newOwnerBalance = await web3.eth.getBalance(owner);
+        const newExpectedOwnerBalance = ownerBalance;
+        expect(newOwnerBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOwnerBalance);
+
+        const newOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
+        const newExpectedOtherRoyaltyReceiverBalance = new BN(otherRoyaltyReceiverBalance).add(new BN(expectedRoyalty));        ;
+        expect(newOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOtherRoyaltyReceiverBalance);
+
+        const receipt = await this.contract.setRoyaltyRate('2000', { from: owner });
+        const gas = await getTransactionCost(receipt);
+        expect((await this.contract.royaltyRate()).toString()).to.equal('2000');
+
+        await this.contract.buy(0, password, { from: other, value: newToken.price });
+        const finalExpectedRoyalty = web3.utils.toWei('0.242', 'ether');                
+        const finalOwnerBalance = await web3.eth.getBalance(owner);
+        const finalExpectedOwnerBalance = new BN(ownerBalance).sub(gas);
+        expect(finalOwnerBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOwnerBalance);  
+      
+        const finalOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
+        const finalExpectedOtherRoyaltyReceiverBalance = new BN(otherRoyaltyReceiverBalance).add(new BN(expectedRoyalty)).add(new BN(finalExpectedRoyalty));                 
+        expect(finalOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOtherRoyaltyReceiverBalance);
+    });
+    
     it('can set price escalation rate', async function () {
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         await this.contract.createSale(0, initialPrice.mul(new BN('11000')).div(new BN('10000')), { from: winner });
@@ -647,4 +699,107 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
                 'Token is already marked for sale'
         );    
     }); 
+
+    it('emits minted event', async function () {
+        await this.contract.mint(winner, otherSolutions[0], otherTokenURIs[0], password, { from: winner, value: initialPrice });
+        await this.contract.mint(winner, otherSolutions[1], otherTokenURIs[1], password, { from: winner, value: initialPrice });
+     
+        const tx = await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
+     
+        truffleAssert.eventEmitted(tx, 'Transfer', (ev) => {
+            expect(ev.from.toString()).to.equal(zeroAddress);
+            expect(ev.to).to.equal(winner);
+            expect(ev.tokenId.toString()).is.a.bignumber.that.equals(new BN(2));
+
+            return true;
+        }, 'Transfer event not emitted');
+        
+        truffleAssert.eventEmitted(tx, 'Minted', (ev) => {
+            expect(ev.tokenId.toString()).is.a.bignumber.that.equals(new BN(2));
+            expect(ev.owner).to.equal(winner);
+            expect(ev.price.toString()).is.a.bignumber.that.equals(new BN(initialPrice).mul(new BN('11000')).div(new BN('10000')));
+            expect(ev.solution).to.equal(solution);
+            expect(ev.metadataURI).to.equal(tokenURI);
+
+            return true;               
+        }, 'Minted event not emitted');
+    
+        truffleAssert.eventNotEmitted(tx, 'SaleCreated');
+        truffleAssert.eventNotEmitted(tx, 'SaleCancelled');
+        truffleAssert.eventNotEmitted(tx, 'SaleSuccessful');
+    });
+
+    it('emits salecreated event', async function () {
+        await this.contract.mint(winner, otherSolutions[0], otherTokenURIs[0], password, { from: winner, value: initialPrice });
+     
+        await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
+        const tx = await this.contract.createSale(1, new BN(initialPrice).mul(new BN(3)), { from: winner });
+        
+        truffleAssert.eventEmitted(tx, 'SaleCreated', (ev) => {
+            expect(ev.tokenId.toString()).is.a.bignumber.that.equals(new BN(1));
+            expect(ev.seller).to.equal(winner);
+            expect(ev.price.toString()).is.a.bignumber.that.equals(new BN(initialPrice).mul(new BN(3)));
+            expect(ev.solution).to.equal(solution);
+            expect(ev.metadataURI).to.equal(tokenURI);
+
+            return true;               
+        }, 'SaleCreated event not emitted');
+    
+        truffleAssert.eventNotEmitted(tx, 'Transfer');
+        truffleAssert.eventNotEmitted(tx, 'Minted');
+        truffleAssert.eventNotEmitted(tx, 'SaleCancelled');
+        truffleAssert.eventNotEmitted(tx, 'SaleSuccessful');
+    });
+
+    it('emits salecanceled event', async function () {
+        await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
+        await this.contract.createSale(0, new BN(initialPrice).mul(new BN(3)), { from: winner });
+        const tx = await this.contract.cancelSale(0, { from: winner });
+        
+        truffleAssert.eventEmitted(tx, 'SaleCanceled', (ev) => {
+            expect(ev.tokenId.toString()).is.a.bignumber.that.equals(new BN(0));
+            expect(ev.seller).to.equal(winner);
+            expect(ev.solution).to.equal(solution);
+            expect(ev.metadataURI).to.equal(tokenURI);
+
+            return true;               
+        }, 'SaleCanceled event not emitted');
+    
+        truffleAssert.eventNotEmitted(tx, 'Transfer');
+        truffleAssert.eventNotEmitted(tx, 'Minted');
+        truffleAssert.eventNotEmitted(tx, 'SaleCreated');
+        truffleAssert.eventNotEmitted(tx, 'SaleSuccessful');
+    });
+    
+    it('emits salesuccessful event', async function () {
+        await this.contract.mint(winner, otherSolutions[0], otherTokenURIs[0], password, { from: winner, value: initialPrice });
+     
+        await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
+        await this.contract.createSale(1, new BN(initialPrice).mul(new BN(4)), { from: winner });
+        const tx = await this.contract.buy(1, password, { from: transferee, value: new BN(initialPrice).mul(new BN(4)) }); 
+
+        truffleAssert.eventEmitted(tx, 'Transfer', (ev) => {
+            expect(ev.from).to.equal(winner);
+            expect(ev.to).to.equal(transferee);
+            expect(ev.tokenId.toString()).is.a.bignumber.that.equals(new BN(1));
+
+            return true;
+        }, 'Transfer event not emitted');
+        
+
+        truffleAssert.eventEmitted(tx, 'SaleSuccessful', (ev) => {
+            expect(ev.tokenId.toString()).is.a.bignumber.that.equals(new BN(1));
+            expect(ev.seller).to.equal(winner);
+            expect(ev.buyer).to.equal(transferee);
+            expect(ev.price.toString()).is.a.bignumber.that.equals(new BN(initialPrice).mul(new BN(4)).mul(new BN('11000')).div(new BN('10000')));
+            expect(ev.solution).to.equal(solution);
+            expect(ev.metadataURI).to.equal(tokenURI);
+
+            return true;               
+        }, 'SaleSuccessful event not emitted');
+            
+        truffleAssert.eventNotEmitted(tx, 'Minted');
+        truffleAssert.eventNotEmitted(tx, 'SaleCreated');
+        truffleAssert.eventNotEmitted(tx, 'SaleCanceled');
+    });
 });

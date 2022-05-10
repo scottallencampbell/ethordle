@@ -33,6 +33,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     string private _baseURIextended;
     string private _password;
     uint256 private _roundingDivisor = 10**15;
+    address private _royaltyReceiver;
 
     event Minted (
         uint256 tokenId,
@@ -88,6 +89,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _royaltyRate = royaltyRate_;
         _priceEscalationRate = priceEscalationRate_;
         _password = password_;
+        _royaltyReceiver = owner();
     }
     
     modifier requirePassword(string memory password_) {
@@ -143,6 +145,10 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
 
     function setPassword(string memory password_) external onlyOwner {
         _password = password_;
+    }
+
+    function setRoyaltyReceiver(address royaltyReceiver_) external onlyOwner {
+        _royaltyReceiver = royaltyReceiver_;   
     }
 
     function tokenCount() external view returns (uint256) {
@@ -225,9 +231,10 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _tokens[_currentTokenId] = token;
         _solutionOwners[solution_] = to;
         _tokenURIOwners[tokenURI_] = to;
-        _currentTokenId++;   
-
+        
         emit Minted(_currentTokenId, to, newPrice, solution_, tokenURI_);     
+
+        _currentTokenId++;   
     }
 
     function createSale(uint256 tokenId, uint256 price) external {    
@@ -273,7 +280,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         uint256 totalRoyalty = _getRoyalty(msg.value); 
         uint256 remainder = msg.value - totalRoyalty;
 
-        payable(owner()).transfer(totalRoyalty);
+        payable(_royaltyReceiver).transfer(totalRoyalty);
         payable(address(ownerOf(tokenId))).transfer(remainder);
         
         _transfer(ownerOf(tokenId), msg.sender, tokenId);
@@ -282,8 +289,8 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _tokenURIOwners[tokenURI_] = msg.sender;
 
         uint256 newPrice = _getEscalatedPrice(msg.value);
-        address oldOwner = ownerOf(tokenId);
-
+        address oldOwner = token.owner;
+        
         token.owner = msg.sender;
         token.lastPrice = token.price;
         token.price = newPrice;
