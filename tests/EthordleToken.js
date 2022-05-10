@@ -52,29 +52,30 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         expect((await this.contract.priceEscalationRate()).toString()).to.equal(priceEscalationRate);
     });
 
-    /*
     it('ignores disallowed methods', async function () {
-        const receipt = await this.contract.mint(winner, solution, tokenURI, password, { from: owner, value: initialPrice });
+        await this.contract.mint(winner, solution, tokenURI, password, { from: owner, value: initialPrice });
+        await this.contract.createSale(0, initialPrice.mul(new BN('11000')).div(new BN('10000')), { from: winner });
+      
         const token = await this.contract.tokenById(0);
         const price = token.price;
 
         await expectRevert(
             this.contract.transferFrom(winner, transferee, 0, { from: winner, value: price }), 
-            'revert' // why not 'Method may only be called by the owner'?
+            'revert' 
         );
 
         await expectRevert(
             this.contract.safeTransferFrom(winner, transferee, 0, { from: winner, value: price }), 
             'revert'
         );
-
+        
+        const data = await web3.utils.padLeft(web3.utils.toHex(1234), 64);
         await expectRevert(
-            this.contract.safeTransferFrom(winner, transferee, 0, new Uint8Array(16), { from: winner, value: price }), 
+            this.contract.safeTransferFrom(winner, transferee, 0, data, { from: winner, value: price }), 
             'revert'
         );
     });
-    */
-    /*
+   
     it('rejects methods reserved for owner', async function () {
         await expectRevert(
             this.contract.setInitialPrice(web3.utils.toWei(new BN(2), 'ether'), { from: winner }),
@@ -643,7 +644,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee]) {
         token = await this.contract.tokenById(0);
         // todo expect(token.isForSale).to.equal(false);
     });  
-*/
+
     it('reverts sale toggle if already in that state', async function () {
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         let token = await this.contract.tokenById(0);

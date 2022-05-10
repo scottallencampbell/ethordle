@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract EthordleToken is
+    ERC721,
     ERC721Enumerable,
     ERC721Holder,
     ReentrancyGuard,
@@ -349,10 +350,11 @@ contract EthordleToken is
     {
         Token memory token = _validateTokenId(_tokenId);
 
-        safeTransferFrom(msg.sender, address(this), _tokenId, "0x0000");
         require(price >= token.price, 'Token cannot be priced less than the current asking price');
         require(price >= _minimumPrice, 'Token cannot be priced less than the current minimum price');
-        
+
+        _safeTransfer(msg.sender, address(this), _tokenId, '0x0000');
+                
         uint256 newPrice = price.div(_roundingDivisor).mul(_roundingDivisor); // round to nearest 1/1000 eth
         token.price = newPrice;
 
@@ -552,5 +554,64 @@ contract EthordleToken is
         else {
             return updatedPrice;
         }
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) 
+        internal 
+        virtual 
+        override(ERC721, ERC721Enumerable)
+    {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+    
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) 
+        public 
+        view 
+        override
+        onlyOwner  
+    {
+    }
+
+    function safeTransferFrom(
+        address,
+        address,
+        uint256
+    )   
+        public 
+        view 
+        override
+        onlyOwner 
+    {
+    }
+
+    function safeTransferFrom(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) 
+        public 
+        view 
+        override
+        onlyOwner 
+    {
     }
 }
