@@ -9,7 +9,7 @@ const truffleAssert = require('truffle-assertions');
 
 chai.use(bnChai(BN));
 
-contract('EthordleToken', function ([owner, winner, other, transferee, otherRoyaltyReceiver]) {
+contract('EthordleToken', function ([owner, winner, other, transferee, beneficiary]) {
 
     const name = 'Ethordle Token';
     const symbol = 'EthordleToken';
@@ -107,7 +107,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
         );
         
         await expectRevert(
-            this.contract.setRoyaltyReceiver(otherRoyaltyReceiver, { from: winner }),
+            this.contract.setBeneficiary(beneficiary, { from: winner }),
             'caller is not the owner'
         );
     });
@@ -135,11 +135,14 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
     });
     
     it('can set royalty rate', async function () {
+        const originalOwnerBalance = await web3.eth.getBalance(owner);
+        const originalBeneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         await this.contract.createSale(0, initialPrice.mul(new BN('11000')).div(new BN('10000')), { from: winner });
       
         const ownerBalance = await web3.eth.getBalance(owner);
-        const otherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
+        const beneficiaryBalance = await web3.eth.getBalance(beneficiary);
         
         const token = await this.contract.tokenById(0);
         await this.contract.buy(0, password, { from: transferee, value: token.price });
@@ -151,9 +154,9 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
         const newExpectedOwnerBalance = new BN(ownerBalance).add(new BN(expectedRoyalty));        
         expect(newOwnerBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOwnerBalance);
 
-        const newOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
-        const newExpectedOtherRoyaltyReceiverBalance = otherRoyaltyReceiverBalance;
-        expect(newOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOtherRoyaltyReceiverBalance);
+        const newBeneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        const newExpectedbeneficiaryBalance = beneficiaryBalance;
+        expect(newBeneficiaryBalance.toString()).to.be.a.bignumber.that.equals(newExpectedbeneficiaryBalance);
 
         const receipt = await this.contract.setRoyaltyRate('2000', { from: owner });
         const gas = await getTransactionCost(receipt);
@@ -165,19 +168,25 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
         const finalExpectedOwnerBalance = new BN(ownerBalance).add(new BN(expectedRoyalty)).add(new BN(finalExpectedRoyalty).sub(new BN(gas)));        
         expect(finalOwnerBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOwnerBalance);         
 
-        const finalOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
-        const finalExpectedOtherRoyaltyReceiverBalance = otherRoyaltyReceiverBalance;
-        expect(finalOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOtherRoyaltyReceiverBalance);
+        const finalBeneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        const finalExpectedbeneficiaryBalance = beneficiaryBalance;
+        expect(finalBeneficiaryBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedbeneficiaryBalance);
     });
 
-    it('can change royalty receiver', async function () {
-        await this.contract.setRoyaltyReceiver(otherRoyaltyReceiver);
+    it('can change beneficiary', async function () {
+        await this.contract.setBeneficiary(beneficiary);
+
+        const originalOwnerBalance = await web3.eth.getBalance(owner);
+        const originalBeneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         await this.contract.createSale(0, initialPrice.mul(new BN('11000')).div(new BN('10000')), { from: winner });
       
         const ownerBalance = await web3.eth.getBalance(owner);
-        const otherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
-        
+        const beneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        expect(ownerBalance.toString()).to.be.a.bignumber.that.equals(originalOwnerBalance);
+        expect(beneficiaryBalance.toString()).to.be.a.bignumber.that.equals(new BN(originalBeneficiaryBalance).add(new BN(initialPrice)));
+
         const token = await this.contract.tokenById(0);
         await this.contract.buy(0, password, { from: transferee, value: token.price });
         await this.contract.createSale(0, initialPrice.mul(new BN('11000')).mul(new BN('11000')).div(new BN('100000000')), { from: transferee });
@@ -188,9 +197,9 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
         const newExpectedOwnerBalance = ownerBalance;
         expect(newOwnerBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOwnerBalance);
 
-        const newOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
-        const newExpectedOtherRoyaltyReceiverBalance = new BN(otherRoyaltyReceiverBalance).add(new BN(expectedRoyalty));        ;
-        expect(newOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(newExpectedOtherRoyaltyReceiverBalance);
+        const newBeneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        const newExpectedbeneficiaryBalance = new BN(beneficiaryBalance).add(new BN(expectedRoyalty));
+        expect(newBeneficiaryBalance.toString()).to.be.a.bignumber.that.equals(newExpectedbeneficiaryBalance);
 
         const receipt = await this.contract.setRoyaltyRate('2000', { from: owner });
         const gas = await getTransactionCost(receipt);
@@ -202,9 +211,9 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
         const finalExpectedOwnerBalance = new BN(ownerBalance).sub(gas);
         expect(finalOwnerBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOwnerBalance);  
       
-        const finalOtherRoyaltyReceiverBalance = await web3.eth.getBalance(otherRoyaltyReceiver);
-        const finalExpectedOtherRoyaltyReceiverBalance = new BN(otherRoyaltyReceiverBalance).add(new BN(expectedRoyalty)).add(new BN(finalExpectedRoyalty));                 
-        expect(finalOtherRoyaltyReceiverBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedOtherRoyaltyReceiverBalance);
+        const finalBeneficiaryBalance = await web3.eth.getBalance(beneficiary);
+        const finalExpectedbeneficiaryBalance = new BN(beneficiaryBalance).add(new BN(expectedRoyalty)).add(new BN(finalExpectedRoyalty));                 
+        expect(finalBeneficiaryBalance.toString()).to.be.a.bignumber.that.equals(finalExpectedbeneficiaryBalance);
     });
     
     it('can set price escalation rate', async function () {
@@ -680,7 +689,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee, otherRoya
         expect(token.isForSale).to.equal(false);
     });  
 
-    it('reverts sale toggle if already in that state', async function () {
+    it('reverts sale toggle if already in the desired state', async function () {
         await this.contract.mint(winner, solution, tokenURI, password, { from: winner, value: initialPrice });
         let token = await this.contract.tokenById(0);
         expect(token.isForSale).to.equal(false);

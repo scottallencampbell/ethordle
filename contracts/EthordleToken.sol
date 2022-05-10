@@ -33,7 +33,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
     string private _baseURIextended;
     string private _password;
     uint256 private _roundingDivisor = 10**15;
-    address private _royaltyReceiver;
+    address private _beneficiary;
 
     event Minted (
         uint256 tokenId,
@@ -89,7 +89,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _royaltyRate = royaltyRate_;
         _priceEscalationRate = priceEscalationRate_;
         _password = password_;
-        _royaltyReceiver = owner();
+        _beneficiary = owner();
     }
     
     modifier requirePassword(string memory password_) {
@@ -147,8 +147,8 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _password = password_;
     }
 
-    function setRoyaltyReceiver(address royaltyReceiver_) external onlyOwner {
-        _royaltyReceiver = royaltyReceiver_;   
+    function setBeneficiary(address beneficiary_) external onlyOwner {
+        _beneficiary = beneficiary_;   
     }
 
     function tokenCount() external view returns (uint256) {
@@ -220,7 +220,9 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         require(bytes(solution_).length >= 5, 'A value for solution is required');
         require(bytes(tokenURI_).length >= 28, 'A value for tokenURI is required'); // https://ipfs.infura.io/ipfs/
         
-        payable(owner()).transfer(msg.value);
+        if (msg.value > 0) {
+            payable(_beneficiary).transfer(msg.value);
+        }
 
         _mint(to, _currentTokenId);
 
@@ -280,7 +282,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         uint256 totalRoyalty = _getRoyalty(msg.value); 
         uint256 remainder = msg.value - totalRoyalty;
 
-        payable(_royaltyReceiver).transfer(totalRoyalty);
+        payable(_beneficiary).transfer(totalRoyalty);
         payable(address(ownerOf(tokenId))).transfer(remainder);
         
         _transfer(ownerOf(tokenId), msg.sender, tokenId);
@@ -290,7 +292,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
 
         uint256 newPrice = _getEscalatedPrice(msg.value);
         address oldOwner = token.owner;
-        
+
         token.owner = msg.sender;
         token.lastPrice = token.price;
         token.price = newPrice;
