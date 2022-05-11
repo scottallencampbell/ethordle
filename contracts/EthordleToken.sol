@@ -188,6 +188,10 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
 
         return allTokens;
     }
+
+    function tokenSupply() external view returns (uint256) {
+        return _currentTokenId;
+    }
     
     function setBaseURI(string memory baseURI) external onlyOwner {
         _baseURIextended = baseURI;

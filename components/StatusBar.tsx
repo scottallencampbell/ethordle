@@ -11,6 +11,7 @@ interface IStatusBar {
 export const StatusBar = ({} : IStatusBar) => {
    const { account } = useCrypto();
    const { blockchainStatus } = useCrypto();
+   const { explorerAddress } = useCrypto();
 
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
    const [path, setPath] = useState('');
@@ -42,7 +43,7 @@ export const StatusBar = ({} : IStatusBar) => {
                }
                <a className={`about ${blockchainStatus === Entities.BlockchainStatus.Connected ? 'hide-on-small' : ''} `} onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
             </div>            
-            <div className='account hide-on-small'><a onClick={() => window.open(`https://etherscan.io/address/${account}`)}>{account}</a></div>
+            <div className='account hide-on-small'><a onClick={() => window.open(explorerAddress(`address/${account}`))}>{account}</a></div>
             </>           
             : <></> }
          </div>   

@@ -26,7 +26,8 @@ interface ContextInterface {
    preventTokenSale: (token: Entities.Token, onStarted: Function, onFinished: Function)=> Promise<void>,
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>,
-   updateToken: (token: Entities.Token) => Promise<Entities.Token[]>
+   updateToken: (token: Entities.Token) => Promise<Entities.Token[]>,
+   explorerAddress: (path: string) => string   
 }
 
 declare let window: any;
@@ -36,6 +37,7 @@ export const CryptoContext = createContext({} as ContextInterface);
 export function CryptoProvider({ children }) {
    const [blockchainStatus, setBlockchainStatus] = useState(Entities.BlockchainStatus.Unknown);
    const [account, setAccount] = useState('');
+   const [networkId, setNetworkId] = useState(0);
    const [contract, setContract] = useState(null);
    const [isContractOwner, setIsContractOwner] = useState(false);
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
@@ -112,6 +114,7 @@ export function CryptoProvider({ children }) {
       const tokenNetworkData = TokenContract.networks[networkId];
 
       setAccount(accounts[0]);
+      setNetworkId(networkId);
 
       if (tokenNetworkData) {
          const contractAddress = tokenNetworkData.address;
@@ -283,6 +286,26 @@ export function CryptoProvider({ children }) {
       );
    }
 
+   const explorerAddress = (path: string) : string => {
+      let base = '';
+
+      switch (networkId) {
+         case 1: base = 'https://etherscan.io/'; break;
+         case 3: base = 'https://ropsten.etherscan.io/'; break;
+         case 4: base = 'https://rinkeby.etherscan.io/'; break;
+         case 5: base = 'https://goerli.etherscan.io/'; break;
+         case 5777: base = ''; break;      
+         default: base = ''; break;
+      }
+
+      if (base == '') {
+         return null;
+      }
+      else {
+         return `${base}${path}`;
+      }
+   }
+
    return (
       <CryptoContext.Provider value={{
          blockchainStatus,
@@ -300,7 +323,8 @@ export function CryptoProvider({ children }) {
          preventTokenSale,
          tokens,
          getTokens,
-         updateToken
+         updateToken,
+         explorerAddress
       }}>{children}</CryptoContext.Provider>
    )
 }
@@ -315,6 +339,7 @@ export const useCrypto = (): ContextInterface => {
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
    const { tokens, getTokens, updateToken } = useContext(CryptoContext);
    const { isContractOwner } = useContext(CryptoContext);
+   const { explorerAddress } = useContext(CryptoContext);
 
    return {
       blockchainStatus,
@@ -332,7 +357,8 @@ export const useCrypto = (): ContextInterface => {
       preventTokenSale,
       tokens,
       getTokens,
-      updateToken
+      updateToken,
+      explorerAddress
    };
 }
 

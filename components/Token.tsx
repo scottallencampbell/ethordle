@@ -12,6 +12,7 @@ interface IToken {
 
 export const Token = ({ token, index }: IToken) => {
    const { buyToken, transferTokenAsContractOwner, updateToken, getTokens } = useCrypto();
+   const { explorerAddress } = useCrypto();
    const { allowTokenSale, preventTokenSale } = useCrypto();
    const { account, isContractOwner } = useCrypto();
 
@@ -44,7 +45,6 @@ export const Token = ({ token, index }: IToken) => {
    }
 
    const setTransactingStatus = () => {
-      console.log('setting transaction status');
       const newToken = {...token};
       newToken.marketplaceStatus = Entities.TokenStatus.Transacting;
       updateToken(newToken);  
@@ -82,7 +82,7 @@ export const Token = ({ token, index }: IToken) => {
          <div className='links'>
             <strong title='Metadata' onClick={() => window.open(token.url)} className='material-icons smaller'>&#xe54e;</strong>
             <strong title='Image' onClick={() => window.open(token.image)} className='material-icons'>&#xea10;</strong>
-            <strong title='Owner' onClick={() => window.open(`https://etherscan.io/address/${token.owner}`)} className='material-icons'>&#xe7fd;</strong>
+            <strong title='Owner' onClick={() => window.open(explorerAddress(`address/${token.owner}`))} className='material-icons'>&#xe7fd;</strong>
          </div>
          <div className='details'>
             <div className='details-column'>
