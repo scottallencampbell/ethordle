@@ -2,6 +2,7 @@ import * as Entities from '../models/entities';
 
 import Popup from 'reactjs-popup';
 import { StaticGridRow } from './StaticGridRow';
+import { useCrypto } from '../contexts/useCrypto';
 
 interface ISummary {
    isSummaryPopupOpen: boolean,
@@ -10,7 +11,8 @@ interface ISummary {
 }
 
 export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen } : ISummary) => {
- 
+   const { blockchainStatus, initialTokenPrice } = useCrypto();
+   
    return (
       <Popup modal open={isSummaryPopupOpen} closeOnDocumentClick={false} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (        
@@ -21,8 +23,23 @@ export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen 
                   <div className='summary-row'>
                   <StaticGridRow word={statistics.solution} statusMap={'X'.repeat(statistics.solution.length)}></StaticGridRow>      
                   </div>            
+                  { blockchainStatus === Entities.BlockchainStatus.Connected ? 
+                     <>
+                     <div>
+                       <p className='header'>Mint an NFT for this solution</p>
+                        <div className='mint-nft'>
+                           Please accept the Metmask popup to mint an Ethordle NFT for <strong>{statistics.solution}</strong>.  You'll have a permanent Ethereum blockchain asset to prove your accomplishment!<br/><br/>
+                           Once you've minted your NFT, you can put your asset on sale on the Ethordle marketplace.  Maybe that five-letter word will buy you a Lambo?<br/><br/>
+                           { initialTokenPrice === 0 ? 
+                              <><strong>Minting the token is free</strong>, but you&apos;ll pay a small amount for gas.</> :
+                              <>The cost to mint the token is <strong>{initialTokenPrice} eth</strong>, plus gas fees.</>
+                           }
+                        </div>
+                     </div>
+                     </> : <></>
+                  }                
                   <p className='header'>Statistics</p>
-                  <div className='statistics'>
+                  <div id='statistics'>
                      <div>
                         <p>{statistics.gamesPlayed}</p>
                         <label>Played</label>

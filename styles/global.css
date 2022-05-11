@@ -697,14 +697,14 @@ body {
   -webkit-animation: anvil 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
 }
 
-.statistics {
+#statistics {
   margin: 0 auto;
   text-align: center;
   vertical-align: top;
   clear: both;
 }
 
-.statistics>div {
+#statistics > div {
   width: 100px;
   height: 70px;
   display: inline-flex;
@@ -715,7 +715,16 @@ body {
   margin-bottom: 20px;
 }
 
-.statistics label {
+#statistics p {
+  display: block;
+  font-size: 35px;
+  font-weight: bold;
+  margin: 0;
+  height: 35px;
+  width: 100%;
+}
+
+#statistics label {
   display: block;
   font-size: 12px;
   width: 100%;
@@ -729,6 +738,16 @@ body {
   text-align: center;
   padding: 5px;
   font-weight: bold;
+}
+
+#summary .mint-nft {
+  max-width: 400px;
+    margin: 0 auto;
+    margin-bottom: 40px;
+}
+
+#summary .mint-nft strong {
+  color: #43ABDC;
 }
 
 * {
@@ -936,11 +955,11 @@ body {
     margin: 2px;
   }
 
-  .statistics>div {
+  #statistics > div {
     width: 70px;
   }
 
-  .statistics p {
+  #statistics p {
     display: block;
     font-size: 30px;
     font-weight: bold;
@@ -949,7 +968,7 @@ body {
     width: 100%;
   }
   
-  .statistics label {
+  #statistics label {
     font-size: 11px;
   }
 

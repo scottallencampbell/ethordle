@@ -13,6 +13,7 @@ import { Summary } from '../components/Summary';
 import { ModeChooser } from '../components/ModeChooser';
 import { StatusBar } from '../components/StatusBar';
 import { NoGasAvailable } from '../components/NoGasAvailable';
+import { ConnectionTimeout } from '../components/ConnectionTimeout';
 
 import * as Entities from '../models/entities';
 import configSettings from '../config.json';
@@ -54,7 +55,7 @@ let nullBoolean : boolean | null;
 const Index = () => {
    const router = useRouter();
 
-   const { blockchainStatus, validateBlockchain } = useCrypto();
+   const { blockchainStatus, validateBlockchain, account } = useCrypto();
    const { contract } = useCrypto();
    const { mintToken } = useCrypto();
 
@@ -71,6 +72,7 @@ const Index = () => {
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(nullBoolean);
    const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(nullBoolean);
    const [isNoGasAvailablePopupOpen, setIsNoGasAvailablePopupOpen] = useState(nullBoolean);
+   const [isConnectionTimeoutPopupOpen, setIsConnectionTimeoutPopupOpen] = useState(nullBoolean);
 
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
@@ -85,14 +87,23 @@ const Index = () => {
 
          const status = await validateBlockchain();
 
-         switch (status) {             
+         switch (status) {          
+            case Entities.BlockchainStatus.Connected:
+               setGameMode(Entities.GameMode.Blockchain);
+               break;
+
             case Entities.BlockchainStatus.NoGas:         
                setIsNoGasAvailablePopupOpen(true);
+               break;
+            case Entities.BlockchainStatus.ConnectionTimeout:         
+               // setIsConnectionTimeoutPopupOpen(true);
+               setIsGameModePopupOpen(true);
                break;
             case Entities.BlockchainStatus.NotConnected:
             case Entities.BlockchainStatus.NoEthereum:
                setIsGameModePopupOpen(true);
                break;
+            
          }
          // todo not sure why this is necessary, without it though the keyboard state is preserved, somehow
          setKeyboard(() => letters.map((row) => { return row.map((letter) => { return { value: letter, status: Entities.TileStatus.None }; }); }));
@@ -103,6 +114,15 @@ const Index = () => {
       (async () => {         
       })();
    }, [router]);
+
+   useEffect(() => {
+      (async () => {     
+         if (account !== '' ) {
+           setIsGameModePopupOpen(false);
+            setIsNoGasAvailablePopupOpen(false);
+         }
+      })();
+   }, [account]);
 
    useEffect(() => {
       (async () => {
@@ -121,7 +141,7 @@ const Index = () => {
    }, [isNoGasAvailablePopupOpen]);
 
    useEffect(() => {
-      (async () => {         
+      (async () => {    
          if (blockchainStatus === Entities.BlockchainStatus.Unknown) { return; }
          if (solution !== '') { return; }
 
@@ -134,7 +154,7 @@ const Index = () => {
                setIsIntroductionPopupOpen(true);
             }, 100);
          }
-      })();
+       })();
    }, [blockchainStatus]);
 
    const handleKeyDown = (e) => {
@@ -349,6 +369,7 @@ const Index = () => {
          <Summary statistics={statistics} isSummaryPopupOpen={isSummaryPopupOpen} setIsSummaryPopupOpen={setIsSummaryPopupOpen}></Summary>
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
          <NoGasAvailable isNoGasAvailablePopupOpen={isNoGasAvailablePopupOpen} setIsNoGasAvailablePopupOpen={setIsNoGasAvailablePopupOpen}></NoGasAvailable>
+         <ConnectionTimeout isConnectionTimeoutPopupOpen={isConnectionTimeoutPopupOpen} setIsConnectionTimeoutPopupOpen={setIsConnectionTimeoutPopupOpen}></ConnectionTimeout>
       </>
    )
 }

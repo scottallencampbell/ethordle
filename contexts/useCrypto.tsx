@@ -57,7 +57,7 @@ export function CryptoProvider({ children }) {
       let status = Entities.BlockchainStatus.Unknown;
 
       try {
-         status = await fulfillWithTimeLimit(3000, connectToBlockchain(), false);         
+         status = await fulfillWithTimeLimit(3000, connectToBlockchain(), Entities.BlockchainStatus.ConnectionTimeout);         
       } catch (ex) {
          if (ex.toString().includes('did it run Out of Gas')) {              
             status = Entities.BlockchainStatus.NoGas;
@@ -66,7 +66,7 @@ export function CryptoProvider({ children }) {
             status = Entities.BlockchainStatus.NotConnected;
          }
       }
-    
+   
       setBlockchainStatus(status);
       return status;
    }

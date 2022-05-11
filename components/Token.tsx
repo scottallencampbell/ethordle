@@ -109,14 +109,14 @@ export const Token = ({ token, index }: IToken) => {
             </div>
             <div className='details-column'>
                <div className={`price price-length-${token.price.toString().length}`}>
-                  <p>Current Price</p>
+                  <p>{token.isForSale ? 'Current Price' : 'Minimum sale price'}</p>
                   <strong><img className='ethereum-icon' src='/ethereum-icon.png'></img> {token.price}</strong>
                </div>
                <div className='clear'></div>
                <div className='last-transaction'>
                   <p>Last transaction (UTC)</p>
                   <strong>{token.lastTransactionTimestamp}</strong>
-                  <strong><img className='ethereum-icon' src='/ethereum-icon.png'></img> {token.lastPrice}</strong>
+                  <strong><img className='ethereum-icon' src='/ethereum-icon.png'></img> {token.lastPrice === 0 ? ' 0.00 (newly minted)' : token.lastPrice}</strong>
                </div>
                <div className='for-sale-status'>
                   {(token.owner === account) ?

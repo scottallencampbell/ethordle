@@ -77,5 +77,6 @@ export enum BlockchainStatus {
    Connected = 'connected',
    NotConnected = 'not-connected',
    NoEthereum = 'no-ethereum',
-   NoGas = 'no-gas'
+   NoGas = 'no-gas',
+   ConnectionTimeout = 'connection-timeout'
 }
