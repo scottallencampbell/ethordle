@@ -90,6 +90,7 @@ const Index = () => {
          switch (status) {          
             case Entities.BlockchainStatus.Connected:
                setGameMode(Entities.GameMode.Blockchain);
+               setIsGameModePopupOpen(false);
                break;
 
             case Entities.BlockchainStatus.NoGas:         
