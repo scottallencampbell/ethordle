@@ -28,8 +28,8 @@ export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen 
                      <div>
                        <p className='header'>Mint an NFT for this solution</p>
                         <div className='mint-nft'>
-                           Please accept the Metmask popup to mint an Ethordle NFT for <strong>{statistics.solution}</strong>.  You'll have a permanent Ethereum blockchain asset to prove your accomplishment!<br/><br/>
-                           Once you've minted your NFT, you can put your asset on sale on the Ethordle marketplace.  Maybe that five-letter word will buy you a Lambo?<br/><br/>
+                           Please accept the Metmask popup to mint an Ethordle NFT for <strong>{statistics.solution}</strong>.  You&apos;ll have a permanent Ethereum blockchain asset to prove your accomplishment!<br/><br/>
+                           Once you&apos;ve minted your NFT, you can put your asset on sale on the Ethordle marketplace.  Maybe that five-letter word will buy you a Lambo?<br/><br/>
                            { initialTokenPrice === 0 ? 
                               <><strong>Minting the token is free</strong>, but you&apos;ll pay a small amount for gas.</> :
                               <>The cost to mint the token is <strong>{initialTokenPrice} eth</strong>, plus gas fees.</>
