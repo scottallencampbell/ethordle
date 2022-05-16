@@ -60,7 +60,7 @@ export const PriceChooser = ({ token, isPriceChooserOpen, setIsPriceChooserOpen,
                <div className='content'>
                   <p>Congratulations, you&apos;re about to offer your NFT for sale on the Ethordle marketplace!</p>
                   <p>Please note that the contract will deduct a <strong>{royaltyRate}% royalty</strong> from the proceeds when your token sells.  At the price below, a sale of this token will net you <strong>{Math.round((newPrice * (100 - royaltyRate) / 100) * 10000) / 10000} ETH</strong>.</p>
-                  <p>Accept the sale price shown below or enter a new, higher value. <span className='minimum-value'>The sale price cannot be less than <strong>{token.price} ETH</strong>.</span></p>
+                  <p>Accept the sale price shown below or enter a new, higher value. <span className='minimum-value'>The sale price cannot be less than <strong>{token.price} eth</strong>.</span></p>
                   <p className='too-many-decimals-alert'>The sale price may not have more than three decimal places.</p>
                   <div className='center'>
                      <input type='number' className='price' min={token.price} onChange={handlePriceChange} value={newPrice}></input>

@@ -28,7 +28,7 @@ export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopu
                </div>              
                <p>Welcome to Ethordle, the NFT-enabled version of the popular Wordle game.</p>
                <p>Your browser is not currently configured to support the Ethereum network.</p>
-               <p>To enable your browser for the Ethereum network, download MetaMask using the button below.</p>
+               <p>To enable your browser for the Ethereum network, download MetaMask using the button below.  The Ethordle contract is deployed on Mainnet, Rinkeby, Ropsten, Goerli, and Kovan.</p>
                <p>Alternatively, you can play Ethordle while disconnected from the blockchain.  In disconnected mode, of course, you will not be able to mint NFTs.</p>
                <div className='buttons'>
                   <span>

@@ -40,7 +40,7 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
                   </div>
                   <hr></hr>  
                   <p>If your browser is connected to the Ethereum network -- and you guess the correct word -- you can mint an NFT for that solution and optionally list your NFT for sale on the Ethordle marketplace.</p>
-                  <p>The current cost to mint an Ethordle NFT is {initialTokenPrice}ETH, plus gas fees.  When you list an NFT on the marketpace, the minimum price is set to {priceEscalationRate - 100}% over the previous transaction value, though you can also increase the list price above that minimum.</p>
+                  <p>The current cost to mint an Ethordle NFT is {initialTokenPrice} eth, plus gas fees.  When you list an NFT on the marketpace, the minimum price is set to {priceEscalationRate - 100}% over the previous transaction value, though you can also increase the list price above that minimum.</p>
                   <p>Please note that the contract will deduct a {royaltyRate}% royalty from the proceeds when your token sells.</p>                               
                </div>
             </div>
