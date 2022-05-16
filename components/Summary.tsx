@@ -1,8 +1,8 @@
-import * as Entities from '../models/entities';
-
 import Popup from 'reactjs-popup';
 import { StaticGridRow } from './StaticGridRow';
 import { useCrypto } from '../contexts/useCrypto';
+
+import * as Entities from '../models/entities';
 
 interface ISummary {
    isSummaryPopupOpen: boolean,
