@@ -9,7 +9,7 @@ interface IStatusBar {
 }
 
 export const StatusBar = ({} : IStatusBar) => {
-   const { account } = useCrypto();
+   const { account, networkName } = useCrypto();
    const { blockchainStatus } = useCrypto();
    const { explorerAddress } = useCrypto();
 
@@ -42,8 +42,11 @@ export const StatusBar = ({} : IStatusBar) => {
                </> : <></>                 
                }
                <a className={`about ${blockchainStatus === Entities.BlockchainStatus.Connected ? 'hide-on-small' : ''} `} onClick={() => setIsIntroductionPopupOpen(true)}>About</a>            
-            </div>            
-            <div className='account hide-on-small'><a onClick={() => window.open(explorerAddress(`address/${account}`))}>{account}</a></div>
+            </div> 
+            { account?.length > 10 ?           
+            <div className='account hide-on-small'><a onClick={() => window.open(explorerAddress(`address/${account}`))}>{networkName} {account.substring(0, 5)}...{account.substring(account.length - 4)}</a></div>
+            : <></>
+            }
             </>           
             : <></> }
          </div>   

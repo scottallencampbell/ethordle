@@ -18,8 +18,9 @@ interface ContextInterface {
    account: string,
    isContractOwner: boolean,
    contract: Contract,
+   networkName: string,
    validateBlockchain: () => Promise<Entities.BlockchainStatus>,   
-   mintToken: (solution: string, guessResults: string[], secondsRequired: number) => Promise<void>,
+   mintToken: (solution: string, guessResults: string[], secondsRequired: number, onStarted: Function, onFinished: Function) => Promise<void>,
    buyToken: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
    transferTokenAsContractOwner: (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => Promise<void>,
    allowTokenSale: (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => Promise<void>,
@@ -27,7 +28,7 @@ interface ContextInterface {
    tokens: Entities.Token[],
    getTokens: () => Promise<Entities.Token[]>,
    updateToken: (token: Entities.Token) => Promise<Entities.Token[]>,
-   explorerAddress: (path: string) => string   
+   explorerAddress: (path: string) => string,
 }
 
 declare let window: any;
@@ -38,6 +39,7 @@ export function CryptoProvider({ children }) {
    const [blockchainStatus, setBlockchainStatus] = useState(Entities.BlockchainStatus.Unknown);
    const [account, setAccount] = useState('');
    const [networkId, setNetworkId] = useState(0);
+   const [networkName, setNetworkName] = useState('Unknown');
    const [contract, setContract] = useState(null);
    const [isContractOwner, setIsContractOwner] = useState(false);
    const [tokens, setTokens] = useLocalStorage('tokens', null as Entities.Token[]);
@@ -111,6 +113,17 @@ export function CryptoProvider({ children }) {
       const web3 = window.web3;
       const accounts = await web3.eth.getAccounts();
       const networkId = await web3.eth.net.getId();
+
+      switch (networkId) {
+         case 1: setNetworkName('Mainnet'); break;
+         case 3: setNetworkName('Ropsten'); break;
+         case 4: setNetworkName('Rinkeby'); break; 
+         case 5: setNetworkName('Goerli'); break;
+         case 42: setNetworkName ('Kovan'); break;
+         case 5777: setNetworkName('Ganache'); break;
+         default: setNetworkName('Unknown'); break;
+      }
+
       const tokenNetworkData = TokenContract.networks[networkId];
 
       setAccount(accounts[0]);
@@ -140,6 +153,7 @@ export function CryptoProvider({ children }) {
    }
 
    const getTokens = async (): Promise<Entities.Token[]> => {
+      console.log('getTokens');
       const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
       let newTokens: Entities.Token[] = [];
       
@@ -207,31 +221,13 @@ export function CryptoProvider({ children }) {
       return newTokens;
    }
 
-   const mintToken = async (solution: string, guessResults: string[], secondsRequired: number) => {
-      const image = await pinFileToIpfs(`/solutions/${solution}.png`);
-
-      const metadata: any = {
-         name: solution,
-         description: `Ethordle NFT - ${solution}`,
-         image: image,
-         attributes: {
-            secondsRequired: secondsRequired,
-            guesses: guessResults
-         }
-      };
-
-      const metadataUrl = await pinJsonToIpfs(metadata);
-      metadata.url = metadataUrl;
-
-      await contract.methods.mint(account, solution, metadataUrl, configSettings.contractPassword).send({ from: account, value: Web3.utils.toWei(initialTokenPrice.toString(), 'ether') });
-      await getTokens();
-   }
-
    const callContractMethod = async (func: Function, token: Entities.Token, onStarted: Function, onFinished: Function) => {
       func()
       .on('transactionHash', (hash) => {
-         token.marketplaceStatus = Entities.TokenStatus.Transacting;
-         updateToken(token);
+         if (token != null) {
+            token.marketplaceStatus = Entities.TokenStatus.Transacting;
+            updateToken(token);
+         }
          onStarted(Entities.TokenStatus.Transacting);
       })
       .on('confirmation', (confirmationNumber, receipt) => {
@@ -246,11 +242,40 @@ export function CryptoProvider({ children }) {
       });
    }
 
+   const mintToken = async (solution: string, guessResults: string[], secondsRequired: number, onStarted: Function, onFinished: Function) => {
+      const image = await pinFileToIpfs(`/solutions/${solution}.png`);
+      const metadata: any = {
+         name: solution,
+         description: `Ethordle NFT - ${solution}`,
+         image: image,
+         attributes: {
+            secondsRequired: secondsRequired,
+            guesses: guessResults
+         }
+      };
+
+      const metadataUrl = await pinJsonToIpfs(metadata);
+      metadata.url = metadataUrl;
+
+      await callContractMethod(() => 
+         contract.methods
+            .mint(account, solution, metadataUrl, configSettings.contractPassword)
+            .send({ from: account, value: Web3.utils.toWei(initialTokenPrice.toString(), 'ether') }),
+         null,
+         onStarted,
+         () => { getTokens(); onFinished(); }
+      );
+
+      await getTokens();
+   }
+
    const buyToken = async (token: Entities.Token, price: number, onStarted: Function, onFinished: Function) => {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
 
       await callContractMethod(() => 
-         contract.methods.buy(token.id, configSettings.contractPassword).send({ from: account, value: wei }),
+         contract.methods
+            .buy(token.id, configSettings.contractPassword)
+            .send({ from: account, value: wei }),
          token,
          onStarted,
          onFinished
@@ -259,7 +284,9 @@ export function CryptoProvider({ children }) {
 
    const transferTokenAsContractOwner = async (token: Entities.Token, toAddress: string, onStarted: Function, onFinished: Function) => {      
       await callContractMethod(() => 
-         contract.methods.transferAsContractOwner(token.id, toAddress).send({ from: account }),
+         contract.methods
+            .transferAsContractOwner(token.id, toAddress)
+            .send({ from: account }),
          token,
          onStarted,
          onFinished
@@ -270,7 +297,9 @@ export function CryptoProvider({ children }) {
       var wei = Web3.utils.toWei(price.toString(), 'ether');
 
       await callContractMethod(() => 
-         contract.methods.createSale(token.id, wei).send({ from: account }),
+         contract.methods
+            .createSale(token.id, wei)
+            .send({ from: account }),
          token,
          onStarted,
          onFinished
@@ -279,7 +308,9 @@ export function CryptoProvider({ children }) {
 
    const preventTokenSale = async (token: Entities.Token, onStarted: Function, onFinished: Function) => {
       await callContractMethod(() => 
-         contract.methods.cancelSale(token.id).send({ from: account }),
+         contract.methods
+            .cancelSale(token.id)
+            .send({ from: account }),
          token,
          onStarted,
          onFinished
@@ -294,6 +325,7 @@ export function CryptoProvider({ children }) {
          case 3: base = 'https://ropsten.etherscan.io/'; break;
          case 4: base = 'https://rinkeby.etherscan.io/'; break;
          case 5: base = 'https://goerli.etherscan.io/'; break;
+         case 42: base = 'https://kovan.etherscan.io/'; break;
          case 5777: base = ''; break;      
          default: base = ''; break;
       }
@@ -315,6 +347,7 @@ export function CryptoProvider({ children }) {
          account,
          isContractOwner,
          contract,
+         networkName,
          validateBlockchain,
          mintToken,
          buyToken,
@@ -333,7 +366,7 @@ export const useCrypto = (): ContextInterface => {
    const { blockchainStatus } = useContext(CryptoContext);
    const { initialTokenPrice, priceEscalationRate, royaltyRate } = useContext(CryptoContext);
    const { account } = useContext(CryptoContext);
-   const { contract } = useContext(CryptoContext);
+   const { contract, networkName } = useContext(CryptoContext);
    const { validateBlockchain } = useContext(CryptoContext);
    const { mintToken, buyToken, transferTokenAsContractOwner } = useContext(CryptoContext);
    const { allowTokenSale, preventTokenSale } = useContext(CryptoContext);
@@ -349,6 +382,7 @@ export const useCrypto = (): ContextInterface => {
       account,
       isContractOwner,
       contract,
+      networkName,
       validateBlockchain,
       mintToken,
       buyToken,

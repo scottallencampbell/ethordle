@@ -148,7 +148,7 @@ const Index = () => {
 
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);
-        
+        console.log(uniqueSolution);
          if (!Cookies.get(introShownCookieName)) {
             setTimeout(() => {
                Cookies.set(introShownCookieName, 'true', { expires: 7, sameSite: 'None', secure: true })
@@ -290,7 +290,10 @@ const Index = () => {
             await showSummary(Entities.GameStatus.Won);
 
             if (blockchainStatus === Entities.BlockchainStatus.Connected) {
-               await mintToken(solution, newGuessResults, secondsRequired);
+               await mintToken(solution, newGuessResults, secondsRequired, 
+                  () => { setIsSummaryPopupOpen(false) }, 
+                  () => { console.log('minting complete'); 
+               });
             }
          }
          else if (currentRowIndex >= maxGuesses - 1) {

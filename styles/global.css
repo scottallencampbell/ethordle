@@ -63,6 +63,7 @@ input[type=number] {
   font-weight: bold;
   font-size: 15px;
   margin-top: 20px;
+  cursor: pointer;
 }
 
 #top-bar #logo {

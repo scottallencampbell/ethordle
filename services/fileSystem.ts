@@ -42,7 +42,7 @@ export const pinJsonToIpfs = async (json: object) : Promise<string> => {
  export const pinFileToIpfs = async (fileUrl: string) : Promise<string> => {
     var ipfsUrl = '';
     const apiUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-
+    
     const data = await downloadFile(fileUrl);
     
     let formData = new FormData();
