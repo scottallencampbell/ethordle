@@ -12,6 +12,7 @@ import { fulfillWithTimeLimit } from '../services/async';
 
 interface ContextInterface {
    blockchainStatus: Entities.BlockchainStatus,
+   transactionStatus: Entities.TransactionStatus,
    initialTokenPrice: number,
    priceEscalationRate: number,
    royaltyRate: number,
@@ -37,6 +38,7 @@ export const CryptoContext = createContext({} as ContextInterface);
 
 export function CryptoProvider({ children }) {
    const [blockchainStatus, setBlockchainStatus] = useState(Entities.BlockchainStatus.Unknown);
+   const [transactionStatus, setTransactionStatus] = useState(Entities.TransactionStatus.Inactive);
    const [account, setAccount] = useState('');
    const [networkId, setNetworkId] = useState(0);
    const [networkName, setNetworkName] = useState('Unknown');
@@ -153,7 +155,6 @@ export function CryptoProvider({ children }) {
    }
 
    const getTokens = async (): Promise<Entities.Token[]> => {
-      console.log('getTokens');
       const contractTokens = await contract.methods.tokens().call() as Entities.Token[];
       let newTokens: Entities.Token[] = [];
       
@@ -228,14 +229,18 @@ export function CryptoProvider({ children }) {
             token.marketplaceStatus = Entities.TokenStatus.Transacting;
             updateToken(token);
          }
+   
+         setTransactionStatus(Entities.TransactionStatus.Active);            
          onStarted(Entities.TokenStatus.Transacting);
       })
       .on('confirmation', (confirmationNumber, receipt) => {
          if (confirmationNumber === 1) {
+            setTransactionStatus(Entities.TransactionStatus.Inactive);
             onFinished();               
          }
       })
       .on('error', (error) => {
+         setTransactionStatus(Entities.TransactionStatus.Error);
          console.log(error);
       })
       .then((receipt) => {                        
@@ -341,6 +346,7 @@ export function CryptoProvider({ children }) {
    return (
       <CryptoContext.Provider value={{
          blockchainStatus,
+         transactionStatus,
          initialTokenPrice,
          priceEscalationRate,
          royaltyRate,
@@ -363,7 +369,7 @@ export function CryptoProvider({ children }) {
 }
 
 export const useCrypto = (): ContextInterface => {
-   const { blockchainStatus } = useContext(CryptoContext);
+   const { blockchainStatus, transactionStatus } = useContext(CryptoContext);
    const { initialTokenPrice, priceEscalationRate, royaltyRate } = useContext(CryptoContext);
    const { account } = useContext(CryptoContext);
    const { contract, networkName } = useContext(CryptoContext);
@@ -376,6 +382,7 @@ export const useCrypto = (): ContextInterface => {
 
    return {
       blockchainStatus,
+      transactionStatus,
       initialTokenPrice,
       priceEscalationRate,
       royaltyRate,

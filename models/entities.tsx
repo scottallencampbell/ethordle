@@ -80,3 +80,9 @@ export enum BlockchainStatus {
    NoGas = 'no-gas',
    ConnectionTimeout = 'connection-timeout'
 }
+
+export enum TransactionStatus {
+   Inactive = 'inactive',
+   Active = 'active',
+   Error = 'error'
+}

@@ -14,6 +14,7 @@ import { ModeChooser } from '../components/ModeChooser';
 import { StatusBar } from '../components/StatusBar';
 import { NoGasAvailable } from '../components/NoGasAvailable';
 import { ConnectionTimeout } from '../components/ConnectionTimeout';
+import { MintingInProgress } from '../components/MintingInProgress';
 
 import * as Entities from '../models/entities';
 import configSettings from '../config.json';
@@ -49,6 +50,7 @@ const startingGrid: Entities.GridTile[][] = Array.apply(null, Array(maxGuesses))
 
 const statisticsCookieName = 'statistics';
 const introShownCookieName = 'intro-shown';
+const hideMinintingInProgressCookieName = 'hide-minting-in-progress';
 const startingTime = new Date().getTime();
 let nullBoolean : boolean | null;
 
@@ -73,7 +75,8 @@ const Index = () => {
    const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(nullBoolean);
    const [isNoGasAvailablePopupOpen, setIsNoGasAvailablePopupOpen] = useState(nullBoolean);
    const [isConnectionTimeoutPopupOpen, setIsConnectionTimeoutPopupOpen] = useState(nullBoolean);
-
+   const [isMintingInProgressPopupOpen, setIsMintingInProgressPopupOpen] = useState(nullBoolean);
+   
    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
       return () => { document.removeEventListener('keydown', handleKeyDown); }
@@ -129,7 +132,8 @@ const Index = () => {
       (async () => {
          if (gameMode !== Entities.GameMode.Unknown) {
             setIsGameModePopupOpen(false);
-         }
+            showIntroductionPopup();
+         } 
       })();
    }, [gameMode]);
 
@@ -142,21 +146,39 @@ const Index = () => {
    }, [isNoGasAvailablePopupOpen]);
 
    useEffect(() => {
+      (async () => {
+         if (isGameModePopupOpen === false) {
+            showIntroductionPopup();
+         }
+      })();
+   }, [isGameModePopupOpen]);
+  
+   useEffect(() => {
       (async () => {    
          if (blockchainStatus === Entities.BlockchainStatus.Unknown) { return; }
          if (solution !== '') { return; }
 
          let uniqueSolution = await chooseSolution();
-         setSolution(uniqueSolution);
-        console.log(uniqueSolution);
-         if (!Cookies.get(introShownCookieName)) {
-            setTimeout(() => {
-               Cookies.set(introShownCookieName, 'true', { expires: 7, sameSite: 'None', secure: true })
-               setIsIntroductionPopupOpen(true);
-            }, 100);
-         }
+         setSolution(uniqueSolution);   
+     
+         console.log(uniqueSolution);
        })();
    }, [blockchainStatus]);
+
+   const showIntroductionPopup = () => {
+      if (isGameModePopupOpen || isIntroductionPopupOpen || isNoGasAvailablePopupOpen) {
+         return;
+      }
+
+      if (!Cookies.get(introShownCookieName)) {
+         setTimeout(() => {
+            Cookies.set(introShownCookieName, 'true', { expires: 7, sameSite: 'None', secure: true })
+            setIsIntroductionPopupOpen(true);
+         }, 250);
+
+         return;
+      }
+   }
 
    const handleKeyDown = (e) => {
       if (gameStatus === Entities.GameStatus.Won || gameStatus === Entities.GameStatus.Lost) {
@@ -287,14 +309,7 @@ const Index = () => {
          setGuessResults(newGuessResults);
 
          if (guess === solution) {
-            await showSummary(Entities.GameStatus.Won);
-
-            if (blockchainStatus === Entities.BlockchainStatus.Connected) {
-               await mintToken(solution, newGuessResults, secondsRequired, 
-                  () => { setIsSummaryPopupOpen(false) }, 
-                  () => { console.log('minting complete'); 
-               });
-            }
+            await handleWin(newGuessResults, secondsRequired);            
          }
          else if (currentRowIndex >= maxGuesses - 1) {
             await showSummary(Entities.GameStatus.Lost);
@@ -302,6 +317,26 @@ const Index = () => {
       }
    }
 
+   const handleWin = async (newGuessResults: string[], secondsRequired: number) => {      
+      await showSummary(Entities.GameStatus.Won);
+
+      if (blockchainStatus === Entities.BlockchainStatus.Connected) {
+         let hideMinintingInProgress = '';
+         try { hideMinintingInProgress = JSON.parse(Cookies.get(hideMinintingInProgressCookieName)); }
+         catch { }
+         
+         await mintToken(solution, newGuessResults, secondsRequired, 
+            () => { 
+               setIsSummaryPopupOpen(false); 
+              
+               if (hideMinintingInProgress.toString() !== 'true') { // why is this necessary?  if not hideMintingInProgrss is boolean?
+                  setTimeout(() => setIsMintingInProgressPopupOpen(true), 1000) 
+               }
+            }, 
+            () => { return; }
+         );
+      }
+   }
    const showSummary = async (newGameStatus: Entities.GameStatus) => {
       let newStatistics: Entities.Statistics;
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
@@ -374,6 +409,7 @@ const Index = () => {
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
          <NoGasAvailable isNoGasAvailablePopupOpen={isNoGasAvailablePopupOpen} setIsNoGasAvailablePopupOpen={setIsNoGasAvailablePopupOpen}></NoGasAvailable>
          <ConnectionTimeout isConnectionTimeoutPopupOpen={isConnectionTimeoutPopupOpen} setIsConnectionTimeoutPopupOpen={setIsConnectionTimeoutPopupOpen}></ConnectionTimeout>
+         <MintingInProgress isMintingInProgressPopupOpen={isMintingInProgressPopupOpen} setIsMintingInProgressPopupOpen={setIsMintingInProgressPopupOpen} hideMinintingInProgressCookieName={hideMinintingInProgressCookieName}></MintingInProgress>
       </>
    )
 }

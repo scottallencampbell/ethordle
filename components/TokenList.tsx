@@ -34,7 +34,7 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
    }, []);
 
    return (    
-      <>
+      <div className='main'>
          <Title title={title}></Title>
          { tokens.length === 0 && !isMarketplace ?        
             <div id='no-tokens' className='vertically-centered hidden-on-load'>
@@ -54,6 +54,6 @@ export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList)
             </div>
          }
          <ModeChooser setGameMode={setGameMode} isGameModePopupOpen={isGameModePopupOpen} setIsGameModePopupOpen={setIsGameModePopupOpen}></ModeChooser>
-      </>
+      </div>
    )
 }

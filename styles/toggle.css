@@ -23,7 +23,7 @@
 }
 
 .toggle-label.is-on {
-  background: #43ABDC;
+  background: #43ABDC !important;
 }
 
 .toggle-label .toggle-button {
@@ -55,6 +55,7 @@
   position: absolute;
   font-size: 14px !important;
   display: block;
+  margin: 0;
 }
 
 .toggle-label p:first-child {
@@ -108,4 +109,36 @@
   left: 55px;
   top: 15px;
   text-transform: uppercase;;
+}
+
+.toggle-small .toggle-label {
+  width: 70px;
+  height: 28px;
+  border-radius: 28px;
+  left: -4px;
+}
+
+.toggle-small .toggle-label .toggle-button {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 24px;
+  transition: 0.2s;
+  background: #fff;
+  box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+}
+
+.toggle-small .toggle-label p {
+  top: 6px;
+}
+
+.toggle-small .toggle-label p:first-child {
+  left: -10px !important;
+}
+
+.toggle-label p:nth-child(2) {
+  right: 15px !important;  
 }

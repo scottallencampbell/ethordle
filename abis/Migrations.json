@@ -665,7 +665,7 @@
   "sourceMap": "69:367:13:-:0;;;94:33;;;-1:-1:-1;;;;;;94:33:13;117:10;94:33;;;69:367;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "69:367:13:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;132:36;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;94:33;;;:::i;:::-;;;;;;;:::i;328:105::-;;;;;;:::i;:::-;;:::i;:::-;;132:36;;;;:::o;94:33::-;;;-1:-1:-1;;;;;94:33:13;;:::o;328:105::-;234:5;;-1:-1:-1;;;;;234:5:13;220:10;:19;204:104;;;;-1:-1:-1;;;204:104:13;;;;;;;:::i;:::-;;;;;;;;;391:24:::1;:36:::0;328:105::o;14:190:14:-;;126:2;114:9;105:7;101:23;97:32;94:2;;;147:6;139;132:22;94:2;-1:-1:-1;175:23:14;;84:120;-1:-1:-1;84:120:14:o;209:203::-;-1:-1:-1;;;;;373:32:14;;;;355:51;;343:2;328:18;;310:102::o;417:415::-;619:2;601:21;;;658:2;638:18;;;631:30;697:34;692:2;677:18;;670:62;-1:-1:-1;;;763:2:14;748:18;;741:49;822:3;807:19;;591:241::o;837:177::-;983:25;;;971:2;956:18;;938:76::o",
   "source": "// SPDX-License-Identifier: MIT\r\npragma solidity >=0.4.22 <0.9.0;\r\n\r\ncontract Migrations {\r\n  address public owner = msg.sender;\r\n  uint public last_completed_migration;\r\n\r\n  modifier restricted() {\r\n    require(\r\n      msg.sender == owner,\r\n      \"This function is restricted to the contract's owner\"\r\n    );\r\n    _;\r\n  }\r\n\r\n  function setCompleted(uint completed) public restricted {\r\n    last_completed_migration = completed;\r\n  }\r\n}\r\n",
-  "sourcePath": "c:\\Dev\\Github\\ethordle\\contracts\\Migrations.sol",
+  "sourcePath": "C:\\Dev\\Github\\ethordle\\contracts\\Migrations.sol",
   "ast": {
     "absolutePath": "project:/contracts/Migrations.sol",
     "exportedSymbols": {
@@ -1086,12 +1086,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0xCD7C74b2737EbeF4f6a45d32c9141fd3d92cbf20",
-      "transactionHash": "0x121760c78fce9163ceac308438d2f5416d0747a701fe1d212f2cc38be05be510"
+      "address": "0x57e1d39CEE93EA551CFf101FA635BE1F6bDF0cc5",
+      "transactionHash": "0x6b230e157eb1db09da952b2f6fade39ee003cfa01dde80cd0648d64fae51b870"
     }
   },
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-05-16T14:38:36.656Z",
+  "updatedAt": "2022-05-17T13:57:47.487Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
