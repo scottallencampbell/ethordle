@@ -9,7 +9,11 @@ interface IModeChooser {
 }
 
 export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopupOpen} : IModeChooser) => {
-   
+   const closePopup = () => {
+      document.getElementsByClassName('popup-overlay')[0].classList.add('fade-away');
+      setTimeout(() => setIsGameModePopupOpen(false), 1000);
+   }
+
    const downloadFile = () => {
       window.location.href = 'https://metamask.io/download/';
    }
@@ -34,7 +38,7 @@ export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopu
                   <span>
                   <button id='install-metamask' className='material-button' role='button' onClick={downloadFile}>Install MetaMask <img src='/metamask-icon.png'></img></button>
                   </span>
-                  <span onClick={() => setIsGameModePopupOpen(false)}>
+                  <span onClick={closePopup}>
                   <button id='play-disconnected' className='material-button' role='button' onClick={playDisconnected}>Play Disconnected <img src='/metamask-icon-disabled.png'></img></button>
                   </span>
                </div>

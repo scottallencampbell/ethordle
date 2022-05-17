@@ -1,0 +1,117 @@
+@media (max-width: 500px) {
+  #token-list .token {
+    zoom: 80%;
+    -moz-transform: scale(.8);
+  }
+}
+
+@media (max-width: 700px) {
+  .main {
+    margin-top: 0 !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #status-bar {
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  #status-bar .hide-on-small {
+    display: none;
+  }
+
+  
+  #status-bar .menu-items a {
+    margin-right: 20px;
+    margin-top: 0;
+  }
+
+  #title {
+    margin-bottom: 0px;
+  }
+
+  #title.very-long .tile-container {
+    width: 33px;
+    min-width: 33px;
+  }
+
+  #title.very-long .tile {
+    width: 33px;
+  }
+  
+  #title .tile-container {
+    width: 35px;
+    min-width: 35px;
+    height: 50px;
+    min-height: 50px !important;
+  }
+
+  #title .tile-container.space {
+    width: 20px !important;
+    min-width: 20px !important;
+  }
+
+  #title .tile {
+    width: 36px;
+    height: 50px;
+  }
+
+  #title .tile .face {
+    font-size: 35px;
+  }
+
+  #keyboard {
+    margin-top: 20px;
+  }
+
+  .keyboard-letter {
+    line-height: 50px;
+    min-width: 33px;
+    height: 50px;
+    font-size: 16px;
+    padding: 0 10px 0 10px;
+    margin: 2px;
+  }
+
+  #grid {
+    -moz-transform: scale(.85);
+    zoom: 85%;
+  }
+
+  #statistics > div {
+    width: 70px;
+  }
+
+  #statistics p {
+    display: block;
+    font-size: 30px;
+    font-weight: bold;
+    margin: 0;
+    height: 35px;
+    width: 100%;
+  }
+  
+  #statistics label {
+    font-size: 11px;
+  }
+
+  .distribution {
+    width: 100%;
+  }
+
+  #intro {
+    -moz-transform: scale(.7);
+    zoom: 70%;
+  }
+  
+  #intro #examples {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  #intro #examples > div {
+    -moz-transform: scale(.5);
+    zoom: 50%;
+  }
+}

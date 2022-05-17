@@ -171,24 +171,6 @@ input[type=number] {
   margin: 0 auto;
 }
 
-#examples {
-  text-align: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-#examples>div {
-  zoom: 70%;
-  -moz-transform: scale(.7);
-  width: 100%;
-  margin: 0 auto;
-}
-
-#examples .tile-container {
-  display: inline-block;
-  min-width: 64px;
-}
-
 .summary-row {
   margin: 0 auto;
   zoom: 50%;
@@ -207,10 +189,32 @@ input[type=number] {
   padding-top: 4px;
 }
 
-#examples .row .tile.correct .face.front,
-#examples .row .tile.incorrect .face.front,
-#examples .row .tile.incorrect-position .face.front {
-  border: solid 1px #000000;
+
+#examples {
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#examples > div {
+  zoom: 70%;
+  -moz-transform: scale(.7);
+  width: 100%;
+  margin: 0 auto;
+}
+
+#examples .tile-container {
+  display: inline-block;
+  min-width: 64px;
+}
+
+#examples .tile {
+  line-height: 68px;
+}
+
+#examples .tile .face {
+  border: solid 1px #000000; 
+  background-color: #ffffff;
 }
 
 @keyframes highlight {
@@ -507,28 +511,27 @@ input[type=number] {
 .flippable .tile.incorrect .front,
 .flippable .tile.incorrect-position .front {
   background-color: #ffffff;
-  border-color: #000000;
+  border: solid 1px #000000;
   color: #000000;
 }
 
 .flippable .tile.correct .back {
-  background-color: #6aaa64;
-  border-color: #6aaa64;
+  background-color: #6aaa64 !important;
+  border-color: #6aaa64 !important;
   color: #ffffff;
 }
 
 .flippable .tile.incorrect-position .back {
-  background-color: #c9b458;
-  border-color: #c9b458;
+  background-color: #c9b458 !important;
+  border-color: #c9b458 !important;
   color: #ffffff;
 }
 
 .flippable .tile.incorrect .back {
-  background-color: #787C7F;
-  border-color: #787C7F;
+  background-color: #787C7F !important;
+  border-color: #787C7F !important;
   color: #ffffff;
 }
-
 
 .flippable#title .tile.correct .back {
   color: #000000 !important;
@@ -671,27 +674,36 @@ body {
   font-size: 40px;
 }
 
-#intro {
-  animation: anvil .05s;
+.modal {
+  animation: anvil .2s;
+}
+
+.popup-overlay.fade-away {
+  opacity: 1;
+  transition: .2s;
+}
+
+.popup-overlay.fade-away {
+  opacity: 0;
 }
 
 @keyframes anvil {
   0% {
     transform: scale(1) translateY(0px);
     opacity: 0;
-    box-shadow: 0 0 0 rgba(241, 241, 241, 0);
+    xbox-shadow: 0 0 0 rgba(241, 241, 241, 0);
   }
 
   10% {
-    transform: scale(0.96) translateY(10px);
+    transform: scale(0.8) translateY(100px);
     opacity: 0;
-    box-shadow: 0 0 0 rgba(241, 241, 241, 0);
+    xbox-shadow: 0 0 0 rgba(241, 241, 241, 0);
   }
 
   100% {
     transform: scale(1) translateY(0px);
     opacity: 1;
-    box-shadow: 0 0 500px rgba(241, 241, 241, 0);
+    xbox-shadow: 0 0 500px rgba(241, 241, 241, 0);
   }
 }
 
@@ -927,115 +939,4 @@ body {
   color: #43ABDC;
   margin-right: 20px;
   margin-top: 22px;
-}
-
-@media (max-width: 700px) {
-  #status-bar {
-    margin-bottom: 15px;
-    position: relative;
-  }
-
-  .main {
-    margin-top: 0 !important;
-  }
-
-  #status-bar .hide-on-small {
-    display: none;
-  }
-
-  #title {
-    margin-bottom: 0px;
-  }
-
-  #title.very-long .tile-container {
-    width: 33px;
-    min-width: 33px;
-  }
-
-  #title.very-long .tile {
-    width: 33px;
-  }
-  
-  #title .tile-container {
-    width: 40px;
-    min-width: 40px;
-    height: 50px;
-    min-height: 50px !important;
-  }
-
-  #title .tile-container.space {
-    width: 20px !important;
-    min-width: 20px !important;
-  }
-
-  #title .tile {
-    width: 36px;
-    height: 50px;
-  }
-
-  #keyboard {
-    margin-top: 20px;
-  }
-
-  #grid {
-    -moz-transform: scale(.9);
-    zoom: 90%;
-  }
-
-  #status-bar .menu-items a {
-    margin-right: 20px;
-    margin-top: 0;
-  }
-
-  .main {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 70px;
-  }
-
-  .keyboard-letter {
-    line-height: 55px;
-    min-width: 33px;
-    height: 55px;
-    margin: 4px;
-    font-size: 16px;
-    padding: 0 10px 0 10px;
-    margin: 2px;
-  }
-
-  #statistics > div {
-    width: 70px;
-  }
-
-  #statistics p {
-    display: block;
-    font-size: 30px;
-    font-weight: bold;
-    margin: 0;
-    height: 35px;
-    width: 100%;
-  }
-  
-  #statistics label {
-    font-size: 11px;
-  }
-
-  .distribution {
-    width: 100%;
-  }
-
-  #intro {
-    -moz-transform: scale(.7);
-    zoom: 70%;
-  }
-  
-  #intro #examples {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  #intro #examples > div {
-    -moz-transform: scale(.5);
-    zoom: 50%;
-  }
 }

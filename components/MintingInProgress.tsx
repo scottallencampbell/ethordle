@@ -12,8 +12,12 @@ interface IMintingInProgressPopupOpen {
 export const MintingInProgress = ({isMintingInProgressPopupOpen, setIsMintingInProgressPopupOpen, hideMinintingInProgressCookieName} : IMintingInProgressPopupOpen) => {  
    const [isHidePopupToggleOn, setIsHidePopupToggleOn] = useState(false);
    
-   const handleToggle = async () => {
-     
+   const closePopup = () => {
+      document.getElementsByClassName('popup-overlay')[0].classList.add('fade-away');
+      setTimeout(() => setIsHidePopupToggleOn(false), 1000);
+   }
+
+   const handleToggle = async () => {     
       if (isHidePopupToggleOn) {
          Cookies.remove(hideMinintingInProgressCookieName, 0);        
       } else {
@@ -28,7 +32,7 @@ export const MintingInProgress = ({isMintingInProgressPopupOpen, setIsMintingInP
          {() => (
             <div id='minting-in-progress' className='modal'>  
             <div className='popup-title'>Minting in progress</div>
-            <a className='close' onClick={() => setIsMintingInProgressPopupOpen(false)}>&times;</a>
+            <a className='close' onClick={closePopup}>&times;</a>
             <div className='content'>                        
                <p>Congratulations!  Your Ethordle NFT is currently being minted on the blockchain.</p>
                <p>The flashing yellow dot on the right side of the status bar indicates that the transaction is in progress.  Once the dot returns to green, your token will appear on the My Tokens page.</p>               

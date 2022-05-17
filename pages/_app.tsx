@@ -2,9 +2,9 @@ import '../styles/global.css';
 import '../styles/tokens.css';
 import '../styles/toggle.css';
 import '../styles/button.css';
+import '../styles/responsive.css';
 
 import { CryptoProvider } from '../contexts/useCrypto';
-import { useEffect } from 'react';
 
 function Ethordle({ Component, pageProps }) {
    

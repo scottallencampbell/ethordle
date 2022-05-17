@@ -13,11 +13,16 @@ interface ISummary {
 export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen } : ISummary) => {
    const { blockchainStatus, initialTokenPrice } = useCrypto();
    
+   const closePopup = () => {
+      document.getElementsByClassName('popup-overlay')[0].classList.add('fade-away');
+      setTimeout(() => setIsSummaryPopupOpen(false), 1000);
+   }
+
    return (
       <Popup modal open={isSummaryPopupOpen} closeOnDocumentClick={false} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (        
             <div id='summary' className='modal'>
-               <a className='close' onClick={() => setIsSummaryPopupOpen(false)}>&times;</a>
+               <a className='close' onClick={closePopup}>&times;</a>
                <div className='content'>
                   <p className='header'>Solution</p>
                   <div className='summary-row'>

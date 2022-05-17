@@ -10,9 +10,8 @@ interface IIntroduction {
 
 export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpen } : IIntroduction) => {
    const { initialTokenPrice, priceEscalationRate, royaltyRate } = useCrypto();
-   
-   useEffect(() => {
-         
+
+   useEffect(() => {         
       if (isIntroductionPopupOpen) {
          setTimeout(() => {
             document.getElementById('intro').classList.add('flippable');
@@ -20,12 +19,17 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
       }      
    }, [isIntroductionPopupOpen]);
 
+   const closePopup = () => {
+      document.getElementsByClassName('popup-overlay')[0].classList.add('fade-away');
+      setTimeout(() => setIsIntroductionPopupOpen(false), 1000);
+   }
+
    return (
       <Popup modal open={isIntroductionPopupOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='intro' className='modal'>
                <div className='popup-title'>Introducing Ethordle</div>
-               <a className='close' onClick={() => setIsIntroductionPopupOpen(false)}>&times;</a>
+               <a className='close' onClick={closePopup}>&times;</a>
                <div className='content'>
                   <p>Welcome to Ethordle, the NFT-enabled version of the popular Wordle game.</p>
                   <p>Each guess must be a vaid five-letter word.  Hit the Enter button to submit your guess. The color of the tiles will change to show how close your guess was to the solution.</p>

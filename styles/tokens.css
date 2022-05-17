@@ -8,13 +8,6 @@
   clear: both;
 }
 
-@media (max-width: 500px) {
-  #token-list .token {
-    zoom: 80%;
-    -moz-transform: scale(.8);
-  }
-}
-
 #token-list:after {
   content: "";
   display: table;
