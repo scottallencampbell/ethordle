@@ -161,7 +161,7 @@ const Index = () => {
          let uniqueSolution = await chooseSolution();
          setSolution(uniqueSolution);   
      
-         console.log(uniqueSolution);
+         // console.log(uniqueSolution);
        })();
    }, [blockchainStatus]);
 

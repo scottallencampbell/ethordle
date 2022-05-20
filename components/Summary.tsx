@@ -36,7 +36,7 @@ export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen 
                            Please accept the Metmask popup to mint an Ethordle NFT for <strong>{statistics.solution}</strong>.  You&apos;ll have a permanent Ethereum blockchain asset to prove your accomplishment!<br/><br/>
                            Once you&apos;ve minted your NFT, you can put your asset on sale on the Ethordle marketplace.  Maybe that five-letter word will buy you a Lambo?<br/><br/>
                            { initialTokenPrice === 0 ? 
-                              <><strong>Minting the token is free</strong>, but you&apos;ll pay a small amount for gas.</> :
+                              <><strong>Minting the token is free</strong>, but you&apos;ll pay a certain amount of eth for gas.  Minting ERC721 tokens can be expensive, and the gas price will vary throughout the day.</> :
                               <>The cost to mint the token is <strong>{initialTokenPrice} eth</strong>, plus gas fees.</>
                            }
                         </div>

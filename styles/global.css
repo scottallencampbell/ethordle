@@ -1,14 +1,18 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
+html,
 body {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
   width: 100%;
   height: 100%;
-  text-align: center;
-  background-color: #ffffff;
 }
 
-html {
-  height: 100%;
+body {
+  text-align: center;
+  background-color: #ffffff;
 }
 
 input[type=number]::-webkit-inner-spin-button,
@@ -212,10 +216,12 @@ input[type=number] {
   line-height: 68px;
 }
 
-#examples .tile .face {
+#examples .tile .face,
+#status-bar .tile .face {
   border: solid 1px #000000; 
   background-color: #ffffff;
 }
+
 
 @keyframes highlight {
   0% {
@@ -511,7 +517,8 @@ input[type=number] {
 .flippable .tile.incorrect .front,
 .flippable .tile.incorrect-position .front {
   background-color: #ffffff;
-  border: solid 1px #000000;
+  border-color: #000000;
+  border-style: solid;
   color: #000000;
 }
 
@@ -548,6 +555,10 @@ input[type=number] {
   border-color: #cccccc;
 }
 
+.no-top-margin {
+  margin-top: 0 !important;
+}
+
 #summary .face {
   border: none !important;
 }
@@ -560,6 +571,7 @@ input[type=number] {
 
 #summary .face.back {
   color: #ffffff !important;
+  line-height: 62px;
 }
 
 #keyboard {
@@ -607,14 +619,6 @@ input[type=number] {
   color: #ffffff;
 }
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
-}
-
 .popup-title {
   text-align: center;
   font-weight: bold;
@@ -622,6 +626,10 @@ body {
   margin-top: 10px;
   margin-bottom: 30px;
   text-transform: uppercase;
+}
+
+.popup-title strong {
+  color: #43ABDC;
 }
 
 .popup-content {

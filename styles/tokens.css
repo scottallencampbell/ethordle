@@ -473,11 +473,6 @@
   font-weight: bold;
 }
 
-#price-chooser strong,
-#transfer-token strong {
-  color: #43ABDC;
-}
-
 #transfer-token .address {
   color: #555555;
   text-align: center;

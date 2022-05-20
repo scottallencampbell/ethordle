@@ -81,7 +81,8 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         uint256 minimumPrice_, 
         uint256 royaltyRate_, 
         uint256 priceEscalationRate_, 
-        string memory password_) 
+        string memory password_,
+        address beneficiary_) 
     ERC721(_name, _symbol) {
         _currentTokenId = 0;
         _initialPrice = initialPrice_;
@@ -89,7 +90,7 @@ contract EthordleToken is ERC721, ReentrancyGuard, Ownable {
         _royaltyRate = royaltyRate_;
         _priceEscalationRate = priceEscalationRate_;
         _password = password_;
-        _beneficiary = owner();
+        _beneficiary = beneficiary_;
     }
     
     modifier requirePassword(string memory password_) {

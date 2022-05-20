@@ -15,7 +15,7 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
       if (isIntroductionPopupOpen) {
          setTimeout(() => {
             document.getElementById('intro').classList.add('flippable');
-         }, 500);
+         }, 1000);
       }      
    }, [isIntroductionPopupOpen]);
 
@@ -42,13 +42,17 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
                      <StaticGridRow word={'SPORK'} statusMap={'  -  '}></StaticGridRow>
                      <p>The letter <b>O</b> is not in the solution at any location.</p>
                   </div>
-                  <hr></hr>  
-                  <p>If your browser is connected to the Ethereum network -- and you guess the correct word -- you can mint an NFT for that solution and optionally list your NFT for sale on the Ethordle marketplace.</p>
-                  <p>The current cost to mint an Ethordle NFT is {initialTokenPrice} eth, plus gas fees.  When you list an NFT on the marketpace, the minimum price is set to {priceEscalationRate - 100}% over the previous transaction value, though you can also increase the list price above that minimum.</p>
-                  <p>Please note that the contract will deduct a {royaltyRate}% royalty from the proceeds when your token sells.</p>                               
+                  <hr className='no-top-margin'></hr>  
+                  <p>If your browser is connected to the Ethereum network -- and you guess the correct word -- you can mint an NFT for that solution and even trade it on the Ethordle token marketplace.</p>
+                  <p>{ initialTokenPrice === 0 ? 
+                     <><strong>Minting the token is free</strong>, but you&apos;ll pay a certain amount of eth for gas.  Minting ERC721 tokens can be expensive, and the gas price will vary throughout the day.</> :
+                     <>The cost to mint the token is <strong>{initialTokenPrice} eth</strong>, plus gas fees.</>
+                  }  If you choose to sell your NFT on the marketplace, <strong>the minimum price is {priceEscalationRate - 100}% above the previous transaction value</strong>, though you can also increase the list price above that minimum.</p>
+                  <p>Please note that <strong>this contract will deduct a {royaltyRate}% royalty</strong> from the proceeds when your token sells.</p>                               
                </div>
             </div>
          )}
       </Popup>
    )
 }
+

@@ -43,7 +43,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee, beneficia
     }
 
     beforeEach(async function () {
-        this.contract = await EthordleToken.new(name, symbol, initialPrice, minimumPrice, royaltyRate, priceEscalationRate, password, { from: owner });
+        this.contract = await EthordleToken.new(name, symbol, initialPrice, minimumPrice, royaltyRate, priceEscalationRate, password, owner, { from: owner });
     });
 
     it('has metadata', async function () {
@@ -369,7 +369,7 @@ contract('EthordleToken', function ([owner, winner, other, transferee, beneficia
     });
 
     it('allows zero-value initial price', async function () {                      
-        const newContract = await EthordleToken.new(name, symbol, 0, minimumPrice, royaltyRate, priceEscalationRate, password, { from: owner });
+        const newContract = await EthordleToken.new(name, symbol, 0, minimumPrice, royaltyRate, priceEscalationRate, password, owner, { from: owner });
 
         const initialPrice = await newContract.initialPrice();
         expect(initialPrice.toString()).is.a.bignumber.that.equals(web3.utils.toWei(new BN(0), 'ether'));
