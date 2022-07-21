@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { useCrypto } from '../contexts/useCrypto';
 import Link from 'next/link';
@@ -8,17 +9,19 @@ import * as Entities from '../models/entities';
 interface IStatusBar {  
 }
 
+let nullBoolean : boolean | null;
+
 export const StatusBar = ({} : IStatusBar) => {
    const { account, networkName } = useCrypto();
    const { blockchainStatus, transactionStatus } = useCrypto();
    const { explorerAddress } = useCrypto();
 
-   const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(false);
+   const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(nullBoolean);
    const [path, setPath] = useState('');
 
    useEffect(() => {
       setTimeout(() => {
-         document.getElementById('logo').classList.add('flippable');
+         document.getElementById('logo')?.classList.add('flippable');
       }, 1000);         
       
       setPath(window.location.href);

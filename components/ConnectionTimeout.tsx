@@ -2,8 +2,8 @@ import React, { useRef } from 'react';
 import Popup from 'reactjs-popup';
 
 interface IConnectionTimeout {   
-   isConnectionTimeoutPopupOpen: boolean,
-   setIsConnectionTimeoutPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+   isConnectionTimeoutPopupOpen: boolean | null,
+   setIsConnectionTimeoutPopupOpen: React.Dispatch<React.SetStateAction<boolean | null>>
 }
 
 export const ConnectionTimeout = ({isConnectionTimeoutPopupOpen, setIsConnectionTimeoutPopupOpen} : IConnectionTimeout) => {
@@ -13,7 +13,7 @@ export const ConnectionTimeout = ({isConnectionTimeoutPopupOpen, setIsConnection
    }
 
    return (
-      <Popup modal open={isConnectionTimeoutPopupOpen} closeOnDocumentClick={true} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isConnectionTimeoutPopupOpen ?? false} closeOnDocumentClick={true} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='connection-timeout' className='modal'>  
             <div className='popup-title'>Metamask failed to open</div>

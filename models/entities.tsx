@@ -9,13 +9,17 @@ export type KeyboardLetter = {
    sequence?: number
 }
 
-export type Statistics = {
-   gamesPlayed: number,
-   gamesWon: number,
-   streak: number,
-   guesses: number[],
-   solution: string,
-   averageGuesses?: number
+export class Statistics {
+   public gamesPlayed: number;
+   public gamesWon: number;
+   public streak: number;
+   public guesses: number[];
+   public solution: string;
+   public averageGuesses?: number;
+
+   public constructor(init?:Partial<Statistics>) {
+      Object.assign(this, init);
+   }
 }
 
 export class Token {

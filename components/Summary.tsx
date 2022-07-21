@@ -1,3 +1,4 @@
+import React from 'react';
 import Popup from 'reactjs-popup';
 import { StaticGridRow } from './StaticGridRow';
 import { useCrypto } from '../contexts/useCrypto';
@@ -5,8 +6,8 @@ import { useCrypto } from '../contexts/useCrypto';
 import * as Entities from '../models/entities';
 
 interface ISummary {
-   isSummaryPopupOpen: boolean,
-   setIsSummaryPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+   isSummaryPopupOpen: boolean | null,
+   setIsSummaryPopupOpen: React.Dispatch<React.SetStateAction<boolean | null>>
    statistics: Entities.Statistics
 }
 
@@ -19,7 +20,7 @@ export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen 
    }
 
    return (
-      <Popup modal open={isSummaryPopupOpen} closeOnDocumentClick={false} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isSummaryPopupOpen ?? false} closeOnDocumentClick={false} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (        
             <div id='summary' className='modal'>
                <a className='close' onClick={closePopup}>&times;</a>
@@ -62,26 +63,28 @@ export const Summary = ({ statistics, isSummaryPopupOpen, setIsSummaryPopupOpen 
                         <label>Ave guesses</label>
                      </div>                 
                   </div>
-                  <p className='header'>Winning guess distribution</p>
-                  <div id='distribution' className='distribution closed'>
-                     {
-                        statistics.guesses.map((guess, i) => {
-                           const percent = Math.round(100 * guess / statistics.gamesWon);
-                           return (
-                              <div key={`bar-${i}`} className='chart'>
-                                 <span className='number'>{i+1}</span>
-                                 <ul className='horiz'>
-                                    <li className='bar' style={{ width: percent + '%' }}>
-                                       <span className={`label ${percent < 14 ? 'label-outside' : ''}`}>
-                                          {percent}%
-                                       </span>                                      
-                                    </li>      
-                                 </ul>
-                              </div>                                              
-                           )
-                        })
-                     }                     
-                  </div>
+                  <div className={statistics.gamesWon === 0 ? 'hidden' : ''}>
+                     <p className='header'>Winning guess distribution</p>
+                     <div id='distribution' className='distribution closed'>
+                        {
+                           statistics.guesses.map((guess, i) => {
+                              const percent = Math.round(100 * guess / statistics.gamesWon);
+                              return (
+                                 <div key={`bar-${i}`} className='chart'>
+                                    <span className='number'>{i+1}</span>
+                                    <ul className='horiz'>
+                                       <li className='bar' style={{ width: percent + '%' }}>
+                                          <span className={`label ${percent < 14 ? 'label-outside' : ''}`}>
+                                             {percent}%
+                                          </span>                                      
+                                       </li>      
+                                    </ul>
+                                 </div>                                              
+                              )
+                           })
+                        }                     
+                     </div>  
+                  </div>                
                </div>
             </div>
          )}

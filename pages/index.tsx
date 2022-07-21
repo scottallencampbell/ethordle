@@ -52,6 +52,19 @@ const statisticsCookieName = 'statistics';
 const introShownCookieName = 'intro-shown';
 const hideMinintingInProgressCookieName = 'hide-minting-in-progress';
 const startingTime = new Date().getTime();
+const startingStatistics = new Entities.Statistics({gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [] as number[], solution: ''});
+
+/*
+export type Statistics = {
+   gamesPlayed: number,
+   gamesWon: number,
+   streak: number,
+   guesses: number[],
+   solution: string,
+   averageGuesses?: number
+}
+*/
+
 let nullBoolean : boolean | null;
 
 const Index = () => {
@@ -67,9 +80,9 @@ const Index = () => {
    const [currentRowIndex, setCurrentRowIndex] = useState(0);
    const [currentTileIndex, setCurrentTileIndex] = useState(0);
    const [solution, setSolution] = useState('');
-   const [statistics, setStatistics] = useState({ gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: [], solution: '' });
+   const [statistics, setStatistics] = useState<Entities.Statistics>(startingStatistics);
    const [gameStatus, setGameStatus] = useState(Entities.GameStatus.Started);
-   const [guessResults, setGuessResults] = useState([]);
+   const [guessResults, setGuessResults] = useState<string[]>([]);
    const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(nullBoolean);
    const [isIntroductionPopupOpen, setIsIntroductionPopupOpen] = useState(nullBoolean);
    const [isSummaryPopupOpen, setIsSummaryPopupOpen] = useState(nullBoolean);
@@ -259,7 +272,7 @@ const Index = () => {
          for (const tile of row) {
             tile.status = Entities.TileStatus.Error;
          }
-         return [false, null];
+         return [false, ''];
       }
       else {
          for (const [i, tile] of row.entries()) {
@@ -338,11 +351,11 @@ const Index = () => {
       }
    }
    const showSummary = async (newGameStatus: Entities.GameStatus) => {
-      let newStatistics: Entities.Statistics;
+      let newStatistics: Entities.Statistics | null = null;
       try { newStatistics = JSON.parse(Cookies.get(statisticsCookieName)); }
       catch { }
 
-      if (!newStatistics) {
+      if (newStatistics == null) {
          newStatistics = { gamesPlayed: 0, gamesWon: 0, streak: 0, guesses: new Array(maxGuesses).fill(0), averageGuesses: 0.0, solution: '' };
       }
 
@@ -376,8 +389,8 @@ const Index = () => {
       }, 1500);
 
       setTimeout(() => {
-         document.getElementById('summary').classList.add('flippable');
-         document.getElementById('distribution').classList.remove('closed');
+         document.getElementById('summary')?.classList.add('flippable');
+         document.getElementById('distribution')?.classList.remove('closed');
       }, 1800);
    }
 
@@ -391,6 +404,8 @@ const Index = () => {
             return keyboardLetter[0];
          }
       }
+
+      return keyboardLetter;
    }
 
    return (

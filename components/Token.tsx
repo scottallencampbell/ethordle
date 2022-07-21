@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { Toggle } from './Toggle';
 import { PriceChooser } from '../components/PriceChooser';

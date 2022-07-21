@@ -1,3 +1,4 @@
+import React from 'react';
 import * as Entities from '../models/entities';
 
 interface IGrid {

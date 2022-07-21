@@ -4,8 +4,8 @@ import Popup from 'reactjs-popup';
 import { Toggle } from './Toggle';
 
 interface IMintingInProgressPopupOpen {   
-   isMintingInProgressPopupOpen: boolean,
-   setIsMintingInProgressPopupOpen: React.Dispatch<React.SetStateAction<boolean>>,
+   isMintingInProgressPopupOpen: boolean | null,
+   setIsMintingInProgressPopupOpen: React.Dispatch<React.SetStateAction<boolean | null>>,
    hideMinintingInProgressCookieName: string
 }
 
@@ -28,7 +28,7 @@ export const MintingInProgress = ({isMintingInProgressPopupOpen, setIsMintingInP
    }
 
    return (
-      <Popup modal open={isMintingInProgressPopupOpen} closeOnDocumentClick={true} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isMintingInProgressPopupOpen ?? false} closeOnDocumentClick={true} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='minting-in-progress' className='modal'>  
             <div className='popup-title'>Minting in progress</div>

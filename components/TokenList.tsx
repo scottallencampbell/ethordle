@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { ModeChooser } from './ModeChooser';
 import { Title } from './Title';
@@ -13,11 +14,13 @@ interface ITokenList {
    account: string
 }
 
+let nullBoolean : boolean | null;
+
 export const TokenList = ({ isMarketplace, title, tokens, account }: ITokenList) => {
 
    const { blockchainStatus, validateBlockchain } = useCrypto();
    const [gameMode, setGameMode] = useState(Entities.GameMode.Unknown);
-   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(false);
+   const [isGameModePopupOpen, setIsGameModePopupOpen] = useState(nullBoolean);
 
    useEffect(() => {
       setTimeout(() => {

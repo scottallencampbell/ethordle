@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import { StaticGridRow } from './StaticGridRow';
 
@@ -8,7 +9,7 @@ interface ITitle {
 export const Title = ({ title } : ITitle) => {
    useEffect(() => {
       setTimeout(() => {
-            document.getElementById('title').classList.add('flippable');
+            document.getElementById('title')?.classList.add('flippable');
          }, 100);
       }, [])
 

@@ -4,8 +4,8 @@ import * as Entities from '../models/entities';
 
 interface IModeChooser {   
    setGameMode: React.Dispatch<React.SetStateAction<Entities.GameMode>>,
-   isGameModePopupOpen: boolean,
-   setIsGameModePopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+   isGameModePopupOpen: boolean | null,
+   setIsGameModePopupOpen: React.Dispatch<React.SetStateAction<boolean | null>>
 }
 
 export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopupOpen} : IModeChooser) => {
@@ -23,7 +23,7 @@ export const ModeChooser = ({setGameMode, isGameModePopupOpen, setIsGameModePopu
    }
 
    return (
-      <Popup modal open={isGameModePopupOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isGameModePopupOpen ?? false} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='mode-chooser' className='modal'>  
             <div className='content'>

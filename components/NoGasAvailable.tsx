@@ -3,8 +3,8 @@ import Popup from 'reactjs-popup';
 import { useCrypto } from '../contexts/useCrypto';
 
 interface INoGasAvailable {   
-   isNoGasAvailablePopupOpen: boolean,
-   setIsNoGasAvailablePopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+   isNoGasAvailablePopupOpen: boolean | null,
+   setIsNoGasAvailablePopupOpen: React.Dispatch<React.SetStateAction<boolean | null>>
 }
 
 export const NoGasAvailable = ({isNoGasAvailablePopupOpen, setIsNoGasAvailablePopupOpen} : INoGasAvailable) => {
@@ -16,7 +16,7 @@ export const NoGasAvailable = ({isNoGasAvailablePopupOpen, setIsNoGasAvailablePo
    }
 
    return (
-      <Popup modal open={isNoGasAvailablePopupOpen} closeOnDocumentClick={true} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isNoGasAvailablePopupOpen ?? false} closeOnDocumentClick={true} closeOnEscape={true} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='no-gas-available' className='modal'>  
             <div className='popup-title'>No gas available</div>

@@ -1,11 +1,12 @@
+import React from 'react';
 import { useEffect } from 'react';
 import Popup from 'reactjs-popup';
 import { useCrypto } from '../contexts/useCrypto';
 import { StaticGridRow } from './StaticGridRow'
 
 interface IIntroduction {   
-   isIntroductionPopupOpen: boolean,
-   setIsIntroductionPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+   isIntroductionPopupOpen: boolean | null,
+   setIsIntroductionPopupOpen: React.Dispatch<React.SetStateAction<boolean | null>>
 }
 
 export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpen } : IIntroduction) => {
@@ -14,7 +15,7 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
    useEffect(() => {         
       if (isIntroductionPopupOpen) {
          setTimeout(() => {
-            document.getElementById('intro').classList.add('flippable');
+            document.getElementById('intro')?.classList.add('flippable');
          }, 1000);
       }      
    }, [isIntroductionPopupOpen]);
@@ -25,7 +26,7 @@ export const Introduction = ({isIntroductionPopupOpen, setIsIntroductionPopupOpe
    }
 
    return (
-      <Popup modal open={isIntroductionPopupOpen} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
+      <Popup modal open={isIntroductionPopupOpen ?? false} closeOnDocumentClick={false} closeOnEscape={false} contentStyle={{ maxWidth: '600px', width: '90%' }} >
          {() => (
             <div id='intro' className='modal'>
                <div className='popup-title'>Introducing Ethordle</div>
